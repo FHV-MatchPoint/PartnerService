@@ -1,4 +1,4 @@
-package at.fhv.matchpoint;
+package at.fhv.matchpoint.partnerservice;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

@@ -1,4 +1,4 @@
-package at.fhv.matchpoint;
+package at.fhv.matchpoint.partnerservice;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
