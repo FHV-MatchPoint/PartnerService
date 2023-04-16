@@ -5,43 +5,61 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import at.fhv.matchpoint.partnerservice.domain.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.event.Event;
 import at.fhv.matchpoint.partnerservice.event.EventRepository;
 import at.fhv.matchpoint.partnerservice.event.RequestAcceptedEvent;
 import at.fhv.matchpoint.partnerservice.event.RequestCreatedEvent;
 
-@Path("/")
+@Path("partnerRequest")
 public class GreetingResource {
 
     @Inject
     EventRepository eventRepository;
 
     @GET
+    @Path("create")
     @Produces(MediaType.TEXT_PLAIN)
-    public String hello() {
-        Event ev1 = new RequestAcceptedEvent();
-        Event ev2 = new RequestCreatedEvent();
-        eventRepository.persist(ev1);
-        eventRepository.persist(ev2);
-        System.out.println(eventRepository.count());
-        return "Hello from RESTEasy Reactive";
+    public Long create() {
+        Event event = new RequestCreatedEvent();
+        eventRepository.persist(event);
+        return eventRepository.count();
     }
 
     @GET
-    @Path("list")
+    @Path("accept")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Long accept() {
+        Event event = new RequestAcceptedEvent();
+        eventRepository.persist(event);
+        return eventRepository.count();
+    }
+
+    @GET
+    @Path("events")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Event> events(){
         return eventRepository.listAll();
     }
 
     @GET
-    @Path("test")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String test(){
-        RequestCreatedEvent ev = eventRepository.find( "ownerId", "Markomannen").firstResult();
-        return ev.ownerId;
+    @Path("{partnerRequestId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PartnerRequest getPartnerRequestById(@PathParam(value = "partnerRequestId") String partnerRequestId){
+        PartnerRequest partnerRequest = new PartnerRequest();
+        for (Event event : eventRepository.find( "aggregateId", partnerRequestId).list()) {
+            if (event instanceof RequestCreatedEvent){
+                partnerRequest.apply((RequestCreatedEvent) event);
+            }
+            else if (event instanceof RequestAcceptedEvent){
+                partnerRequest.apply((RequestAcceptedEvent) event);
+            }            
+        }
+        return partnerRequest;
     }
+
 }

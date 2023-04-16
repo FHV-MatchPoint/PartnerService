@@ -21,5 +21,11 @@ public abstract class Event {
     public LocalDateTime createdAt;
     public String aggregateType;
     public String aggregateId;
+
+    public Event(LocalDateTime createdAt, String aggregateType, String aggregateId){
+        this.createdAt = createdAt;
+        this.aggregateType = aggregateType;
+        this.aggregateId = aggregateId;
+    }
     
 }
