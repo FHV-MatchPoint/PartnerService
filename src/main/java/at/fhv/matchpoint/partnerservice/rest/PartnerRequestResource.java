@@ -1,4 +1,4 @@
-package at.fhv.matchpoint.partnerservice;
+package at.fhv.matchpoint.partnerservice.rest;
 
 import java.util.List;
 
