@@ -2,6 +2,7 @@ package at.fhv.matchpoint.partnerservice.event;
 
 import java.time.LocalDateTime;
 
+import at.fhv.matchpoint.partnerservice.domain.PartnerRequestVisitor;
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 import org.bson.types.ObjectId;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -27,5 +28,7 @@ public abstract class Event {
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
     }
+
+    public abstract void accept(PartnerRequestVisitor v);
     
 }

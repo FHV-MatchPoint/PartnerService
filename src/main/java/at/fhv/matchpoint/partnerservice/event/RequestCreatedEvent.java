@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import at.fhv.matchpoint.partnerservice.domain.PartnerRequestVisitor;
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 
 import io.quarkus.mongodb.panache.common.MongoEntity;
@@ -29,5 +30,9 @@ public class RequestCreatedEvent extends Event {
         this.startTime = LocalTime.NOON;
         this.endTime = LocalTime.MIDNIGHT;
     }
-    
+
+    @Override
+    public void accept(PartnerRequestVisitor v) {
+        v.visit(this);
+    }
 }

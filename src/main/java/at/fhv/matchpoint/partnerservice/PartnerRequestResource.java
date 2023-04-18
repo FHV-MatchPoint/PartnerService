@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import at.fhv.matchpoint.partnerservice.domain.PartnerRequest;
+import at.fhv.matchpoint.partnerservice.domain.PartnerRequestVisitor;
 import at.fhv.matchpoint.partnerservice.event.Event;
 import at.fhv.matchpoint.partnerservice.event.EventRepository;
 import at.fhv.matchpoint.partnerservice.event.RequestAcceptedEvent;
@@ -52,12 +53,19 @@ public class PartnerRequestResource {
     public PartnerRequest getPartnerRequestById(@PathParam(value = "partnerRequestId") String partnerRequestId){
         PartnerRequest partnerRequest = new PartnerRequest();
         for (Event event : eventRepository.find( "aggregateId", partnerRequestId).list()) {
-            if (event instanceof RequestCreatedEvent){
-                partnerRequest.apply((RequestCreatedEvent) event);
-            }
-            else if (event instanceof RequestAcceptedEvent){
-                partnerRequest.apply((RequestAcceptedEvent) event);
-            }            
+
+            event.accept(new PartnerRequestVisitor() {
+
+                @Override
+                public void visit(RequestAcceptedEvent event) {
+                    partnerRequest.apply(event);
+                }
+
+                @Override
+                public void visit(RequestCreatedEvent event) {
+                    partnerRequest.apply(event);
+                }
+            });
         }
         return partnerRequest;
     }
