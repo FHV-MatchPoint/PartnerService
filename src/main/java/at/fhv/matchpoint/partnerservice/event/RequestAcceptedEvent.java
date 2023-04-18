@@ -11,13 +11,13 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 @BsonDiscriminator
 public class RequestAcceptedEvent extends Event {
 
-    public String parnterId;
+    public String partnerId;
     public LocalTime startTime;
     public LocalTime endTime;
 
     public RequestAcceptedEvent(){
         super(LocalDateTime.now(), "PartnerRequest", "1");
-        this.parnterId = "Helvetier";
+        this.partnerId = "Helvetier";
         this.startTime = LocalTime.now();
         this.endTime = LocalTime.MIDNIGHT;
     }

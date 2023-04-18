@@ -10,7 +10,7 @@ public class PartnerRequest {
 
     private String partnerRequestId;
     private String ownerId;
-    private String parnterId;
+    private String partnerId;
     private String clubId;
     private LocalDate date;
     private LocalTime startTime;
@@ -24,7 +24,7 @@ public class PartnerRequest {
             LocalTime startTime, LocalTime endTime, RequestState state) {
         this.partnerRequestId = partnerRequestId;
         this.ownerId = ownerId;
-        this.parnterId = parnterId;
+        this.partnerId = parnterId;
         this.clubId = clubId;
         this.date = date;
         this.startTime = startTime;
@@ -40,8 +40,8 @@ public class PartnerRequest {
         return ownerId;
     }
 
-    public String getParnterId() {
-        return parnterId;
+    public String getPartnerId() {
+        return partnerId;
     }
 
     public String getClubId() {
@@ -83,7 +83,7 @@ public class PartnerRequest {
     }
 
     public PartnerRequest apply(RequestAcceptedEvent event){
-        this.parnterId = event.parnterId;
+        this.partnerId = event.partnerId;
         this.startTime = event.startTime;
         this.endTime = event.endTime;
         this.state = RequestState.ACCEPTED;
