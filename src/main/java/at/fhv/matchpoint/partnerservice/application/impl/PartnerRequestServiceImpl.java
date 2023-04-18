@@ -12,9 +12,7 @@ import at.fhv.matchpoint.partnerservice.event.RequestCreatedEvent;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.validation.Valid;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @ApplicationScoped
@@ -24,7 +22,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     EventRepository eventRepository;
 
     @Override
-    public PartnerRequest createPartnerRequest(@Valid CreatePartnerRequestCommand createPartnerRequestCommand) {
+    public PartnerRequest createPartnerRequest(CreatePartnerRequestCommand createPartnerRequestCommand) {
 //        this.verifyCreateRequest();
         PartnerRequest partnerRequest = new PartnerRequest();
         RequestCreatedEvent event = partnerRequest.process(createPartnerRequestCommand);
@@ -37,7 +35,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     }
 
     @Override
-    public PartnerRequest acceptPartnerRequest(@Valid AcceptPartnerRequestCommand acceptPartnerRequestCommand) {
+    public PartnerRequest acceptPartnerRequest(AcceptPartnerRequestCommand acceptPartnerRequestCommand) {
 //        create AcceptPartnerRequestCommand
         PartnerRequest partnerRequest = new PartnerRequest();
 //        for (Event event: eventRepository.findAll().list()
@@ -49,12 +47,12 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     }
 
     @Override
-    public PartnerRequest updatePartnerRequest(@Valid UpdatePartnerRequestCommand updatePartnerRequestCommand) {
+    public PartnerRequest updatePartnerRequest(UpdatePartnerRequestCommand updatePartnerRequestCommand) {
         return null;
     }
 
     @Override
-    public PartnerRequest cancelPartnerRequest(@Valid CancelPartnerRequestCommand cancelPartnerRequestCommand) {
+    public PartnerRequest cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand) {
         return null;
     }
 

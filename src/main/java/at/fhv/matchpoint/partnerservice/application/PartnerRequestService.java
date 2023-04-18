@@ -8,15 +8,16 @@ import at.fhv.matchpoint.partnerservice.domain.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.event.Event;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
+
+import javax.validation.Valid;
 
 public interface PartnerRequestService {
 
-    PartnerRequest createPartnerRequest(CreatePartnerRequestCommand createPartnerRequestCommand);
-    PartnerRequest acceptPartnerRequest(AcceptPartnerRequestCommand acceptPartnerRequestCommand);
-    PartnerRequest updatePartnerRequest(UpdatePartnerRequestCommand updatePartnerRequestCommand);
-    PartnerRequest cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand);
+    PartnerRequest createPartnerRequest(@Valid CreatePartnerRequestCommand createPartnerRequestCommand);
+    PartnerRequest acceptPartnerRequest(@Valid AcceptPartnerRequestCommand acceptPartnerRequestCommand);
+    PartnerRequest updatePartnerRequest(@Valid UpdatePartnerRequestCommand updatePartnerRequestCommand);
+    PartnerRequest cancelPartnerRequest(@Valid CancelPartnerRequestCommand cancelPartnerRequestCommand);
     List<Event> getEvents(String memberId, String clubId, LocalDate from, LocalDate to);
 
 }
