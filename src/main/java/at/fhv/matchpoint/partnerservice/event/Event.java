@@ -20,11 +20,11 @@ public abstract class Event {
 
     public ObjectId eventId;
     public LocalDateTime createdAt;
-    public String aggregateType;
+    public AggregateType aggregateType;
     public String aggregateId;
 
-    public Event(LocalDateTime createdAt, String aggregateType, String aggregateId){
-        this.createdAt = createdAt;
+    public Event(AggregateType aggregateType, String aggregateId){
+        this.createdAt = LocalDateTime.now();
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
     }

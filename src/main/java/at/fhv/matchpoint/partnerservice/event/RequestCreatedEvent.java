@@ -3,7 +3,9 @@ package at.fhv.matchpoint.partnerservice.event;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.UUID;
 
+import at.fhv.matchpoint.partnerservice.command.CreatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.PartnerRequestVisitor;
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 
@@ -13,7 +15,6 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 @BsonDiscriminator
 public class RequestCreatedEvent extends Event {
 
-    public String partnerRequestId;
     public String ownerId;
     public String tennisClubId;
     public LocalDate date;
@@ -21,14 +22,17 @@ public class RequestCreatedEvent extends Event {
     public LocalTime endTime;
 
 
-    public RequestCreatedEvent(){
-        super(LocalDateTime.now(), "PartnerRequest", "1");
-        this.partnerRequestId = aggregateId;
-        this.ownerId = "Markomannen";
-        this.tennisClubId = "Panther";
-        this.date = LocalDate.now();
-        this.startTime = LocalTime.NOON;
-        this.endTime = LocalTime.MIDNIGHT;
+    private RequestCreatedEvent(AggregateType aggregateType, String aggregateId, String ownerId, String tennisClubId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        super(aggregateType, aggregateId);
+        this.ownerId = ownerId;
+        this.tennisClubId = tennisClubId;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    public RequestCreatedEvent create(CreatePartnerRequestCommand command) {
+        return new RequestCreatedEvent(AggregateType.PARTNERREQUEST, UUID.randomUUID().toString(), command.getMemberId(), command.getClubId(), command.getDate(), command.getStartTime(), command.getEndTime());
     }
 
     @Override

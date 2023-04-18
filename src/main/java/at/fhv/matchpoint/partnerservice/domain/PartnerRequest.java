@@ -3,6 +3,7 @@ package at.fhv.matchpoint.partnerservice.domain;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import at.fhv.matchpoint.partnerservice.command.CreatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.event.RequestAcceptedEvent;
 import at.fhv.matchpoint.partnerservice.event.RequestCreatedEvent;
 
@@ -18,18 +19,6 @@ public class PartnerRequest {
     private RequestState state;
 
     public PartnerRequest() {
-    }
-
-    private PartnerRequest(String partnerRequestId, String ownerId, String parnterId, String clubId, LocalDate date,
-            LocalTime startTime, LocalTime endTime, RequestState state) {
-        this.partnerRequestId = partnerRequestId;
-        this.ownerId = ownerId;
-        this.partnerId = parnterId;
-        this.clubId = clubId;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.state = state;
     }
 
     public String getPartnerRequestId() {
@@ -64,15 +53,10 @@ public class PartnerRequest {
         return state;
     }
 
-    public static PartnerRequest create(String partnerRequestId, String ownerId, String parnterId, String clubId, LocalDate date,
-    LocalTime startTime, LocalTime endTime, RequestState state){
-        return new PartnerRequest(partnerRequestId, ownerId, parnterId, clubId, date, startTime, endTime, state);
-    }
-
     //TODO apply methods
 
     public PartnerRequest apply(RequestCreatedEvent event){
-        this.partnerRequestId = event.partnerRequestId;
+        this.partnerRequestId = event.aggregateId;
         this.ownerId = event.ownerId;
         this.clubId = event.tennisClubId;
         this.date = event.date;
@@ -90,8 +74,8 @@ public class PartnerRequest {
         return this;
     }
 
-    
-
-    
+    public RequestCreatedEvent process (CreatePartnerRequestCommand createPartnerRequestCommand) {
+        return null;
+    }
     
 }

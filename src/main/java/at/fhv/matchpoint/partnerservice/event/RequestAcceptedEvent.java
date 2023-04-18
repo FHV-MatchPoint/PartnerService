@@ -1,6 +1,5 @@
 package at.fhv.matchpoint.partnerservice.event;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import at.fhv.matchpoint.partnerservice.domain.PartnerRequestVisitor;
@@ -17,7 +16,7 @@ public class RequestAcceptedEvent extends Event {
     public LocalTime endTime;
 
     public RequestAcceptedEvent(){
-        super(LocalDateTime.now(), "PartnerRequest", "1");
+        super(AggregateType.PARTNERREQUEST, "");
         this.partnerId = "Helvetier";
         this.startTime = LocalTime.now();
         this.endTime = LocalTime.MIDNIGHT;
