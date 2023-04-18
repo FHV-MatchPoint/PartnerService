@@ -55,7 +55,7 @@ public class PartnerRequestResource {
         }
     }
 
-    @POST
+    @PUT
     @Path("accept")
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
