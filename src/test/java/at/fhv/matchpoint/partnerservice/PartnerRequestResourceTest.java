@@ -7,15 +7,15 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
-public class GreetingResourceTest {
+public class PartnerRequestResourceTest {
 
     @Test
     public void testHelloEndpoint() {
         given()
-          .when().get("/hello")
+          .when().put("/partnerRequest/memberId/markomannen")
           .then()
              .statusCode(200)
-             .body(is("Hello from RESTEasy Reactive"));
+             .body(is("This should be handled with asynchronous messaging. Therefore this endpoint will only return this string. USE REDIS STREAMS!\n\nWe recommend Kafka though"));
     }
 
 }
