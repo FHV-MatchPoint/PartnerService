@@ -75,7 +75,7 @@ public class PartnerRequest {
     }
 
     public RequestCreatedEvent process (CreatePartnerRequestCommand createPartnerRequestCommand) {
-        return null;
+        return RequestCreatedEvent.create(createPartnerRequestCommand);
     }
     
 }

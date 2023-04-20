@@ -23,6 +23,8 @@ public abstract class Event {
     public AggregateType aggregateType;
     public String aggregateId;
 
+    public Event(){}
+
     public Event(AggregateType aggregateType, String aggregateId){
         this.createdAt = LocalDateTime.now();
         this.aggregateType = aggregateType;

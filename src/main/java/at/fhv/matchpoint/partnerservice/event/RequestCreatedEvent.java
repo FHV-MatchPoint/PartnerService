@@ -20,6 +20,7 @@ public class RequestCreatedEvent extends Event {
     public LocalTime startTime;
     public LocalTime endTime;
 
+    public RequestCreatedEvent(){}
 
     private RequestCreatedEvent(AggregateType aggregateType, String aggregateId, String ownerId, String tennisClubId, LocalDate date, LocalTime startTime, LocalTime endTime) {
         super(aggregateType, aggregateId);
@@ -30,7 +31,7 @@ public class RequestCreatedEvent extends Event {
         this.endTime = endTime;
     }
 
-    public RequestCreatedEvent create(CreatePartnerRequestCommand command) {
+    public static RequestCreatedEvent create(CreatePartnerRequestCommand command) {
         return new RequestCreatedEvent(AggregateType.PARTNERREQUEST, UUID.randomUUID().toString(), command.getMemberId(), command.getClubId(), command.getDate(), command.getStartTime(), command.getEndTime());
     }
 
