@@ -9,7 +9,7 @@ import at.fhv.matchpoint.partnerservice.command.UpdatePartnerRequestCommand;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 public interface PartnerRequestService {
 
