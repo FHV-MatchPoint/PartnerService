@@ -3,9 +3,12 @@ package at.fhv.matchpoint.partnerservice.domain;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import at.fhv.matchpoint.partnerservice.command.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.command.CreatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.event.RequestAcceptedEvent;
 import at.fhv.matchpoint.partnerservice.event.RequestCreatedEvent;
+
+import javax.ws.rs.core.Request;
 
 public class PartnerRequest {
 
@@ -76,6 +79,10 @@ public class PartnerRequest {
 
     public RequestCreatedEvent process (CreatePartnerRequestCommand createPartnerRequestCommand) {
         return RequestCreatedEvent.create(createPartnerRequestCommand);
+    }
+
+    public RequestAcceptedEvent process (AcceptPartnerRequestCommand acceptPartnerRequestCommand) {
+        return RequestAcceptedEvent.create(acceptPartnerRequestCommand);
     }
     
 }

@@ -1,7 +1,10 @@
 package at.fhv.matchpoint.partnerservice.event;
 
 import java.time.LocalTime;
+import java.util.UUID;
 
+import at.fhv.matchpoint.partnerservice.command.AcceptPartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.command.CreatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.PartnerRequestVisitor;
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 
@@ -15,11 +18,17 @@ public class RequestAcceptedEvent extends Event {
     public LocalTime startTime;
     public LocalTime endTime;
 
-    public RequestAcceptedEvent(){
-        super(AggregateType.PARTNERREQUEST, "");
-        this.partnerId = "Helvetier";
-        this.startTime = LocalTime.now();
-        this.endTime = LocalTime.MIDNIGHT;
+    public RequestAcceptedEvent(){}
+
+    private RequestAcceptedEvent(AggregateType aggregateType, String aggregateId, String partnerId, LocalTime startTime, LocalTime endTime) {
+        super(aggregateType, aggregateId);
+        this.partnerId = partnerId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    public static RequestAcceptedEvent create(AcceptPartnerRequestCommand command) {
+        return new RequestAcceptedEvent(AggregateType.PARTNERREQUEST, UUID.randomUUID().toString(), command.getPartnerId(), command.getStartTime(), command.getEndTime());
     }
 
     @Override

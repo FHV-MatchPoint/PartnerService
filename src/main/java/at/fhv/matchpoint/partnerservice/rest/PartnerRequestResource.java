@@ -33,10 +33,11 @@ public class PartnerRequestResource {
     PartnerRequestServiceImpl partnerRequestService;
 
     @POST
+    @Path("create")
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
     @APIResponseSchema(value = PartnerRequestDTO.class,
-        responseDescription = "PartnerRequest sucessfully created",
+        responseDescription = "PartnerRequest successfully created",
         responseCode = "200")
     @Operation(
         summary = "Create a PartnerRequest",
@@ -58,7 +59,7 @@ public class PartnerRequestResource {
         responseCode = "200")
     @Operation(
         summary = "Accept a PartnerRequest",
-        description = "Accept a ParnterRequest and selecet the time period for the booking to be created")
+        description = "Accept a ParnterRequest and select the time period for the booking to be created")
     public Response accept(AcceptPartnerRequestCommand acceptPartnerRequestCommand) {
         try {
             return Response.ok(partnerRequestService.acceptPartnerRequest(acceptPartnerRequestCommand)).build();
@@ -95,7 +96,7 @@ public class PartnerRequestResource {
     @Operation(
         summary = "Cancel PartnerRequest",
         description = "Cancel PartnerRequest with the given id")
-    public Response cancle(CancelPartnerRequestCommand cancelPartnerRequestCommand) {
+    public Response cancel(CancelPartnerRequestCommand cancelPartnerRequestCommand) {
         try {
             return Response.ok(partnerRequestService.cancelPartnerRequest(cancelPartnerRequestCommand)).build();
         } catch (ConstraintViolationException e) {

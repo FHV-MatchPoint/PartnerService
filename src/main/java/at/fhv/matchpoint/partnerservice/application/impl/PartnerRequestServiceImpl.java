@@ -42,6 +42,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     public PartnerRequestDTO acceptPartnerRequest(AcceptPartnerRequestCommand acceptPartnerRequestCommand) {
 //        create AcceptPartnerRequestCommand
         PartnerRequest partnerRequest = new PartnerRequest();
+        RequestAcceptedEvent event = partnerRequest.process(acceptPartnerRequestCommand);
 //        for (Event event: eventRepository.findAll().list()
 //             ) {
 //            partnerRequest.apply(event);

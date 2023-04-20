@@ -1,5 +1,6 @@
 package at.fhv.matchpoint.partnerservice.command;
 
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -7,9 +8,9 @@ public class CreatePartnerRequestCommand {
 
     private String memberId;
     private String clubId;
-    private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private String date;
+    private String startTime;
+    private String endTime;
 
     public String getMemberId() {
         return memberId;
@@ -27,27 +28,27 @@ public class CreatePartnerRequestCommand {
         this.clubId = clubId;
     }
 
-    public LocalDate getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    public LocalTime getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalTime startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
-    public LocalTime getEndTime() {
+    public String getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalTime endTime) {
+    public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
 }
