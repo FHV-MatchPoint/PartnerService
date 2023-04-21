@@ -13,8 +13,8 @@ import at.fhv.matchpoint.partnerservice.event.EventRepository;
 import at.fhv.matchpoint.partnerservice.event.RequestAcceptedEvent;
 import at.fhv.matchpoint.partnerservice.event.RequestCreatedEvent;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.util.List;
 

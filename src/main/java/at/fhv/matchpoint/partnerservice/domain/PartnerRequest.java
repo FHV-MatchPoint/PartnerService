@@ -8,8 +8,6 @@ import at.fhv.matchpoint.partnerservice.command.CreatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.event.RequestAcceptedEvent;
 import at.fhv.matchpoint.partnerservice.event.RequestCreatedEvent;
 
-import javax.ws.rs.core.Request;
-
 public class PartnerRequest {
 
     private String partnerRequestId;
