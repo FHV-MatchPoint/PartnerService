@@ -1,8 +1,8 @@
-package at.fhv.matchpoint.partnerservice.event;
+package at.fhv.matchpoint.partnerservice.events;
 
 import java.time.LocalDateTime;
 
-import at.fhv.matchpoint.partnerservice.domain.PartnerRequestVisitor;
+import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 import org.bson.types.ObjectId;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -16,19 +16,26 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 		property = "event_type"
 )
 @BsonDiscriminator
-public abstract class Event {
+public abstract class Event implements Comparable<Event> {
 
     public ObjectId eventId;
     public LocalDateTime createdAt;
-    public String aggregateType;
+    public AggregateType aggregateType;
     public String aggregateId;
 
-    public Event(LocalDateTime createdAt, String aggregateType, String aggregateId){
-        this.createdAt = createdAt;
+    public Event(){}
+
+    public Event(AggregateType aggregateType, String aggregateId){
+        this.createdAt = LocalDateTime.now();
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
     }
 
     public abstract void accept(PartnerRequestVisitor v);
+
+    @Override
+    public int compareTo(Event e) {
+        return createdAt.compareTo(e.createdAt);
+    }
     
 }
