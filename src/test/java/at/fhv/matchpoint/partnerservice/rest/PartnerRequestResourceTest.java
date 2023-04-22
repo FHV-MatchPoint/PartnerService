@@ -17,15 +17,15 @@ public class PartnerRequestResourceTest {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
         initiatePartnerRequestCommand.setMemberId("TestMember");
-        initiatePartnerRequestCommand.setDate(LocalDate.of(1900, 1, 1).toString());
-        initiatePartnerRequestCommand.setStartTime(LocalTime.NOON.toString());
-        initiatePartnerRequestCommand.setEndTime(LocalTime.MIDNIGHT.toString());
+        initiatePartnerRequestCommand.setDate("01-01-2020");
+        initiatePartnerRequestCommand.setStartTime("20:00");
+        initiatePartnerRequestCommand.setEndTime("21:00");
         given()
                 .header("Content-Type", "application/json")
                 .body(initiatePartnerRequestCommand)
-                .when().post("/partnerRequest/create")
+                .when().post("/partnerRequest")
                 .then()
-                .statusCode(200);
+                .statusCode(201);
     }
 
 //    @Test
