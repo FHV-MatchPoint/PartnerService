@@ -1,11 +1,8 @@
 package at.fhv.matchpoint.partnerservice.rest;
 
-import at.fhv.matchpoint.partnerservice.command.AcceptPartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.command.CreatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
-
-import javax.inject.Inject;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,15 +14,15 @@ public class PartnerRequestResourceTest {
 
     @Test
     public void testCreateEndpoint() {
-        CreatePartnerRequestCommand createPartnerRequestCommand = new CreatePartnerRequestCommand();
-        createPartnerRequestCommand.setClubId("TestClub");
-        createPartnerRequestCommand.setMemberId("TestMember");
-        createPartnerRequestCommand.setDate(LocalDate.of(1900, 1, 1).toString());
-        createPartnerRequestCommand.setStartTime(LocalTime.NOON.toString());
-        createPartnerRequestCommand.setEndTime(LocalTime.MIDNIGHT.toString());
+        InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
+        initiatePartnerRequestCommand.setClubId("TestClub");
+        initiatePartnerRequestCommand.setMemberId("TestMember");
+        initiatePartnerRequestCommand.setDate(LocalDate.of(1900, 1, 1).toString());
+        initiatePartnerRequestCommand.setStartTime(LocalTime.NOON.toString());
+        initiatePartnerRequestCommand.setEndTime(LocalTime.MIDNIGHT.toString());
         given()
                 .header("Content-Type", "application/json")
-                .body(createPartnerRequestCommand)
+                .body(initiatePartnerRequestCommand)
                 .when().post("/partnerRequest/create")
                 .then()
                 .statusCode(200);

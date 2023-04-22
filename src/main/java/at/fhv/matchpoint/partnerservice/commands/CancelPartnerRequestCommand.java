@@ -1,4 +1,4 @@
-package at.fhv.matchpoint.partnerservice.command;
+package at.fhv.matchpoint.partnerservice.commands;
 
 public class CancelPartnerRequestCommand {
 

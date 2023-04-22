@@ -1,9 +1,9 @@
 package at.fhv.matchpoint.partnerservice.unit.domain;
 
-import at.fhv.matchpoint.partnerservice.domain.PartnerRequest;
-import at.fhv.matchpoint.partnerservice.domain.RequestState;
-import at.fhv.matchpoint.partnerservice.event.RequestAcceptedEvent;
-import at.fhv.matchpoint.partnerservice.event.RequestCreatedEvent;
+import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
+import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
+import at.fhv.matchpoint.partnerservice.events.RequestAcceptedEvent;
+import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -15,7 +15,7 @@ public class PartnerRequestTest {
 
     @Test
     public void testApplyRequestCreatedEvent() {
-        RequestCreatedEvent event = new RequestCreatedEvent();
+        RequestInitiatedEvent event = new RequestInitiatedEvent();
         PartnerRequest partnerRequest = new PartnerRequest();
         partnerRequest.apply(event);
         assertEquals("1", partnerRequest.getPartnerRequestId());
@@ -24,7 +24,7 @@ public class PartnerRequestTest {
         assertEquals(LocalDate.now(), partnerRequest.getDate());
         assertEquals(LocalTime.NOON, partnerRequest.getStartTime());
         assertEquals(LocalTime.MIDNIGHT, partnerRequest.getEndTime());
-        assertEquals(RequestState.CREATED, partnerRequest.getState());
+        assertEquals(RequestState.INITIATED, partnerRequest.getState());
     }
 
     @Test

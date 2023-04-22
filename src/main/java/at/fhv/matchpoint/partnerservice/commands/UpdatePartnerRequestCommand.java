@@ -1,13 +1,9 @@
-package at.fhv.matchpoint.partnerservice.command;
+package at.fhv.matchpoint.partnerservice.commands;
 
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-
-public class CreatePartnerRequestCommand {
+public class UpdatePartnerRequestCommand {
 
     private String memberId;
-    private String clubId;
+    private String partnerRequestId;
     private String date;
     private String startTime;
     private String endTime;
@@ -20,12 +16,12 @@ public class CreatePartnerRequestCommand {
         this.memberId = memberId;
     }
 
-    public String getClubId() {
-        return clubId;
+    public String getPartnerRequestId() {
+        return partnerRequestId;
     }
 
-    public void setClubId(String clubId) {
-        this.clubId = clubId;
+    public void setPartnerRequestId(String partnerRequestId) {
+        this.partnerRequestId = partnerRequestId;
     }
 
     public String getDate() {

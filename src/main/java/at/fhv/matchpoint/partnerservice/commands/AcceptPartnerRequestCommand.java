@@ -1,13 +1,10 @@
-package at.fhv.matchpoint.partnerservice.command;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
+package at.fhv.matchpoint.partnerservice.commands;
 
 public class AcceptPartnerRequestCommand {
     private String partnerId;
     private String partnerRequestId;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private String startTime;
+    private String endTime;
 
     public String getPartnerId() {
         return partnerId;
@@ -25,19 +22,19 @@ public class AcceptPartnerRequestCommand {
         this.partnerRequestId = partnerRequestId;
     }
 
-    public LocalTime getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalTime startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
-    public LocalTime getEndTime() {
+    public String getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalTime endTime) {
+    public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
 }

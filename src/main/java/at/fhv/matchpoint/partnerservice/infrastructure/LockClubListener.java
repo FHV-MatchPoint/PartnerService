@@ -1,15 +1,8 @@
  package at.fhv.matchpoint.partnerservice.infrastructure;
 
- import java.time.Duration;
- import java.time.LocalTime;
- import java.util.HashMap;
- import java.util.Map;
- import java.util.UUID;
-
  import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
- import at.fhv.matchpoint.partnerservice.events.Event;
+ import at.fhv.matchpoint.partnerservice.events.ClubLockedEvent;
  import at.fhv.matchpoint.partnerservice.events.MemberLockedEvent;
- import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
  import io.quarkus.redis.datasource.RedisDataSource;
  import io.quarkus.redis.datasource.stream.XGroupCreateArgs;
  import io.quarkus.scheduler.Scheduled;
@@ -17,8 +10,14 @@
  import jakarta.enterprise.context.ApplicationScoped;
  import jakarta.inject.Inject;
 
+ import java.time.Duration;
+ import java.time.LocalTime;
+ import java.util.HashMap;
+ import java.util.Map;
+ import java.util.UUID;
+
  @ApplicationScoped
- public class LockMemberListener {
+ public class LockClubListener {
 
      @Inject
      RedisDataSource redisDataSource;
@@ -27,9 +26,9 @@
      LockPartnerRequestService lockPartnerRequestService;
 
      final String GROUP_NAME = "partnerService";
-     final String STREAM_KEY = "lockMember";
+     final String STREAM_KEY = "lockClub";
      final String CONSUMER = UUID.randomUUID().toString();
-     final Class<MemberLockedEvent> TYPE = MemberLockedEvent.class;
+     final Class<ClubLockedEvent> TYPE = ClubLockedEvent.class;
 
      // create group for horizontal scaling. this way each partner service instance doesnt ready messages multiple times
      @PostConstruct
@@ -43,11 +42,11 @@
      }
 
      // just for testing may not be needed
-     public void sendMessage(String memberId){
+     public void sendMessage(String clubId){
 
-         Map<String, MemberLockedEvent> events = new HashMap<>();
-         MemberLockedEvent event =  new MemberLockedEvent();
-         event.memberId = memberId;
+         Map<String, ClubLockedEvent> events = new HashMap<>();
+         ClubLockedEvent event =  new ClubLockedEvent();
+         event.clubId = clubId;
          events.put("data", event);
 
          redisDataSource.stream(TYPE).xadd(STREAM_KEY, events);
@@ -63,11 +62,9 @@
                  .forEach(message -> {
                      message.payload().values().stream().forEach(object -> {
                          try {
-                             lockPartnerRequestService.lockPartnerRequestByMemberId(object.memberId);
-                             redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
-                             System.out.println(object.memberId);
+                             lockPartnerRequestService.lockPartnerRequestByClubId(object.clubId);
                          } catch (Exception e) {
-
+                             redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
                          }
                      });
                  });
@@ -81,10 +78,9 @@
                  .getMessages().forEach(message -> {
                      message.payload().values().stream().forEach(object -> {
                          try {
-                             lockPartnerRequestService.lockPartnerRequestByMemberId(object.memberId);
-                             redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
+                             lockPartnerRequestService.lockPartnerRequestByClubId(object.clubId);
                          } catch (Exception e) {
-
+                             redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
                          }
                      });
                  });

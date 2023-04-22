@@ -1,6 +1,6 @@
 package at.fhv.matchpoint.partnerservice.application.dto;
 
-import at.fhv.matchpoint.partnerservice.domain.PartnerRequest;
+import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 
 public class PartnerRequestDTO {
 

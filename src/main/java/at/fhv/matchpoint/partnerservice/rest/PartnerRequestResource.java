@@ -1,13 +1,15 @@
 package at.fhv.matchpoint.partnerservice.rest;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
+import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.ResponseException;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -19,10 +21,10 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import at.fhv.matchpoint.partnerservice.application.dto.PartnerRequestDTO;
 import at.fhv.matchpoint.partnerservice.application.impl.PartnerRequestServiceImpl;
-import at.fhv.matchpoint.partnerservice.command.AcceptPartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.command.CancelPartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.command.CreatePartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.command.UpdatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
@@ -33,20 +35,21 @@ public class PartnerRequestResource {
     PartnerRequestServiceImpl partnerRequestService;
 
     @POST
-    @Path("create")
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest successfully created",
-        responseCode = "200")
+        responseCode = "201")
     @Operation(
         summary = "Create a PartnerRequest",
         description = "Create a PartnerRequest for the given date and time period")
-    public Response create(CreatePartnerRequestCommand createPartnerRequestCommand) {
+    public Response create(InitiatePartnerRequestCommand initiatePartnerRequestCommand) {
         try {
-            return Response.ok(partnerRequestService.createPartnerRequest(createPartnerRequestCommand)).build();
+            return Response.status(Status.CREATED).entity(partnerRequestService.initiatePartnerRequest(initiatePartnerRequestCommand)).build();
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
+        } catch (ResponseException e) {
+            return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
     }
 
@@ -65,6 +68,8 @@ public class PartnerRequestResource {
             return Response.ok(partnerRequestService.acceptPartnerRequest(acceptPartnerRequestCommand)).build();
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
+        } catch (ResponseException e) {
+            return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
     }
 
@@ -83,6 +88,8 @@ public class PartnerRequestResource {
             return Response.ok(partnerRequestService.updatePartnerRequest(updatePartnerRequestCommand)).build();
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
+        } catch (ResponseException e) {
+            return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
     }
 
@@ -101,30 +108,34 @@ public class PartnerRequestResource {
             return Response.ok(partnerRequestService.cancelPartnerRequest(cancelPartnerRequestCommand)).build();
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
+        } catch (ResponseException e) {
+            return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
     }
 
     @GET
+    @Path("openRequests/member/{memberId}/")
     @APIResponse(
         responseCode = "400", description = "Missing Query Parameters")
     @APIResponse(content = @Content(schema = @Schema(type = SchemaType.ARRAY, implementation = PartnerRequestDTO.class)),
         description = "PartnerRequests found", responseCode = "200")
     @Operation(
-        summary = "Find PartnerRequests",
+        summary = "Find open PartnerRequests",
         description = "Find available PartnerRequests in the given time frame")
-    public Response find(@QueryParam("memberId") String memberId, @QueryParam("tennisClubId") String tennisClubId, @QueryParam("from") String from, @QueryParam("to") String to) {
+    public Response getOpenPartnerRequests(@PathParam("memberId") String memberId, @QueryParam("tennisClubId") String tennisClubId, @QueryParam("from") String from, @QueryParam("to") String to) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd");
-            LocalDate fromDate = LocalDate.parse(from, formatter);
-            LocalDate toDate = LocalDate.parse(to, formatter);
-            return Response.ok(partnerRequestService.getPartnerRequests(memberId, tennisClubId, fromDate, toDate)).build();
+            LocalDate fromDate = CustomDateTimeFormatter.parseDate(from);
+            LocalDate toDate = CustomDateTimeFormatter.parseDate(to);
+            return Response.ok(partnerRequestService.getOpenPartnerRequests(memberId, tennisClubId, fromDate, toDate)).build();
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
+        } catch (ResponseException e) {
+            return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
     }
 
     @GET
-    @Path("member/{memberId}/{partnerRequestId}")
+    @Path("{partnerRequestId}/member/{memberId}")
     @APIResponse(
         responseCode = "400", description = "Missing Path Parameters")
     @APIResponseSchema(value = PartnerRequestDTO.class,
@@ -133,9 +144,9 @@ public class PartnerRequestResource {
     @Operation(
         summary = "Find PartnerRequest by PartnerRequestId",
         description = "Find PartnerRequests with the given PartnerRequestId")
-    public Response findByPartnerRequestId(@PathParam("memberId") String memberId, @PathParam("partnerRequestId") String partnerRequestId) {
+    public Response getByPartnerRequestId(@PathParam("memberId") String memberId, @PathParam("partnerRequestId") String partnerRequestId) {
         try {
-            return Response.ok(partnerRequestService.getPartnerRequesById(memberId, partnerRequestId)).build();
+            return Response.ok(partnerRequestService.getPartnerRequestById(memberId, partnerRequestId)).build();
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
         }
@@ -149,8 +160,8 @@ public class PartnerRequestResource {
         description = "PartnerRequests found", responseCode = "200")
     @Operation(
         summary = "Find PartnerRequest by MemberId",
-        description = "Find all PartnerRequests of the given Member")
-    public Response findByMemberId(@PathParam("memberId") String memberId) {
+        description = "Find all PartnerRequests where the given Member is either Owner or Partner")
+    public Response getPartnerRequestByMemberId(@PathParam("memberId") String memberId) {
         try {
             return Response.ok(partnerRequestService.getPartnerRequestsByMemberId(memberId)).build();
         } catch (ConstraintViolationException e) {
@@ -159,8 +170,9 @@ public class PartnerRequestResource {
     }
 
     @PUT
-    @Path("/member/{memberId}")
+    @Path("/cancel/member/{memberId}")
     @Produces(MediaType.TEXT_PLAIN)
+    @Tag(name="XForbidden")
     @APIResponse(
         responseCode = "200", description = "Bad Communication Decision")
     @Operation(
@@ -171,8 +183,9 @@ public class PartnerRequestResource {
     }
 
     @PUT
-    @Path("/club/{clubId}")
+    @Path("/cancel/club/{clubId}")
     @Produces(MediaType.TEXT_PLAIN)
+    @Tag(name="XForbidden")
     @APIResponse(
         responseCode = "200", description = "Bad Communication Decision")
     @Operation(
@@ -181,19 +194,4 @@ public class PartnerRequestResource {
     public String lockTennisClubHandler(@PathParam("clubId") String clubId){
         return "This should be handled with asynchronous messaging. Therefore this endpoint will only return this string. USE REDIS STREAMS!\n\nWe recommend Kafka though";
     }
-
-    // @Inject
-    // EventRepository eventRepository;
-
-    // @GET
-    // @Path("delete")
-    // public Long delete(){
-    //     return eventRepository.deleteAll();
-    // }
-
-    // @GET
-    // @Path("all")
-    // public Response all(){
-    //     return Response.ok(eventRepository.findAll().list()).build();
-    // }
 }
