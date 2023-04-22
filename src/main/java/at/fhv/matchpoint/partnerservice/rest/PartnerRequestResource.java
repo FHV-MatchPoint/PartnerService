@@ -1,6 +1,7 @@
 package at.fhv.matchpoint.partnerservice.rest;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
@@ -22,7 +23,6 @@ import at.fhv.matchpoint.partnerservice.command.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.command.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.command.CreatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.command.UpdatePartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.event.EventRepository;
 
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
@@ -41,7 +41,7 @@ public class PartnerRequestResource {
         responseCode = "200")
     @Operation(
         summary = "Create a PartnerRequest",
-        description = "Create a ParnterRequest for the given date and time period")
+        description = "Create a PartnerRequest for the given date and time period")
     public Response create(CreatePartnerRequestCommand createPartnerRequestCommand) {
         try {
             return Response.ok(partnerRequestService.createPartnerRequest(createPartnerRequestCommand)).build();
@@ -55,11 +55,11 @@ public class PartnerRequestResource {
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
     @APIResponseSchema(value = PartnerRequestDTO.class,
-        responseDescription = "PartnerRequest sucessfully accepted",
+        responseDescription = "PartnerRequest successfully accepted",
         responseCode = "200")
     @Operation(
         summary = "Accept a PartnerRequest",
-        description = "Accept a ParnterRequest and select the time period for the booking to be created")
+        description = "Accept a PartnerRequest and select the time period for the booking to be created")
     public Response accept(AcceptPartnerRequestCommand acceptPartnerRequestCommand) {
         try {
             return Response.ok(partnerRequestService.acceptPartnerRequest(acceptPartnerRequestCommand)).build();
@@ -73,7 +73,7 @@ public class PartnerRequestResource {
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
     @APIResponseSchema(value = PartnerRequestDTO.class,
-        responseDescription = "PartnerRequest sucessfully updated",
+        responseDescription = "PartnerRequest successfully updated",
         responseCode = "200")
     @Operation(
         summary = "Update time period of PartnerRequest",
@@ -91,7 +91,7 @@ public class PartnerRequestResource {
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
     @APIResponseSchema(value = PartnerRequestDTO.class,
-        responseDescription = "PartnerRequest sucessfully canceled",
+        responseDescription = "PartnerRequest successfully canceled",
         responseCode = "200")
     @Operation(
         summary = "Cancel PartnerRequest",
@@ -111,10 +111,13 @@ public class PartnerRequestResource {
         description = "PartnerRequests found", responseCode = "200")
     @Operation(
         summary = "Find PartnerRequests",
-        description = "Find availbale PartnerRequests in the given time frame")
-    public Response find(@QueryParam("memberId") String memberId, @QueryParam("tennisClubId") String tennisClubId, @QueryParam("from") LocalDate from, @QueryParam("to") LocalDate to) {
+        description = "Find available PartnerRequests in the given time frame")
+    public Response find(@QueryParam("memberId") String memberId, @QueryParam("tennisClubId") String tennisClubId, @QueryParam("from") String from, @QueryParam("to") String to) {
         try {
-            return Response.ok(partnerRequestService.getPartnerRequests(memberId, tennisClubId, from, to)).build();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd");
+            LocalDate fromDate = LocalDate.parse(from, formatter);
+            LocalDate toDate = LocalDate.parse(to, formatter);
+            return Response.ok(partnerRequestService.getPartnerRequests(memberId, tennisClubId, fromDate, toDate)).build();
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
         }
