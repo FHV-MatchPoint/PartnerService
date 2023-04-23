@@ -9,7 +9,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.quarkus:quarkus-scheduler'
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-resteasy-reactive-jsonb'
     implementation 'io.quarkus:quarkus-resteasy-reactive-jackson'
@@ -20,10 +19,13 @@ dependencies {
     implementation 'io.quarkus:quarkus-resteasy-reactive'
     implementation 'io.quarkus:quarkus-redis-client'
     implementation 'io.quarkus:quarkus-smallrye-health'
+    implementation 'io.quarkus:quarkus-scheduler'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-hibernate-validator'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'io.quarkus:quarkus-jacoco'
+    testImplementation 'io.quarkus:quarkus-junit5-mockito'
 }
 
 group 'at.fhv.matchpoint'
