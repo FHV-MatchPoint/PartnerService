@@ -1,13 +1,29 @@
 package at.fhv.matchpoint.partnerservice.rest;
 
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest
 public class PartnerRequestResourceTest {
+
+    @Inject
+    EventRepository eventRepository;
+
+    @BeforeAll
+    public static void clearDatabase(){
+        EventRepository eventRepository = new EventRepository();
+        eventRepository.deleteAll();
+        assertEquals(0, eventRepository.listAll().size());
+    }
 
     @Test
     public void testCreateEndpoint() {
