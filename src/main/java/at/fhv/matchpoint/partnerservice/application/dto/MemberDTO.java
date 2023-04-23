@@ -1,5 +1,8 @@
 package at.fhv.matchpoint.partnerservice.application.dto;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+@Schema(name = "Member", readOnly = true)
 public class MemberDTO {
 
     private String memberId;
