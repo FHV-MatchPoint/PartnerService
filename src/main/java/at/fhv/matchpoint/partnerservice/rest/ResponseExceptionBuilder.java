@@ -1,6 +1,5 @@
 package at.fhv.matchpoint.partnerservice.rest;
 
-import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.ResponseException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;

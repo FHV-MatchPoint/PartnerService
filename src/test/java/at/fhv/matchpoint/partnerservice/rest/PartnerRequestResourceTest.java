@@ -4,9 +4,6 @@ import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest

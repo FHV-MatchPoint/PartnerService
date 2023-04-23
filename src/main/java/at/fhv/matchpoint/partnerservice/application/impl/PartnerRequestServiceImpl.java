@@ -14,6 +14,7 @@ import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MongoDBPersistenceError;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.RequestStateChangeException;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.VersionNotMatchingException;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -45,23 +46,18 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     }
 
     @Override
-    public PartnerRequestDTO acceptPartnerRequest(AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError {
+    public PartnerRequestDTO acceptPartnerRequest(AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException {
 //        create AcceptPartnerRequestCommand
-        PartnerRequest partnerRequest = buildAggregate(getEventsByAggregateId(acceptPartnerRequestCommand.getPartnerRequestId()));
+        List<Event> events = getEventsByAggregateId(acceptPartnerRequestCommand.getPartnerRequestId());
+        PartnerRequest partnerRequest = buildAggregate(events);
         RequestAcceptedEvent event = partnerRequest.process(acceptPartnerRequestCommand);
-            try {
-                eventRepository.persist(event);
-                partnerRequest.apply(event);
-            } catch (Exception exception) {
-                throw new MongoDBPersistenceError();
-            }
-        return PartnerRequestDTO.buildDTO(partnerRequest);
-    }
-
-    @Override
-    public PartnerRequestDTO updatePartnerRequest(UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError {
-        PartnerRequest partnerRequest = buildAggregate(getEventsByAggregateId(updatePartnerRequestCommand.getPartnerRequestId()));
-        RequestUpdatedEvent event = partnerRequest.process(updatePartnerRequestCommand);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        checkForVersionMismatch(events, partnerRequest);
         try {
             eventRepository.persist(event);
             partnerRequest.apply(event);
@@ -72,9 +68,26 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     }
 
     @Override
-    public PartnerRequestDTO cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand) throws MongoDBPersistenceError {
-        PartnerRequest partnerRequest = buildAggregate(getEventsByAggregateId(cancelPartnerRequestCommand.getPartnerRequestId()));
+    public PartnerRequestDTO updatePartnerRequest(UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException {
+        List<Event> events = getEventsByAggregateId(updatePartnerRequestCommand.getPartnerRequestId());
+        PartnerRequest partnerRequest = buildAggregate(events);
+        RequestUpdatedEvent event = partnerRequest.process(updatePartnerRequestCommand);
+        checkForVersionMismatch(events, partnerRequest);
+        try {
+            eventRepository.persist(event);
+            partnerRequest.apply(event);
+        } catch (Exception exception) {
+            throw new MongoDBPersistenceError();
+        }
+        return PartnerRequestDTO.buildDTO(partnerRequest);
+    }
+
+    @Override
+    public PartnerRequestDTO cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand) throws MongoDBPersistenceError, VersionNotMatchingException {
+        List<Event> events = getEventsByAggregateId(cancelPartnerRequestCommand.getPartnerRequestId());
+        PartnerRequest partnerRequest = buildAggregate(events);
         RequestCancelledEvent event = partnerRequest.process(cancelPartnerRequestCommand);
+        checkForVersionMismatch(events, partnerRequest);
         try {
             eventRepository.persist(event);
             partnerRequest.apply(event);
@@ -118,6 +131,12 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     private List<Event> getEventsByAggregateId(String aggregateId) {
         return eventRepository.find("aggregateId", aggregateId).list();
+    }
+
+    private void checkForVersionMismatch(List<Event> events, PartnerRequest partnerRequest) throws VersionNotMatchingException {
+        if(events.size() != getEventsByAggregateId(partnerRequest.getPartnerRequestId()).size()){
+            throw new VersionNotMatchingException();
+        }
     }
 
 }

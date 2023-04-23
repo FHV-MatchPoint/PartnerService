@@ -2,7 +2,6 @@
 
  import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
  import at.fhv.matchpoint.partnerservice.events.ClubLockedEvent;
- import at.fhv.matchpoint.partnerservice.events.MemberLockedEvent;
  import io.quarkus.redis.datasource.RedisDataSource;
  import io.quarkus.redis.datasource.stream.XGroupCreateArgs;
  import io.quarkus.scheduler.Scheduled;
@@ -11,7 +10,6 @@
  import jakarta.inject.Inject;
 
  import java.time.Duration;
- import java.time.LocalTime;
  import java.util.HashMap;
  import java.util.Map;
  import java.util.UUID;
