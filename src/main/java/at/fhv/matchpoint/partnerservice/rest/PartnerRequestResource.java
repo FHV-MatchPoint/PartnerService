@@ -33,6 +33,8 @@ import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
     responseCode = "401", description = "Unauthorized")
 @APIResponse(
     responseCode = "403", description = "Invalid MemberId")
+@APIResponse(
+    responseCode = "500", description = "Server Error")
 public class PartnerRequestResource {
 
     @Inject
@@ -40,9 +42,7 @@ public class PartnerRequestResource {
 
     @POST
     @APIResponse(
-        responseCode = "422", description = "Missing JSON Fields")
-    @APIResponse(
-        responseCode = "500", description = "Server Error")
+        responseCode = "400", description = "Missing JSON Fields")
     @APIResponse(
         responseCode = "422", description = "Wrong Date Format")
     @APIResponseSchema(value = PartnerRequestDTO.class,
@@ -64,15 +64,11 @@ public class PartnerRequestResource {
     @PUT
     @Path("accept")
     @APIResponse(
-        responseCode = "422", description = "Missing JSON Fields")
-    @APIResponse(
-        responseCode = "500", description = "Server Error")
+        responseCode = "400", description = "Missing JSON Fields")
     @APIResponse(
         responseCode = "422", description = "Wrong Date Format")
     @APIResponse(
         responseCode = "412", description = "Version Mismatch")
-    @APIResponse(
-        responseCode = "412", description = "Invalid RequestState Change")
     @APIResponse(
         responseCode = "404", description = "Invalid PartnerRequestId")
     @APIResponseSchema(value = PartnerRequestDTO.class,
@@ -94,15 +90,11 @@ public class PartnerRequestResource {
     @PUT
     @Path("update")
     @APIResponse(
-        responseCode = "422", description = "Missing JSON Fields")
-    @APIResponse(
-        responseCode = "500", description = "Server Error")
+        responseCode = "400", description = "Missing JSON Fields")
     @APIResponse(
         responseCode = "422", description = "Wrong Date Format")
     @APIResponse(
         responseCode = "412", description = "Version Mismatch")
-    @APIResponse(
-        responseCode = "412", description = "Invalid RequestState Change")
     @APIResponse(
         responseCode = "404", description = "Invalid PartnerRequestId")
     @APIResponseSchema(value = PartnerRequestDTO.class,
@@ -124,17 +116,11 @@ public class PartnerRequestResource {
     @PUT
     @Path("cancel")
     @APIResponse(
-        responseCode = "422", description = "Missing JSON Fields")
-    @APIResponse(
-        responseCode = "500", description = "Server Error")
+        responseCode = "400", description = "Missing JSON Fields")
     @APIResponse(
         responseCode = "412", description = "Version Mismatch")
     @APIResponse(
-        responseCode = "412", description = "Invalid RequestState Change")
-    @APIResponse(
         responseCode = "404", description = "Invalid PartnerRequestId")
-    @APIResponse(
-        responseCode = "400", description = "Missing JSON Fields")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest successfully canceled",
         responseCode = "200")
@@ -153,8 +139,6 @@ public class PartnerRequestResource {
 
     @GET
     @Path("openRequests/member/{memberId}/")
-    @APIResponse(
-        responseCode = "500", description = "Server Error")
     @APIResponse(
         responseCode = "422", description = "Wrong Date Format")
     @APIResponse(
@@ -181,8 +165,6 @@ public class PartnerRequestResource {
     @GET
     @Path("{partnerRequestId}/member/{memberId}")
     @APIResponse(
-        responseCode = "500", description = "Server Error")
-    @APIResponse(
         responseCode = "404", description = "Invalid PartnerRequestId")
     @APIResponse(
         responseCode = "400", description = "Missing Path Parameters")
@@ -204,8 +186,6 @@ public class PartnerRequestResource {
 
     @GET
     @Path("member/{memberId}")
-    @APIResponse(
-        responseCode = "500", description = "Server Error")
     @APIResponse(
         responseCode = "400", description = "Missing Path Parameters")
     @APIResponse(content = @Content(schema = @Schema(type = SchemaType.ARRAY, implementation = PartnerRequestDTO.class)),
