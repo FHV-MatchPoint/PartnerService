@@ -149,6 +149,8 @@ public class PartnerRequestResource {
             return Response.ok(partnerRequestService.getPartnerRequestById(memberId, partnerRequestId)).build();
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
+        } catch (ResponseException e) {
+            return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
     }
 
