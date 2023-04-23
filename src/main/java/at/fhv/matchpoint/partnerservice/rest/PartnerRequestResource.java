@@ -29,6 +29,10 @@ import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "PartnerRequest-Endpoints")
+@APIResponse(
+    responseCode = "401", description = "Unauthorized")
+@APIResponse(
+    responseCode = "403", description = "Invalid MemberId")
 public class PartnerRequestResource {
 
     @Inject
@@ -36,7 +40,11 @@ public class PartnerRequestResource {
 
     @POST
     @APIResponse(
-        responseCode = "400", description = "Missing JSON Fields")
+        responseCode = "422", description = "Missing JSON Fields")
+    @APIResponse(
+        responseCode = "500", description = "Server Error")
+    @APIResponse(
+        responseCode = "422", description = "Wrong Date Format")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest successfully created",
         responseCode = "201")
@@ -56,7 +64,17 @@ public class PartnerRequestResource {
     @PUT
     @Path("accept")
     @APIResponse(
-        responseCode = "400", description = "Missing JSON Fields")
+        responseCode = "422", description = "Missing JSON Fields")
+    @APIResponse(
+        responseCode = "500", description = "Server Error")
+    @APIResponse(
+        responseCode = "422", description = "Wrong Date Format")
+    @APIResponse(
+        responseCode = "412", description = "Version Mismatch")
+    @APIResponse(
+        responseCode = "412", description = "Invalid RequestState Change")
+    @APIResponse(
+        responseCode = "404", description = "Invalid PartnerRequestId")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest successfully accepted",
         responseCode = "200")
@@ -76,7 +94,17 @@ public class PartnerRequestResource {
     @PUT
     @Path("update")
     @APIResponse(
-        responseCode = "400", description = "Missing JSON Fields")
+        responseCode = "422", description = "Missing JSON Fields")
+    @APIResponse(
+        responseCode = "500", description = "Server Error")
+    @APIResponse(
+        responseCode = "422", description = "Wrong Date Format")
+    @APIResponse(
+        responseCode = "412", description = "Version Mismatch")
+    @APIResponse(
+        responseCode = "412", description = "Invalid RequestState Change")
+    @APIResponse(
+        responseCode = "404", description = "Invalid PartnerRequestId")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest successfully updated",
         responseCode = "200")
@@ -95,6 +123,16 @@ public class PartnerRequestResource {
 
     @PUT
     @Path("cancel")
+    @APIResponse(
+        responseCode = "422", description = "Missing JSON Fields")
+    @APIResponse(
+        responseCode = "500", description = "Server Error")
+    @APIResponse(
+        responseCode = "412", description = "Version Mismatch")
+    @APIResponse(
+        responseCode = "412", description = "Invalid RequestState Change")
+    @APIResponse(
+        responseCode = "404", description = "Invalid PartnerRequestId")
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
     @APIResponseSchema(value = PartnerRequestDTO.class,
@@ -115,6 +153,12 @@ public class PartnerRequestResource {
 
     @GET
     @Path("openRequests/member/{memberId}/")
+    @APIResponse(
+        responseCode = "500", description = "Server Error")
+    @APIResponse(
+        responseCode = "422", description = "Wrong Date Format")
+    @APIResponse(
+        responseCode = "404", description = "Invalid ClubId")
     @APIResponse(
         responseCode = "400", description = "Missing Query Parameters")
     @APIResponse(content = @Content(schema = @Schema(type = SchemaType.ARRAY, implementation = PartnerRequestDTO.class)),
@@ -137,6 +181,10 @@ public class PartnerRequestResource {
     @GET
     @Path("{partnerRequestId}/member/{memberId}")
     @APIResponse(
+        responseCode = "500", description = "Server Error")
+    @APIResponse(
+        responseCode = "404", description = "Invalid PartnerRequestId")
+    @APIResponse(
         responseCode = "400", description = "Missing Path Parameters")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest found",
@@ -156,6 +204,8 @@ public class PartnerRequestResource {
 
     @GET
     @Path("member/{memberId}")
+    @APIResponse(
+        responseCode = "500", description = "Server Error")
     @APIResponse(
         responseCode = "400", description = "Missing Path Parameters")
     @APIResponse(content = @Content(schema = @Schema(type = SchemaType.ARRAY, implementation = PartnerRequestDTO.class)),

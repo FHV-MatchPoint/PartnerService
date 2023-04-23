@@ -1,13 +1,14 @@
 package at.fhv.matchpoint.partnerservice.commands;
 
+import jakarta.validation.constraints.NotNull;
 
 public class InitiatePartnerRequestCommand {
 
-    private String memberId;
-    private String clubId;
-    private String date;
-    private String startTime;
-    private String endTime;
+    @NotNull private String memberId;
+    @NotNull private String clubId;
+    @NotNull private String date;
+    @NotNull private String startTime;
+    @NotNull private String endTime;
 
     public String getMemberId() {
         return memberId;

@@ -1,9 +1,11 @@
 package at.fhv.matchpoint.partnerservice.commands;
 
+import jakarta.validation.constraints.NotNull;
+
 public class CancelPartnerRequestCommand {
 
-    private String memberId;
-    private String partnerRequestId;
+    @NotNull private String memberId;
+    @NotNull private String partnerRequestId;
 
     public String getMemberId() {
         return memberId;

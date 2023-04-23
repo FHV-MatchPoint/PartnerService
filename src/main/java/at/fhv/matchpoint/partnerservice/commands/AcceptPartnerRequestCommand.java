@@ -1,10 +1,13 @@
 package at.fhv.matchpoint.partnerservice.commands;
 
+import jakarta.validation.constraints.NotNull;
+
 public class AcceptPartnerRequestCommand {
-    private String partnerId;
-    private String partnerRequestId;
-    private String startTime;
-    private String endTime;
+
+    @NotNull private String partnerId;
+    @NotNull private String partnerRequestId;
+    @NotNull private String startTime;
+    @NotNull private String endTime;
 
     public String getPartnerId() {
         return partnerId;
