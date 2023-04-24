@@ -35,14 +35,14 @@ public class PartnerRequestResourceTest {
 
     // for later so that we now how to setup mocks
     @BeforeAll
-    public static void setup(){
+    public static void setup() {
         AlexAndJustinIgnoreThis mock = Mockito.mock(AlexAndJustinIgnoreThis.class);
         Mockito.when(mock.iSaidIgnoreThisAndStopLookingAtThisFunctionItIsJustSomeQuarkusMagic()).thenReturn(true);
-        QuarkusMock.installMockForType(mock, DontLookAtThis.class);        
+        QuarkusMock.installMockForType(mock, DontLookAtThis.class);
     }
 
     @BeforeEach
-    public void clearDatabase(){
+    public void clearDatabase() {
         eventRepository.deleteAll();
     }
 
@@ -53,7 +53,7 @@ public class PartnerRequestResourceTest {
      *****************************/
 
     @Test
-    public void test_initaite_valid_PartnerRequest() {
+    public void test_initiate_valid_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
         initiatePartnerRequestCommand.setMemberId("TestMember");
@@ -71,7 +71,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
-    public void test_initaite_missing_memberId_PartnerRequest() {
+    public void test_initiate_missing_memberId_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
         initiatePartnerRequestCommand.setDate("01-01-2020");
@@ -88,7 +88,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
-    public void test_initaite_missing_clubId_PartnerRequest() {
+    public void test_initiate_missing_clubId_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setMemberId("TestMember");
         initiatePartnerRequestCommand.setDate("01-01-2020");
@@ -105,7 +105,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
-    public void test_initaite_missing_date_PartnerRequest() {
+    public void test_initiate_missing_date_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
         initiatePartnerRequestCommand.setMemberId("TestMember");
@@ -122,7 +122,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
-    public void test_initaite_missing_startTime_PartnerRequest() {
+    public void test_initiate_missing_startTime_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
         initiatePartnerRequestCommand.setMemberId("TestMember");
@@ -139,7 +139,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
-    public void test_initaite_missing_endTime_PartnerRequest() {
+    public void test_initiate_missing_endTime_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
         initiatePartnerRequestCommand.setMemberId("TestMember");
@@ -156,7 +156,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
-    public void test_initaite_wrong_date_format_PartnerRequest() {
+    public void test_initiate_wrong_date_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
         initiatePartnerRequestCommand.setMemberId("TestMember");
@@ -174,7 +174,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
-    public void test_initaite_wrong_startTime_format_PartnerRequest() {
+    public void test_initiate_wrong_startTime_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
         initiatePartnerRequestCommand.setMemberId("TestMember");
@@ -192,7 +192,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
-    public void test_initaite_wrong_endTime_format_PartnerRequest() {
+    public void test_initiate_wrong_endTime_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
         initiatePartnerRequestCommand.setMemberId("TestMember");
@@ -870,7 +870,6 @@ public class PartnerRequestResourceTest {
     }
 
 
-
 //    @Test
 //    public void testAcceptEndpoint() {
 //        AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
@@ -886,10 +885,138 @@ public class PartnerRequestResourceTest {
 //        //TODO
 //    }
 //
-//    @Test
-//    public void testCancelEndpoint() {
-//        //TODO
-//    }
+
+    /***************************
+     *                         *
+     *  Cancel ENDPOINT TESTS  *
+     *                         *
+     ***************************/
+    @Test
+    public void test_cancel_valid_PartnerRequest() {
+        InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
+        initiatePartnerRequestCommand.setClubId("TestClub");
+        initiatePartnerRequestCommand.setMemberId("TestMember");
+        initiatePartnerRequestCommand.setDate("01-01-2020");
+        initiatePartnerRequestCommand.setStartTime("20:00");
+        initiatePartnerRequestCommand.setEndTime("21:00");
+
+        PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+
+        CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
+        cancelPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
+        cancelPartnerRequestCommand.setMemberId("TestMember");
+
+        given()
+                .header("Content-Type", "application/json")
+                .body(cancelPartnerRequestCommand)
+                .when().put("/partnerRequest/cancel")
+                .then()
+                .statusCode(200);
+
+        assertEquals(2, eventRepository.listAll().size());
+    }
+
+    @Test
+    public void test_cancel_already_cancelled_PartnerRequest() {
+        InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
+        initiatePartnerRequestCommand.setClubId("TestClub");
+        initiatePartnerRequestCommand.setMemberId("TestMember");
+        initiatePartnerRequestCommand.setDate("01-01-2020");
+        initiatePartnerRequestCommand.setStartTime("20:00");
+        initiatePartnerRequestCommand.setEndTime("21:00");
+
+        PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+
+        CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
+        cancelPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
+        cancelPartnerRequestCommand.setMemberId("TestMember");
+
+        PartnerRequestDTO dto2 = (PartnerRequestDTO) api.cancel(cancelPartnerRequestCommand).getEntity();
+
+        given()
+                .header("Content-Type", "application/json")
+                .body(cancelPartnerRequestCommand)
+                .when().put("/partnerRequest/cancel")
+                .then()
+                .statusCode(200);
+
+        assertEquals(3, eventRepository.listAll().size());
+    }
+
+    @Test
+    void test_cancel_missing_partnerRequestId_PartnerRequest() {
+        InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
+        initiatePartnerRequestCommand.setClubId("TestClub");
+        initiatePartnerRequestCommand.setMemberId("TestMember");
+        initiatePartnerRequestCommand.setDate("01-01-2020");
+        initiatePartnerRequestCommand.setStartTime("20:00");
+        initiatePartnerRequestCommand.setEndTime("21:00");
+
+        PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+
+        CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
+        cancelPartnerRequestCommand.setMemberId("TestMember");
+
+        given()
+                .header("Content-Type", "application/json")
+                .body(cancelPartnerRequestCommand)
+                .when().put("/partnerRequest/cancel")
+                .then()
+                .statusCode(400);
+
+        assertEquals(1, eventRepository.listAll().size());
+    }
+
+    @Test
+    void test_cancel_missing_memberId_PartnerRequest() {
+        InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
+        initiatePartnerRequestCommand.setClubId("TestClub");
+        initiatePartnerRequestCommand.setMemberId("TestMember");
+        initiatePartnerRequestCommand.setDate("01-01-2020");
+        initiatePartnerRequestCommand.setStartTime("20:00");
+        initiatePartnerRequestCommand.setEndTime("21:00");
+
+        PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+
+        CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
+        cancelPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
+
+        given()
+                .header("Content-Type", "application/json")
+                .body(cancelPartnerRequestCommand)
+                .when().put("/partnerRequest/cancel")
+                .then()
+                .statusCode(400);
+
+        assertEquals(1, eventRepository.listAll().size());
+    }
+
+    @Test
+    void test_cancel_invalid_partnerRequestId_PartnerRequest() {
+        InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
+        initiatePartnerRequestCommand.setClubId("TestClub");
+        initiatePartnerRequestCommand.setMemberId("TestMember");
+        initiatePartnerRequestCommand.setDate("01-01-2020");
+        initiatePartnerRequestCommand.setStartTime("20:00");
+        initiatePartnerRequestCommand.setEndTime("21:00");
+
+        PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+
+        CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
+        cancelPartnerRequestCommand.setPartnerRequestId("NOTAPARTNERREQUEST");
+        cancelPartnerRequestCommand.setMemberId("TestMember");
+
+        given()
+                .header("Content-Type", "application/json")
+                .body(cancelPartnerRequestCommand)
+                .when().put("/partnerRequest/cancel")
+                .then()
+                .statusCode(404);
+
+        assertEquals(1, eventRepository.listAll().size());
+    }
+
+
 //
 //    @Test
 //    public void testFindByPartnerRequestIdEndpoint(){
