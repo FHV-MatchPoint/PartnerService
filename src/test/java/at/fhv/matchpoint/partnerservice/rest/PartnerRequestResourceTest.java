@@ -5,8 +5,9 @@ import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.infrastructure.AlexAndJustinIgnoreThis;
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
+import at.fhv.matchpoint.partnerservice.infrastructure.secretquarkuslaborwherethemagicismade.AlexAndJustinIgnoreThis;
+import at.fhv.matchpoint.partnerservice.infrastructure.secretquarkuslaborwherethemagicismade.DontLookAtThis;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -30,14 +31,14 @@ public class PartnerRequestResourceTest {
     EventRepository eventRepository;
 
     @Inject
-    AlexAndJustinIgnoreThis mockBean;
+    DontLookAtThis mockBean;
 
     // for later so that we now how to setup mocks
     @BeforeAll
     public static void setup(){
         AlexAndJustinIgnoreThis mock = Mockito.mock(AlexAndJustinIgnoreThis.class);
         Mockito.when(mock.iSaidIgnoreThisAndStopLookingAtThisFunctionItIsJustSomeQuarkusMagic()).thenReturn(true);
-        QuarkusMock.installMockForType(mock, AlexAndJustinIgnoreThis.class);        
+        QuarkusMock.installMockForType(mock, DontLookAtThis.class);        
     }
 
     @BeforeEach
@@ -499,6 +500,12 @@ public class PartnerRequestResourceTest {
         assertEquals(1, eventRepository.listAll().size());
     }
 
+    /*****************************
+     *                           *
+     *   UPDATE ENDPOINT TESTS   *
+     *                           *
+     *****************************/
+
     @Test
     public void test_update_valid_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
@@ -669,7 +676,7 @@ public class PartnerRequestResourceTest {
         initiatePartnerRequestCommand.setStartTime("20:00");
         initiatePartnerRequestCommand.setEndTime("21:00");
 
-        PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+        api.create(initiatePartnerRequestCommand).getEntity();
 
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setPartnerRequestId("NOTAREALID");
