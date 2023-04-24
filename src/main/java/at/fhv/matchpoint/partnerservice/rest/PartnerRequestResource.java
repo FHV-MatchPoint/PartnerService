@@ -3,6 +3,7 @@ package at.fhv.matchpoint.partnerservice.rest;
 import java.time.LocalDate;
 
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
+import at.fhv.matchpoint.partnerservice.utils.ResponseExceptionBuilder;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.ResponseException;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;

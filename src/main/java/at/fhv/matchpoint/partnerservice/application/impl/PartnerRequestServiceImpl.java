@@ -32,6 +32,8 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     @Inject
     EventRepository eventRepository;
 
+    //TODO Handle check of ownerId/partnerId and memberId some action are only allowed for owner, some only for partner
+
     @Override
     public PartnerRequestDTO initiatePartnerRequest(InitiatePartnerRequestCommand initiatePartnerRequestCommand) throws DateTimeFormatException, MongoDBPersistenceError {
 //        this.verifyCreateRequest();
