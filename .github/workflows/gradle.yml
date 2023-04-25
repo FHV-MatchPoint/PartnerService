@@ -19,6 +19,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      MONGODB_CONNECTION: ${{secrets.MONGODB_CONNECTION}}
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 11
