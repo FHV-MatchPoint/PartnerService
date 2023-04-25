@@ -8,6 +8,7 @@ import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.remote.FakeItTillTheyMakeIt;
 import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
+import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServicesRestClient;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;

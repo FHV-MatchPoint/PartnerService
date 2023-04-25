@@ -1,23 +1,17 @@
 package at.fhv.matchpoint.partnerservice.infrastructure.remote;
 
-import at.fhv.matchpoint.partnerservice.domain.model.Member;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import java.util.Optional;
 
-@RegisterRestClient(configKey = "remote-service")
+import at.fhv.matchpoint.partnerservice.domain.model.Member;
+import at.fhv.matchpoint.partnerservice.domain.model.TimeSlot;
+
 public interface RemoteServices {
 
-    @GET
-    @Path("{memberId}")
-    Member verify(@PathParam("memberId") String memberId);
+    Optional<Member> verify(String memberId);
 
-    @GET
-    @Path("{memberId}/{date}/{startTime}/{endTime}")
-    Response getAvailableTimeframe(@PathParam("memberId") String memberId,
-                                   @PathParam("date") String date,
-                                   @PathParam("startTime") String startTime,
-                                   @PathParam("endTime") String endTime);
+    Optional<TimeSlot> getAvailableTimeframe(String memberId,
+                                   String date,
+                                   String startTime,
+                                   String endTime);
+    
 }

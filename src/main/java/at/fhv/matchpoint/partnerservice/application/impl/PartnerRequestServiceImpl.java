@@ -12,6 +12,7 @@ import at.fhv.matchpoint.partnerservice.events.*;
 
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
+import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServicesRestClient;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MongoDBPersistenceError;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestNotFoundException;
@@ -36,7 +37,6 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     EventRepository eventRepository;
 
     @Inject
-    @RestClient
     RemoteServices remoteServices;
 
     //TODO Handle check of ownerId/partnerId and memberId some action are only allowed for owner, some only for partner
