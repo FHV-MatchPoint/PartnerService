@@ -1,15 +1,14 @@
  package at.fhv.matchpoint.partnerservice.infrastructure;
 
  import java.time.Duration;
- import java.time.LocalTime;
  import java.util.HashMap;
  import java.util.Map;
  import java.util.UUID;
 
- import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
- import at.fhv.matchpoint.partnerservice.events.Event;
+import org.jboss.logging.Logger;
+
+import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
  import at.fhv.matchpoint.partnerservice.events.MemberLockedEvent;
- import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
  import io.quarkus.redis.datasource.RedisDataSource;
  import io.quarkus.redis.datasource.stream.XGroupCreateArgs;
  import io.quarkus.scheduler.Scheduled;
@@ -26,6 +25,8 @@
      @Inject
      LockPartnerRequestService lockPartnerRequestService;
 
+     private static final Logger LOGGER = Logger.getLogger(LockMemberListener.class);
+
      final String GROUP_NAME = "partnerService";
      final String STREAM_KEY = "lockMember";
      final String CONSUMER = UUID.randomUUID().toString();
@@ -35,9 +36,9 @@
      @PostConstruct
      public void createGroup(){
          try {
-             redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
+            redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
          } catch (Exception e) {
-             System.out.println("Group already exists");
+            LOGGER.info("Group already exists");
              //TODO delete old consumers
          }
      }
@@ -67,7 +68,7 @@
                              redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
                              System.out.println(object.memberId);
                          } catch (Exception e) {
-
+                            LOGGER.info("Not all Request could be cancelled. Message will not be acknowledged");
                          }
                      });
                  });
@@ -84,7 +85,7 @@
                              lockPartnerRequestService.lockPartnerRequestByMemberId(object.memberId);
                              redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
                          } catch (Exception e) {
-
+                            LOGGER.info("Not all Request could be cancelled. Message will not be acknowledged");
                          }
                      });
                  });

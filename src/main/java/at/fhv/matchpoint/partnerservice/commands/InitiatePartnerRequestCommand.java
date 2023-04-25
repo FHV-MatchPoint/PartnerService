@@ -1,13 +1,17 @@
 package at.fhv.matchpoint.partnerservice.commands;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+import jakarta.validation.constraints.NotNull;
+
+@Schema(name = "InitiatePartnerRequestCommand", required = true)
 public class InitiatePartnerRequestCommand {
 
-    private String memberId;
-    private String clubId;
-    private String date;
-    private String startTime;
-    private String endTime;
+    @NotNull private String memberId;
+    @NotNull private String clubId;
+    @NotNull @Schema(format = "dd-MM-yyyy") private String date;
+    @NotNull @Schema(format = "HH:mm") private String startTime;
+    @NotNull @Schema(format = "HH:mm") private String endTime;
 
     public String getMemberId() {
         return memberId;

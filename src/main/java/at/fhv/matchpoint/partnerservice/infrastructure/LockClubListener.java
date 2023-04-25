@@ -2,7 +2,6 @@
 
  import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
  import at.fhv.matchpoint.partnerservice.events.ClubLockedEvent;
- import at.fhv.matchpoint.partnerservice.events.MemberLockedEvent;
  import io.quarkus.redis.datasource.RedisDataSource;
  import io.quarkus.redis.datasource.stream.XGroupCreateArgs;
  import io.quarkus.scheduler.Scheduled;
@@ -11,10 +10,11 @@
  import jakarta.inject.Inject;
 
  import java.time.Duration;
- import java.time.LocalTime;
  import java.util.HashMap;
  import java.util.Map;
  import java.util.UUID;
+
+import org.jboss.logging.Logger;
 
  @ApplicationScoped
  public class LockClubListener {
@@ -24,6 +24,8 @@
 
      @Inject
      LockPartnerRequestService lockPartnerRequestService;
+
+     private static final Logger LOGGER = Logger.getLogger(LockClubListener.class);
 
      final String GROUP_NAME = "partnerService";
      final String STREAM_KEY = "lockClub";
@@ -36,7 +38,7 @@
          try {
              redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
          } catch (Exception e) {
-             System.out.println("Group already exists");
+             LOGGER.info("Group already exists");
              //TODO delete old consumers
          }
      }
@@ -63,8 +65,10 @@
                      message.payload().values().stream().forEach(object -> {
                          try {
                              lockPartnerRequestService.lockPartnerRequestByClubId(object.clubId);
-                         } catch (Exception e) {
                              redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
+                         } catch (Exception e) {
+                            LOGGER.info("Not all Request could be cancelled. Message will not be acknowledged");
+                            
                          }
                      });
                  });
@@ -79,8 +83,9 @@
                      message.payload().values().stream().forEach(object -> {
                          try {
                              lockPartnerRequestService.lockPartnerRequestByClubId(object.clubId);
-                         } catch (Exception e) {
                              redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
+                         } catch (Exception e) {
+                            LOGGER.info("Not all Request could be cancelled. Message will not be acknowledged");
                          }
                      });
                  });

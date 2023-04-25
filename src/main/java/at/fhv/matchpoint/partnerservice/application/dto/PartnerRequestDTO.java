@@ -1,7 +1,10 @@
 package at.fhv.matchpoint.partnerservice.application.dto;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 
+@Schema(name = "PartnerRequest", readOnly = true)
 public class PartnerRequestDTO {
 
     private String partnerRequestId;

@@ -26,4 +26,20 @@ public class CustomDateTimeFormatter {
             throw new DateTimeFormatException();
         }
     }
+
+    public static String formatDate(LocalDate date) throws DateTimeFormatException {
+        try {
+            return date.format(dateFormatter);
+        } catch (Exception e) {
+            throw new DateTimeFormatException();
+        }
+    }
+
+    public static String formatTime(LocalTime time) throws DateTimeFormatException {
+        try {
+            return time.format(timeFormatter);
+        } catch (Exception e) {
+            throw new DateTimeFormatException();
+        }
+    }
 }

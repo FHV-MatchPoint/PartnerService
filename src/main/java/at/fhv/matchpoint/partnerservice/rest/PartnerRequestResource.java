@@ -3,6 +3,7 @@ package at.fhv.matchpoint.partnerservice.rest;
 import java.time.LocalDate;
 
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
+import at.fhv.matchpoint.partnerservice.utils.ResponseExceptionBuilder;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.ResponseException;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
@@ -29,6 +30,12 @@ import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "PartnerRequest-Endpoints")
+@APIResponse(
+    responseCode = "401", description = "Unauthorized")
+@APIResponse(
+    responseCode = "403", description = "Invalid MemberId")
+@APIResponse(
+    responseCode = "500", description = "Server Error")
 public class PartnerRequestResource {
 
     @Inject
@@ -37,6 +44,8 @@ public class PartnerRequestResource {
     @POST
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
+    @APIResponse(
+        responseCode = "422", description = "Wrong Date Format")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest successfully created",
         responseCode = "201")
@@ -57,6 +66,12 @@ public class PartnerRequestResource {
     @Path("accept")
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
+    @APIResponse(
+        responseCode = "422", description = "Wrong Date Format")
+    @APIResponse(
+        responseCode = "412", description = "Version Mismatch")
+    @APIResponse(
+        responseCode = "404", description = "Invalid PartnerRequestId")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest successfully accepted",
         responseCode = "200")
@@ -77,6 +92,12 @@ public class PartnerRequestResource {
     @Path("update")
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
+    @APIResponse(
+        responseCode = "422", description = "Wrong Date Format")
+    @APIResponse(
+        responseCode = "412", description = "Version Mismatch")
+    @APIResponse(
+        responseCode = "404", description = "Invalid PartnerRequestId")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest successfully updated",
         responseCode = "200")
@@ -97,6 +118,10 @@ public class PartnerRequestResource {
     @Path("cancel")
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
+    @APIResponse(
+        responseCode = "412", description = "Version Mismatch")
+    @APIResponse(
+        responseCode = "404", description = "Invalid PartnerRequestId")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest successfully canceled",
         responseCode = "200")
@@ -115,6 +140,10 @@ public class PartnerRequestResource {
 
     @GET
     @Path("openRequests/member/{memberId}/")
+    @APIResponse(
+        responseCode = "422", description = "Wrong Date Format")
+    @APIResponse(
+        responseCode = "404", description = "Invalid ClubId")
     @APIResponse(
         responseCode = "400", description = "Missing Query Parameters")
     @APIResponse(content = @Content(schema = @Schema(type = SchemaType.ARRAY, implementation = PartnerRequestDTO.class)),
@@ -137,6 +166,8 @@ public class PartnerRequestResource {
     @GET
     @Path("{partnerRequestId}/member/{memberId}")
     @APIResponse(
+        responseCode = "404", description = "Invalid PartnerRequestId")
+    @APIResponse(
         responseCode = "400", description = "Missing Path Parameters")
     @APIResponseSchema(value = PartnerRequestDTO.class,
         responseDescription = "PartnerRequest found",
@@ -149,6 +180,8 @@ public class PartnerRequestResource {
             return Response.ok(partnerRequestService.getPartnerRequestById(memberId, partnerRequestId)).build();
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
+        } catch (ResponseException e) {
+            return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
     }
 

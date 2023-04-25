@@ -1,10 +1,16 @@
 package at.fhv.matchpoint.partnerservice.commands;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import jakarta.validation.constraints.NotNull;
+
+@Schema(name = "AcceptPartnerRequestCommand", required = true)
 public class AcceptPartnerRequestCommand {
-    private String partnerId;
-    private String partnerRequestId;
-    private String startTime;
-    private String endTime;
+
+    @NotNull private String partnerId;
+    @NotNull private String partnerRequestId;
+    @NotNull @Schema(format = "HH:mm") private String startTime;
+    @NotNull @Schema(format = "HH:mm") private String endTime;
 
     public String getPartnerId() {
         return partnerId;
