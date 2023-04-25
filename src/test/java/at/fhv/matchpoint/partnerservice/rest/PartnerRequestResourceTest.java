@@ -6,8 +6,8 @@ import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
-import at.fhv.matchpoint.partnerservice.infrastructure.secretquarkuslaborwherethemagicismade.AlexAndJustinIgnoreThis;
-import at.fhv.matchpoint.partnerservice.infrastructure.secretquarkuslaborwherethemagicismade.DontLookAtThis;
+import at.fhv.matchpoint.partnerservice.infrastructure.remote.FakeItTillTheyMakeIt;
+import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -31,14 +31,14 @@ public class PartnerRequestResourceTest {
     EventRepository eventRepository;
 
     @Inject
-    DontLookAtThis mockBean;
+    RemoteServices mockBean;
 
     // for later so that we now how to setup mocks
     @BeforeAll
     public static void setup() {
-        AlexAndJustinIgnoreThis mock = Mockito.mock(AlexAndJustinIgnoreThis.class);
-        Mockito.when(mock.iSaidIgnoreThisAndStopLookingAtThisFunctionItIsJustSomeQuarkusMagic()).thenReturn(true);
-        QuarkusMock.installMockForType(mock, DontLookAtThis.class);
+//        FakeItTillTheyMakeIt mock = Mockito.mock(FakeItTillTheyMakeIt.class);
+//        Mockito.when(mock.iSaidIgnoreThisAndStopLookingAtThisFunctionItIsJustSomeQuarkusMagic()).thenReturn(true);
+//        QuarkusMock.installMockForType(mock, RemoteServices.class);
     }
 
     @BeforeEach

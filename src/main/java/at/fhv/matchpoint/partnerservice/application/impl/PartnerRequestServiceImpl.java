@@ -11,6 +11,7 @@ import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
 import at.fhv.matchpoint.partnerservice.events.*;
 
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
+import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MongoDBPersistenceError;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestNotFoundException;
@@ -19,6 +20,8 @@ import at.fhv.matchpoint.partnerservice.utils.exceptions.VersionNotMatchingExcep
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -32,11 +35,16 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     @Inject
     EventRepository eventRepository;
 
+    @Inject
+    @RestClient
+    RemoteServices remoteServices;
+
     //TODO Handle check of ownerId/partnerId and memberId some action are only allowed for owner, some only for partner
 
     @Override
     public PartnerRequestDTO initiatePartnerRequest(InitiatePartnerRequestCommand initiatePartnerRequestCommand) throws DateTimeFormatException, MongoDBPersistenceError {
 //        this.verifyCreateRequest();
+        remoteServices.verify(initiatePartnerRequestCommand.getMemberId());
         PartnerRequest partnerRequest = new PartnerRequest();
         RequestInitiatedEvent event = partnerRequest.process(initiatePartnerRequestCommand);
         try {
