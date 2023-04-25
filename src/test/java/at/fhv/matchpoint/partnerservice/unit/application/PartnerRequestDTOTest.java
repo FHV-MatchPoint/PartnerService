@@ -6,7 +6,6 @@ import at.fhv.matchpoint.partnerservice.application.dto.PartnerRequestDTO;
 import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
-import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
 import at.fhv.matchpoint.partnerservice.events.RequestAcceptedEvent;
 import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;

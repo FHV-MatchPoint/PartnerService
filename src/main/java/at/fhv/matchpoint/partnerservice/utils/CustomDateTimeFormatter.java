@@ -1,7 +1,6 @@
 package at.fhv.matchpoint.partnerservice.utils;
 
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
-import jakarta.ejb.Local;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

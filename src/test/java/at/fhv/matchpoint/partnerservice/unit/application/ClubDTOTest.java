@@ -1,19 +1,11 @@
 package at.fhv.matchpoint.partnerservice.unit.application;
 
 import at.fhv.matchpoint.partnerservice.application.dto.ClubDTO;
-import at.fhv.matchpoint.partnerservice.application.dto.MemberDTO;
-import at.fhv.matchpoint.partnerservice.application.dto.PartnerRequestDTO;
-import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
-import at.fhv.matchpoint.partnerservice.events.RequestAcceptedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @QuarkusTest
 public class ClubDTOTest {
