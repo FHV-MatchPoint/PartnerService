@@ -305,8 +305,7 @@ public class PartnerRequestResourceTest {
         assertEquals(2, eventRepository.listAll().size());
     }
 
-    //TODO implement solution and fix test
-    //@Test
+    @Test
     public void test_accept_own_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -328,13 +327,12 @@ public class PartnerRequestResourceTest {
                 .body(acceptPartnerRequestCommand)
                 .when().put("/partnerRequest/accept")
                 .then()
-                .statusCode(200);
+                .statusCode(401);
 
         assertEquals(1, eventRepository.listAll().size());
     }
 
-    //TODO implement solution and fix test
-    //@Test
+    @Test
     public void test_accept_foreign_club_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -356,7 +354,7 @@ public class PartnerRequestResourceTest {
                 .body(acceptPartnerRequestCommand)
                 .when().put("/partnerRequest/accept")
                 .then()
-                .statusCode(200);
+                .statusCode(401);
 
         assertEquals(1, eventRepository.listAll().size());
     }
@@ -640,8 +638,7 @@ public class PartnerRequestResourceTest {
         assertEquals(2, eventRepository.listAll().size());
     }
 
-    //TODO implement and fix test
-    //@Test
+    @Test
     public void test_update_foreign_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -664,7 +661,7 @@ public class PartnerRequestResourceTest {
                 .body(updatePartnerRequestCommand)
                 .when().put("/partnerRequest/update")
                 .then()
-                .statusCode(404);
+                .statusCode(401);
 
         assertEquals(1, eventRepository.listAll().size());
     }
@@ -805,13 +802,12 @@ public class PartnerRequestResourceTest {
         updatePartnerRequestCommand.setStartTime("15:00");
         updatePartnerRequestCommand.setEndTime("21:00");
 
-        String s = given()
+        given()
                 .header("Content-Type", "application/json")
                 .body(updatePartnerRequestCommand)
                 .when().put("/partnerRequest/update")
                 .then()
-                .statusCode(401).extract().body().asString();
-                System.out.println(s);
+                .statusCode(422);
 
         assertEquals(1, eventRepository.listAll().size());
     }

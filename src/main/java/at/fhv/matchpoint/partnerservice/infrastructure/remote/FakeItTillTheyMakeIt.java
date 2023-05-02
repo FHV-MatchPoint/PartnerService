@@ -13,7 +13,10 @@ public class FakeItTillTheyMakeIt implements RemoteServices {
 
     @Override
     public Optional<Member> verify(String memberId) {
-        return memberId.equals("TestMember") ? Optional.of(Member.create("TestMember", "TestClub", "Reiner Funden")) : Optional.empty();
+        if(!memberId.equals("TestMember") && !memberId.equals("TestPartner")){
+            memberId = null;
+        } 
+        return memberId != null ? Optional.of(Member.create(memberId, "TestClub", "Reiner Funden")) : Optional.empty();
     }
 
     @Override

@@ -9,9 +9,12 @@ import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.Member;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
+import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
 import at.fhv.matchpoint.partnerservice.events.*;
 
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
+import at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestEventConsumer;
+import at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestReadModelRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MongoDBPersistenceError;
@@ -41,6 +44,12 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     @Inject
     RemoteServices remoteServices;
 
+    @Inject
+    PartnerRequestEventConsumer consumer;
+
+    @Inject
+    PartnerRequestReadModelRepository partnerRequestReadModelRepository;
+
     @Override
     public PartnerRequestDTO initiatePartnerRequest(InitiatePartnerRequestCommand initiatePartnerRequestCommand) throws DateTimeFormatException, MongoDBPersistenceError {
         Optional<Member> optMember = remoteServices.verify(initiatePartnerRequestCommand.getMemberId());
@@ -52,6 +61,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         try {
             eventRepository.persist(event);
             partnerRequest.apply(event);
+            consumer.send(event);
         } catch (Exception exception) {
             throw new MongoDBPersistenceError();
         }
@@ -69,7 +79,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
             throw new PartnerRequestNotFoundException();
         }
         PartnerRequest partnerRequest = buildAggregate(events);
-        if(optMember.get().memberId == partnerRequest.getOwnerId()){
+        if(optMember.get().memberId.equals(partnerRequest.getOwnerId()) || !optMember.get().clubId.equals(partnerRequest.getClubId())){
             throw new NotAuthorizedException(Response.status(401, "Cannot accept own Request"));
         }
         RequestAcceptedEvent event = partnerRequest.process(acceptPartnerRequestCommand);
@@ -94,7 +104,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
             throw new PartnerRequestNotFoundException();
         }
         PartnerRequest partnerRequest = buildAggregate(events);
-        if(optMember.get().memberId != partnerRequest.getOwnerId()){
+        if(!optMember.get().memberId.equals(partnerRequest.getOwnerId())){
             throw new NotAuthorizedException(Response.status(401, "Cannot change foreign requests"));
         }
         RequestUpdatedEvent event = partnerRequest.process(updatePartnerRequestCommand);
@@ -119,7 +129,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
             throw new PartnerRequestNotFoundException();
         }
         PartnerRequest partnerRequest = buildAggregate(events);
-        if(optMember.get().memberId != partnerRequest.getOwnerId()){
+        if(!optMember.get().memberId.equals(partnerRequest.getOwnerId())){
             throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
         }
         RequestCancelledEvent event = partnerRequest.process(cancelPartnerRequestCommand);
@@ -136,11 +146,8 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     @Override
     public PartnerRequestDTO getPartnerRequestById(String memberId, String partnerRequestId) throws PartnerRequestNotFoundException {
         // verify member
-        List<Event> events = getEventsByAggregateId(partnerRequestId);
-        if(events.size() == 0){
-            throw new PartnerRequestNotFoundException();
-        }
-        return PartnerRequestDTO.buildDTO(buildAggregate(events));
+        Optional<PartnerRequestReadModel> model = partnerRequestReadModelRepository.findByIdOptional(partnerRequestId);
+        return model.isPresent() ? PartnerRequestDTO.buildDTO(model.get()) : null;
     }
 
     @Override
