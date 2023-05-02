@@ -618,6 +618,7 @@ public class PartnerRequestResourceTest {
 
         CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
         cancelPartnerRequestCommand.setMemberId("TestMember");
+        cancelPartnerRequestCommand.setMemberId("TestMember");
         cancelPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
 
         api.cancel(cancelPartnerRequestCommand);
@@ -804,12 +805,13 @@ public class PartnerRequestResourceTest {
         updatePartnerRequestCommand.setStartTime("15:00");
         updatePartnerRequestCommand.setEndTime("21:00");
 
-        given()
+        String s = given()
                 .header("Content-Type", "application/json")
                 .body(updatePartnerRequestCommand)
                 .when().put("/partnerRequest/update")
                 .then()
-                .statusCode(422);
+                .statusCode(401).extract().body().asString();
+                System.out.println(s);
 
         assertEquals(1, eventRepository.listAll().size());
     }
@@ -904,6 +906,7 @@ public class PartnerRequestResourceTest {
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
 
         CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
+        cancelPartnerRequestCommand.setMemberId("TestMember");
         cancelPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
         cancelPartnerRequestCommand.setMemberId("TestMember");
 
@@ -929,6 +932,7 @@ public class PartnerRequestResourceTest {
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
 
         CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
+        cancelPartnerRequestCommand.setMemberId("TestMember");
         cancelPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
         cancelPartnerRequestCommand.setMemberId("TestMember");
 

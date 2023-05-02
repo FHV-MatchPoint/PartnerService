@@ -1,8 +1,8 @@
 package at.fhv.matchpoint.partnerservice.rest;
 
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
-import at.fhv.matchpoint.partnerservice.infrastructure.LockClubListener;
-import at.fhv.matchpoint.partnerservice.infrastructure.LockMemberListener;
+import at.fhv.matchpoint.partnerservice.infrastructure.LockClubConsumer;
+import at.fhv.matchpoint.partnerservice.infrastructure.LockMemberConsumer;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -13,10 +13,10 @@ import jakarta.ws.rs.core.Response;
 public class DevPoint {
 
     @Inject
-    LockMemberListener lockMemberListener;
+    LockMemberConsumer lockMemberListener;
 
     @Inject
-    LockClubListener lockClubListener;
+    LockClubConsumer lockClubListener;
 
     @Inject
     EventRepository eventRepository;

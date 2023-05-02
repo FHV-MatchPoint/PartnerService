@@ -6,13 +6,13 @@ import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.domain.model.Member;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
 import at.fhv.matchpoint.partnerservice.events.*;
 
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
-import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServicesRestClient;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MongoDBPersistenceError;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestNotFoundException;
@@ -21,10 +21,12 @@ import at.fhv.matchpoint.partnerservice.utils.exceptions.VersionNotMatchingExcep
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,12 +41,12 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     @Inject
     RemoteServices remoteServices;
 
-    //TODO Handle check of ownerId/partnerId and memberId some action are only allowed for owner, some only for partner
-
     @Override
     public PartnerRequestDTO initiatePartnerRequest(InitiatePartnerRequestCommand initiatePartnerRequestCommand) throws DateTimeFormatException, MongoDBPersistenceError {
-//        this.verifyCreateRequest();
-        remoteServices.verify(initiatePartnerRequestCommand.getMemberId());
+        Optional<Member> optMember = remoteServices.verify(initiatePartnerRequestCommand.getMemberId());
+        if(!optMember.isPresent()){
+            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+        }
         PartnerRequest partnerRequest = new PartnerRequest();
         RequestInitiatedEvent event = partnerRequest.process(initiatePartnerRequestCommand);
         try {
@@ -58,12 +60,18 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     @Override
     public PartnerRequestDTO acceptPartnerRequest(AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
-//        create AcceptPartnerRequestCommand
+        Optional<Member> optMember = remoteServices.verify(acceptPartnerRequestCommand.getPartnerId());
+        if(!optMember.isPresent()){
+            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+        }
         List<Event> events = getEventsByAggregateId(acceptPartnerRequestCommand.getPartnerRequestId());
         if(events.size() == 0){
             throw new PartnerRequestNotFoundException();
         }
         PartnerRequest partnerRequest = buildAggregate(events);
+        if(optMember.get().memberId == partnerRequest.getOwnerId()){
+            throw new NotAuthorizedException(Response.status(401, "Cannot accept own Request"));
+        }
         RequestAcceptedEvent event = partnerRequest.process(acceptPartnerRequestCommand);
         checkForVersionMismatch(events, partnerRequest);
         try {
@@ -77,11 +85,18 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     @Override
     public PartnerRequestDTO updatePartnerRequest(UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
+        Optional<Member> optMember = remoteServices.verify(updatePartnerRequestCommand.getMemberId());
+        if(!optMember.isPresent()){
+            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+        }
         List<Event> events = getEventsByAggregateId(updatePartnerRequestCommand.getPartnerRequestId());
         if(events.size() == 0){
             throw new PartnerRequestNotFoundException();
         }
         PartnerRequest partnerRequest = buildAggregate(events);
+        if(optMember.get().memberId != partnerRequest.getOwnerId()){
+            throw new NotAuthorizedException(Response.status(401, "Cannot change foreign requests"));
+        }
         RequestUpdatedEvent event = partnerRequest.process(updatePartnerRequestCommand);
         checkForVersionMismatch(events, partnerRequest);
         try {
@@ -95,11 +110,18 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     @Override
     public PartnerRequestDTO cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand) throws MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
+        Optional<Member> optMember = remoteServices.verify(cancelPartnerRequestCommand.getMemberId());
+        if(!optMember.isPresent()){
+            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+        }
         List<Event> events = getEventsByAggregateId(cancelPartnerRequestCommand.getPartnerRequestId());
         if(events.size() == 0){
             throw new PartnerRequestNotFoundException();
         }
         PartnerRequest partnerRequest = buildAggregate(events);
+        if(optMember.get().memberId != partnerRequest.getOwnerId()){
+            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+        }
         RequestCancelledEvent event = partnerRequest.process(cancelPartnerRequestCommand);
         checkForVersionMismatch(events, partnerRequest);
         try {

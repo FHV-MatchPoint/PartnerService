@@ -17,7 +17,7 @@ import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
  import jakarta.inject.Inject;
 
  @ApplicationScoped
- public class LockMemberListener {
+ public class LockMemberConsumer {
 
      @Inject
      RedisDataSource redisDataSource;
@@ -25,7 +25,7 @@ import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
      @Inject
      LockPartnerRequestService lockPartnerRequestService;
 
-     private static final Logger LOGGER = Logger.getLogger(LockMemberListener.class);
+     private static final Logger LOGGER = Logger.getLogger(LockMemberConsumer.class);
 
      final String GROUP_NAME = "partnerService";
      final String STREAM_KEY = "lockMember";

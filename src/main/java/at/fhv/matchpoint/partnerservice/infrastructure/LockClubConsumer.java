@@ -17,7 +17,7 @@
 import org.jboss.logging.Logger;
 
  @ApplicationScoped
- public class LockClubListener {
+ public class LockClubConsumer {
 
      @Inject
      RedisDataSource redisDataSource;
@@ -25,7 +25,7 @@ import org.jboss.logging.Logger;
      @Inject
      LockPartnerRequestService lockPartnerRequestService;
 
-     private static final Logger LOGGER = Logger.getLogger(LockClubListener.class);
+     private static final Logger LOGGER = Logger.getLogger(LockClubConsumer.class);
 
      final String GROUP_NAME = "partnerService";
      final String STREAM_KEY = "lockClub";
