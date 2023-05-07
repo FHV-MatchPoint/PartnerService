@@ -61,7 +61,6 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         try {
             eventRepository.persist(event);
             partnerRequest.apply(event);
-            consumer.send(event);
         } catch (Exception exception) {
             throw new MongoDBPersistenceError();
         }

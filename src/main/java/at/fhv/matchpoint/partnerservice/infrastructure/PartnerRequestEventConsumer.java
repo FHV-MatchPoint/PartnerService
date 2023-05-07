@@ -6,6 +6,10 @@ import at.fhv.matchpoint.partnerservice.events.RequestAcceptedEvent;
 import at.fhv.matchpoint.partnerservice.events.RequestCancelledEvent;
 import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
 import at.fhv.matchpoint.partnerservice.events.RequestUpdatedEvent;
+import at.fhv.matchpoint.partnerservice.utils.LocalDateDeserializer;
+import at.fhv.matchpoint.partnerservice.utils.LocalDateTimeDeserializer;
+import at.fhv.matchpoint.partnerservice.utils.LocalTimeDeserializer;
+import at.fhv.matchpoint.partnerservice.utils.ObjectIdDeserializer;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.stream.StreamMessage;
@@ -15,12 +19,21 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Duration;
-import java.util.HashMap;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.bson.types.ObjectId;
 import org.jboss.logging.Logger;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @ApplicationScoped
 public class PartnerRequestEventConsumer {
@@ -29,19 +42,29 @@ public class PartnerRequestEventConsumer {
     RedisDataSource redisDataSource;
 
     @Inject
+    ObjectMapper mapper;
+
+    @Inject
     PartnerRequestReadModelRepository partnerRequestReadModelRepository;
 
     private static final Logger LOGGER = Logger.getLogger(PartnerRequestEventConsumer.class);
 
     final String GROUP_NAME = "partnerService";
-    final String STREAM_KEY = "requestEvent";
+    final String STREAM_KEY = "partnerRequestEvents.inventory.Event";
     final String CONSUMER = UUID.randomUUID().toString();
-    final Class<Event> TYPE = Event.class;
-    final String PAYLOAD_KEY = "data";
+    final Class<JsonNode> TYPE = JsonNode.class;
+    final String PAYLOAD_KEY = "value";
 
     // create group for horizontal scaling. this way each partner service instance doesnt ready messages multiple times
     @PostConstruct
     public void createGroup(){
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
+        module.addDeserializer(LocalDate.class, new LocalDateDeserializer());
+        module.addDeserializer(LocalTime.class, new LocalTimeDeserializer());
+        module.addDeserializer(ObjectId.class, new ObjectIdDeserializer());
+        mapper.registerModule(module);
+        mapper.registerModule(new JavaTimeModule());
         try {
             redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
         } catch (Exception e) {
@@ -54,19 +77,20 @@ public class PartnerRequestEventConsumer {
     @Scheduled(every="0s")
     void readMessage(){
         // > reads only messages that have not been read by any other consumer of the group
-        List<StreamMessage<String, String, Event>> messages = redisDataSource.stream(TYPE).xreadgroup(GROUP_NAME, CONSUMER, STREAM_KEY, ">");
+        List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xreadgroup(GROUP_NAME, CONSUMER, STREAM_KEY, ">");
 
-        for (StreamMessage<String, String, Event> message : messages) {
-            Map<String,Event> payload = message.payload();
+        for (StreamMessage<String, String, JsonNode> message : messages) {
+            Map<String,JsonNode> payload = message.payload();
             try {
-                Optional<PartnerRequestReadModel> optPartnerRequest = partnerRequestReadModelRepository.findByIdOptional(payload.get(PAYLOAD_KEY).aggregateId);
+                Event event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), Event.class);
+                Optional<PartnerRequestReadModel> optPartnerRequest = partnerRequestReadModelRepository.findByIdOptional(event.aggregateId);
                 PartnerRequestReadModel partnerRequestReadModel = new PartnerRequestReadModel();
                 if(optPartnerRequest.isPresent()){
                     partnerRequestReadModel = optPartnerRequest.get();    
                 }
-                partnerRequestReadModel = build(partnerRequestReadModel, payload.get(PAYLOAD_KEY));
+                partnerRequestReadModel = build(partnerRequestReadModel, event);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
-                partnerRequestReadModelRepository.persist(partnerRequestReadModel);
+                partnerRequestReadModelRepository.persistAndFlush(partnerRequestReadModel);
             } catch (Exception e) {
                 LOGGER.info(e.getMessage());                
             }
@@ -77,17 +101,18 @@ public class PartnerRequestEventConsumer {
     // when consumer fails, claim the open messages
     @Scheduled(every="600s")
     void claimOpenMessages(){
-        List<StreamMessage<String, String, Event>> messages = redisDataSource.stream(TYPE).xautoclaim(STREAM_KEY, GROUP_NAME, CONSUMER, Duration.ofSeconds(600) , "0").getMessages();
+        List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xautoclaim(STREAM_KEY, GROUP_NAME, CONSUMER, Duration.ofSeconds(600) , "0").getMessages();
 
-        for (StreamMessage<String, String, Event> message : messages) {
-            Map<String,Event> payload = message.payload();
+        for (StreamMessage<String, String, JsonNode> message : messages) {
+            Map<String,JsonNode> payload = message.payload();
             try {
-                Optional<PartnerRequestReadModel> optPartnerRequest = partnerRequestReadModelRepository.findByIdOptional(payload.get(PAYLOAD_KEY).aggregateId);
+                Event event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), Event.class);
+                Optional<PartnerRequestReadModel> optPartnerRequest = partnerRequestReadModelRepository.findByIdOptional(event.aggregateId);
                 PartnerRequestReadModel partnerRequestReadModel = new PartnerRequestReadModel();
                 if(optPartnerRequest.isPresent()){
                     partnerRequestReadModel = optPartnerRequest.get();    
                 }
-                partnerRequestReadModel = build(partnerRequestReadModel, payload.get(PAYLOAD_KEY));
+                partnerRequestReadModel = build(partnerRequestReadModel, event);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
                 partnerRequestReadModelRepository.persist(partnerRequestReadModel);
             } catch (Exception e) {
@@ -123,32 +148,4 @@ public class PartnerRequestEventConsumer {
         return requestReadModel;
     }
 
-    public void send(RequestInitiatedEvent event) {
-        Map<String, Event> events = new HashMap<>();
-        events.put(PAYLOAD_KEY, event);
-
-        redisDataSource.stream(TYPE).xadd(STREAM_KEY, events);
-    }
-
-    public void send(RequestAcceptedEvent event) {
-        Map<String, Event> events = new HashMap<>();
-        events.put(PAYLOAD_KEY, event);
-
-        redisDataSource.stream(TYPE).xadd(STREAM_KEY, events);
-    }
-
-    public void send(RequestUpdatedEvent event) {
-        Map<String, Event> events = new HashMap<>();
-        events.put(PAYLOAD_KEY, event);
-
-        redisDataSource.stream(TYPE).xadd(STREAM_KEY, events);
-    }
-
-    public void send(RequestCancelledEvent event) {
-        Map<String, Event> events = new HashMap<>();
-        events.put(PAYLOAD_KEY, event);
-
-        redisDataSource.stream(TYPE).xadd(STREAM_KEY, events);
-    }
-   
 }
