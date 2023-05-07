@@ -19,6 +19,7 @@ import at.fhv.matchpoint.partnerservice.utils.exceptions.VersionNotMatchingExcep
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import io.quarkus.cache.CacheResult;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -113,6 +114,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         return PartnerRequestDTO.buildDTO(buildAggregate(events));
     }
 
+    @CacheResult(cacheName = "openrequests-cache")
     @Override
     public List<PartnerRequestDTO> getOpenPartnerRequests(String memberId, String clubId, LocalDate from, LocalDate to) {
         // verify member

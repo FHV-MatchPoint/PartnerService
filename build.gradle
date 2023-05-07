@@ -22,6 +22,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-scheduler'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-hibernate-validator'
+    implementation "io.quarkus:quarkus-cache"
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'io.quarkus:quarkus-jacoco'
