@@ -9,17 +9,17 @@ public class Member {
     @Id
     public String memberId;
     public String clubId;
-    public String name;
+    public Boolean isLocked;
 
     public Member(){}
 
-    private Member(String memberId, String clubId, String name) {
+    private Member(String memberId, String clubId) {
         this.memberId = memberId;
         this.clubId = clubId;
-        this.name = name;
+        this.isLocked = false;
     }
 
-    public static Member create(String memberId, String clubId, String name) {
-        return new Member(memberId, clubId, name);
+    public static Member create(String memberId, String clubId) {
+        return new Member(memberId, clubId);
     }
 }
