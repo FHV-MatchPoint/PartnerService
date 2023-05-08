@@ -50,7 +50,7 @@ public class PartnerRequestEventConsumer {
     private static final Logger LOGGER = Logger.getLogger(PartnerRequestEventConsumer.class);
 
     final String GROUP_NAME = "partnerService";
-    final String STREAM_KEY = "partnerRequestEvents.inventory.Event";
+    final String STREAM_KEY = "partnerservice.event.Event";
     final String CONSUMER = UUID.randomUUID().toString();
     final Class<JsonNode> TYPE = JsonNode.class;
     final String PAYLOAD_KEY = "value";
@@ -83,6 +83,7 @@ public class PartnerRequestEventConsumer {
             Map<String,JsonNode> payload = message.payload();
             try {
                 Event event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), Event.class);
+                System.out.println(event);
                 Optional<PartnerRequestReadModel> optPartnerRequest = partnerRequestReadModelRepository.findByIdOptional(event.aggregateId);
                 PartnerRequestReadModel partnerRequestReadModel = new PartnerRequestReadModel();
                 if(optPartnerRequest.isPresent()){

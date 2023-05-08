@@ -22,6 +22,7 @@ import at.fhv.matchpoint.partnerservice.utils.exceptions.RequestStateChangeExcep
 import at.fhv.matchpoint.partnerservice.utils.exceptions.VersionNotMatchingException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.Response;
 

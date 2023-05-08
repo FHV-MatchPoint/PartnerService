@@ -58,6 +58,7 @@ public class PartnerRequestResource {
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
         } catch (ResponseException e) {
+            e.printStackTrace();
             return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
     }
