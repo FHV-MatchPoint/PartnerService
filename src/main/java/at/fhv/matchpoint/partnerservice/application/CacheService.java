@@ -8,4 +8,5 @@ package at.fhv.matchpoint.partnerservice.application;
 public interface CacheService {
 
     String getCache();
+    int updateCache();
 }

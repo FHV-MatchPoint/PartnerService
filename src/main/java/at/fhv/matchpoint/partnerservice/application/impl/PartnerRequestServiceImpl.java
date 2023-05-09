@@ -16,6 +16,7 @@ import at.fhv.matchpoint.partnerservice.utils.exceptions.MongoDBPersistenceError
 import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestNotFoundException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.RequestStateChangeException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.VersionNotMatchingException;
+import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -35,6 +36,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     //TODO Handle check of ownerId/partnerId and memberId some action are only allowed for owner, some only for partner
 
+    @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
     public PartnerRequestDTO initiatePartnerRequest(InitiatePartnerRequestCommand initiatePartnerRequestCommand) throws DateTimeFormatException, MongoDBPersistenceError {
 //        this.verifyCreateRequest();
@@ -49,6 +51,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         return PartnerRequestDTO.buildDTO(partnerRequest);
     }
 
+    @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
     public PartnerRequestDTO acceptPartnerRequest(AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
 //        create AcceptPartnerRequestCommand
@@ -68,6 +71,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         return PartnerRequestDTO.buildDTO(partnerRequest);
     }
 
+    @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
     public PartnerRequestDTO updatePartnerRequest(UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
         List<Event> events = getEventsByAggregateId(updatePartnerRequestCommand.getPartnerRequestId());
@@ -86,6 +90,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         return PartnerRequestDTO.buildDTO(partnerRequest);
     }
 
+    @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
     public PartnerRequestDTO cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand) throws MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
         List<Event> events = getEventsByAggregateId(cancelPartnerRequestCommand.getPartnerRequestId());

@@ -77,4 +77,15 @@ public class DevPoint {
         String response = res + " " + duration;
         return Response.ok(response).build();
     }
+
+    @GET
+    @Path("updatecache")
+    public Response cacheUpdate(@PathParam("password") String password) {
+        if (!password.equals("admin")) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("So nicht mein Freund").build();
+        }
+        int res = this.cacheService.updateCache();
+        String response = "Updated Cache " + res;
+        return Response.ok(response).build();
+    }
 }
