@@ -26,6 +26,9 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.Response;
 
+import io.quarkus.cache.CacheInvalidate;
+import io.quarkus.panache.common.Parameters;
+import io.quarkus.cache.CacheResult;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +51,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     @Inject
     PartnerRequestReadModelRepository partnerRequestReadModelRepository;
 
+    @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
     public PartnerRequestDTO initiatePartnerRequest(InitiatePartnerRequestCommand initiatePartnerRequestCommand) throws DateTimeFormatException, MongoDBPersistenceError {
         Optional<Member> optMember = memberRepository.verify(initiatePartnerRequestCommand.getMemberId(), initiatePartnerRequestCommand.getClubId());
@@ -65,6 +69,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         return PartnerRequestDTO.buildDTO(partnerRequest);
     }
 
+    @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
     public PartnerRequestDTO acceptPartnerRequest(AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
         Optional<Member> optMember = memberRepository.verify(acceptPartnerRequestCommand.getPartnerId());
@@ -90,6 +95,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         return PartnerRequestDTO.buildDTO(partnerRequest);
     }
 
+    @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
     public PartnerRequestDTO updatePartnerRequest(UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
         Optional<Member> optMember = memberRepository.verify(updatePartnerRequestCommand.getMemberId());
@@ -115,6 +121,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         return PartnerRequestDTO.buildDTO(partnerRequest);
     }
 
+    @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
     public PartnerRequestDTO cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand) throws MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
         Optional<Member> optMember = memberRepository.verify(cancelPartnerRequestCommand.getMemberId());
@@ -153,6 +160,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         return PartnerRequestDTO.buildDTO(model.get());
     }
 
+    @CacheResult(cacheName = "openrequests-cache")
     @Override
     public List<PartnerRequestDTO> getOpenPartnerRequests(String memberId, String clubId, LocalDate from, LocalDate to) {
         Optional<Member> optMember = memberRepository.verify(memberId, clubId);
