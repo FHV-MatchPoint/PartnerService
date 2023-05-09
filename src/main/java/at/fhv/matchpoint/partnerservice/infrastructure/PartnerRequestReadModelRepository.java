@@ -13,11 +13,11 @@ import jakarta.transaction.Transactional;
 public class PartnerRequestReadModelRepository implements PanacheRepositoryBase<PartnerRequestReadModel, String> {
 
     public List<PartnerRequestReadModel> getOpenPartnerRequests(String memberId, String clubId, LocalDate from, LocalDate to) {
-        return null;
+        return find("SELECT p from PartnerRequestReadModel p where ownerId != ?1 and clubId = ?2 and startTime >= ?3 and endTime <= ?4", memberId, clubId, from, to).list();
     }
 
     public List<PartnerRequestReadModel> getPartnerRequestsByMemberId(String memberId) {
-        return null;
+        return find("SELECT p from PartnerRequestReadModel p where ownerId = ?", memberId).list();
     }
 
 }

@@ -16,7 +16,7 @@ public class FakeItTillTheyMakeIt implements RemoteServices {
         if(!memberId.equals("TestMember") && !memberId.equals("TestPartner")){
             memberId = null;
         } 
-        return memberId != null ? Optional.of(Member.create(memberId, "TestClub")) : Optional.empty();
+        return memberId != null ? Optional.of(Member.create(memberId, "TestClub", "Justin")) : Optional.empty();
     }
 
     @Override
