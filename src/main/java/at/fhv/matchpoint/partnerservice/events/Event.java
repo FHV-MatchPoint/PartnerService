@@ -39,6 +39,8 @@ public abstract class Event implements Comparable<Event> {
 
     public abstract void accept(PartnerRequestVisitor v);
 
+//    public abstract void accept(MemberVisitor v);
+
     @Override
     public int compareTo(Event e) {
         return createdAt.compareTo(e.createdAt);

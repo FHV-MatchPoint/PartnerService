@@ -1,9 +1,10 @@
 package at.fhv.matchpoint.partnerservice.infrastructure;
 
 import at.fhv.matchpoint.partnerservice.domain.model.Member;
-import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
 import at.fhv.matchpoint.partnerservice.events.*;
 import at.fhv.matchpoint.partnerservice.utils.*;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -22,10 +23,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @ApplicationScoped
 public class MemberEventConsumer {
@@ -65,80 +63,123 @@ public class MemberEventConsumer {
         }
     }
 
-    // constantly checks if new messages are available to be read and processed
-//    @Scheduled(every="0s")
-//    void readMessage(){
-//        // > reads only messages that have not been read by any other consumer of the group
-//        List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xreadgroup(GROUP_NAME, CONSUMER, STREAM_KEY, ">");
-//
-//        for (StreamMessage<String, String, JsonNode> message : messages) {
-//            Map<String,JsonNode> payload = message.payload();
-//            try {
-//                Event event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), Event.class);
-//                System.out.println(event);
-//                Optional<Member> optMember = memberRepository.findByIdOptional(event.aggregateId);
-//                Member member = new Member();
-//                if(optMember.isPresent()){
-//                    member = optMember.get();
-//                }
-//                partnerRequestReadModel = build(partnerRequestReadModel, event);
-//                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
-//                partnerRequestReadModelRepository.persistAndFlush(partnerRequestReadModel);
-//            } catch (Exception e) {
-//                LOGGER.info(e.getMessage());
-//            }
-//        }
-//    }
+    //constantly checks if new messages are available to be read and processed
+    @Scheduled(every="0s")
+    void readMessage(){
+        // > reads only messages that have not been read by any other consumer of the group
+        List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xreadgroup(GROUP_NAME, CONSUMER, STREAM_KEY, ">");
+
+        for (StreamMessage<String, String, JsonNode> message : messages) {
+            Map<String,JsonNode> payload = message.payload();
+            try {
+                MemberEvent memberEvent = mapper.readValue(payload.get("value").get("payload").get("after").asText(), MemberEvent.class);
+                System.out.println(memberEvent);
+                Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.aggregateId);
+                Member member = new Member();
+                if (optMember.isPresent()) {
+                    member = optMember.get();
+                }
+                member = build(member, memberEvent);
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
+                memberRepository.persistAndFlush(member);
+            } catch (MemberNotFoundException e) {
+                readAllMessages(e);
+            } catch (Exception e) {
+                LOGGER.info(e.getMessage());
+            }
+        }
+    }
+
+    void readAllMessages(MemberNotFoundException exception){
+        // > reads only messages that have not been read by any other consumer of the group
+        List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xreadgroup(GROUP_NAME, CONSUMER, STREAM_KEY, "0");
+
+        for (StreamMessage<String, String, JsonNode> message : messages) {
+            Map<String,JsonNode> payload = message.payload();
+            try {
+                MemberEvent memberEvent = mapper.readValue(payload.get("value").get("payload").get("after").asText(), MemberEvent.class);
+                System.out.println(memberEvent);
+                Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.aggregateId);
+                Member member = new Member();
+                if (optMember.isPresent()) {
+                    member = optMember.get();
+                }
+                member = build(member, memberEvent);
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
+                memberRepository.persistAndFlush(member);
+            } catch (MemberNotFoundException e) {
+                LOGGER.info(exception.getMessage());
+            } catch (Exception e) {
+                LOGGER.info(e.getMessage());
+            }
+        }
+    }
 
 
     // when consumer fails, claim the open messages
-//    @Scheduled(every="600s")
-//    void claimOpenMessages(){
-//        List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xautoclaim(STREAM_KEY, GROUP_NAME, CONSUMER, Duration.ofSeconds(600) , "0").getMessages();
-//
-//        for (StreamMessage<String, String, JsonNode> message : messages) {
-//            Map<String,JsonNode> payload = message.payload();
-//            try {
-//                Event event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), Event.class);
-//                Optional<PartnerRequestReadModel> optPartnerRequest = partnerRequestReadModelRepository.findByIdOptional(event.aggregateId);
-//                PartnerRequestReadModel partnerRequestReadModel = new PartnerRequestReadModel();
-//                if(optPartnerRequest.isPresent()){
-//                    partnerRequestReadModel = optPartnerRequest.get();
-//                }
-//                partnerRequestReadModel = build(partnerRequestReadModel, event);
-//                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
-//                partnerRequestReadModelRepository.persist(partnerRequestReadModel);
-//            } catch (Exception e) {
-//                LOGGER.info(e.getMessage());
-//            }
-//        }
-//    }
+    @Scheduled(every="600s")
+    void claimOpenMessages(){
+        List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xautoclaim(STREAM_KEY, GROUP_NAME, CONSUMER, Duration.ofSeconds(600) , "0").getMessages();
 
-//    private Member build(Member model, Event event){
-//        Member member = model;
-//        event.accept(new PartnerRequestVisitor() {
-//
-//            @Override
-//            public void visit(RequestAcceptedEvent event) {
-//                member.apply(event);
-//            }
-//
-//            @Override
-//            public void visit(RequestInitiatedEvent event) {
-//                requestReadModel.apply(event);
-//            }
-//
-//            @Override
-//            public void visit(RequestUpdatedEvent event) {
-//                requestReadModel.apply(event);
-//            }
-//
-//            @Override
-//            public void visit(RequestCancelledEvent event) {
-//                requestReadModel.apply(event);
-//            }
-//        });
-//        return requestReadModel;
-//    }
+        for (StreamMessage<String, String, JsonNode> message : messages) {
+            Map<String,JsonNode> payload = message.payload();
+            try {
+                MemberEvent memberEvent = mapper.readValue(payload.get("value").get("payload").get("after").asText(), MemberEvent.class);
+                Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.aggregateId);
+                Member member = new Member();
+                if(optMember.isPresent()){
+                    member = optMember.get();
+                }
+                member = build(member, memberEvent);
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
+                memberRepository.persist(member);
+            } catch (Exception e) {
+                LOGGER.info(e.getMessage());
+            }
+        }
+    }
+
+    private Member build(Member model, MemberEvent memberEvent) throws MemberNotFoundException {
+        Member member = model;
+        memberEvent.accept(new MemberVisitor() {
+            @Override
+            public void visit(MemberLockedEvent event) throws MemberNotFoundException {
+                if(member.memberId == null) {
+                    throw new MemberNotFoundException();
+                }
+                model.apply(event);
+            }
+
+            @Override
+            public void visit(MemberUnlockedEvent event) throws MemberNotFoundException {
+                if(member.memberId == null) {
+                    throw new MemberNotFoundException();
+                }
+                model.apply(event);
+            }
+
+            @Override
+            public void visit(MemberAddedEvent event) {
+                try {
+                    member.apply(event, mapper.readValue(event.payload, JsonNode.class));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        return member;
+    }
+
+    public void sendMessage(String memberId){
+
+        Map<String, JsonNode> events = new HashMap<>();
+        MemberLockedEvent event =  new MemberLockedEvent();
+        event.aggregateId = memberId;
+        events.put("data", mapper.convertValue(event, JsonNode.class));
+
+        redisDataSource.stream(TYPE).xadd(STREAM_KEY, events);
+        System.out.println(redisDataSource.stream(TYPE).xlen(STREAM_KEY));
+
+    }
 
 }
