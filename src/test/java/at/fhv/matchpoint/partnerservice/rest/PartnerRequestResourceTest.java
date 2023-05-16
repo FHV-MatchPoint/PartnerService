@@ -6,8 +6,9 @@ import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
-import at.fhv.matchpoint.partnerservice.infrastructure.secretquarkuslaborwherethemagicismade.AlexAndJustinIgnoreThis;
-import at.fhv.matchpoint.partnerservice.infrastructure.secretquarkuslaborwherethemagicismade.DontLookAtThis;
+import at.fhv.matchpoint.partnerservice.infrastructure.remote.FakeItTillTheyMakeIt;
+import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
+import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServicesRestClient;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -31,14 +32,14 @@ public class PartnerRequestResourceTest {
     EventRepository eventRepository;
 
     @Inject
-    DontLookAtThis mockBean;
+    RemoteServices mockBean;
 
     // for later so that we now how to setup mocks
     @BeforeAll
     public static void setup() {
-        AlexAndJustinIgnoreThis mock = Mockito.mock(AlexAndJustinIgnoreThis.class);
-        Mockito.when(mock.iSaidIgnoreThisAndStopLookingAtThisFunctionItIsJustSomeQuarkusMagic()).thenReturn(true);
-        QuarkusMock.installMockForType(mock, DontLookAtThis.class);
+//        FakeItTillTheyMakeIt mock = Mockito.mock(FakeItTillTheyMakeIt.class);
+//        Mockito.when(mock.iSaidIgnoreThisAndStopLookingAtThisFunctionItIsJustSomeQuarkusMagic()).thenReturn(true);
+//        QuarkusMock.installMockForType(mock, RemoteServices.class);
     }
 
     @BeforeEach
@@ -304,8 +305,7 @@ public class PartnerRequestResourceTest {
         assertEquals(2, eventRepository.listAll().size());
     }
 
-    //TODO implement solution and fix test
-    //@Test
+    @Test
     public void test_accept_own_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -327,13 +327,12 @@ public class PartnerRequestResourceTest {
                 .body(acceptPartnerRequestCommand)
                 .when().put("/partnerRequest/accept")
                 .then()
-                .statusCode(200);
+                .statusCode(401);
 
         assertEquals(1, eventRepository.listAll().size());
     }
 
-    //TODO implement solution and fix test
-    //@Test
+    @Test
     public void test_accept_foreign_club_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -355,7 +354,7 @@ public class PartnerRequestResourceTest {
                 .body(acceptPartnerRequestCommand)
                 .when().put("/partnerRequest/accept")
                 .then()
-                .statusCode(200);
+                .statusCode(401);
 
         assertEquals(1, eventRepository.listAll().size());
     }
@@ -617,6 +616,7 @@ public class PartnerRequestResourceTest {
 
         CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
         cancelPartnerRequestCommand.setMemberId("TestMember");
+        cancelPartnerRequestCommand.setMemberId("TestMember");
         cancelPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
 
         api.cancel(cancelPartnerRequestCommand);
@@ -638,8 +638,7 @@ public class PartnerRequestResourceTest {
         assertEquals(2, eventRepository.listAll().size());
     }
 
-    //TODO implement and fix test
-    //@Test
+    @Test
     public void test_update_foreign_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -662,7 +661,7 @@ public class PartnerRequestResourceTest {
                 .body(updatePartnerRequestCommand)
                 .when().put("/partnerRequest/update")
                 .then()
-                .statusCode(404);
+                .statusCode(401);
 
         assertEquals(1, eventRepository.listAll().size());
     }
@@ -903,6 +902,7 @@ public class PartnerRequestResourceTest {
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
 
         CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
+        cancelPartnerRequestCommand.setMemberId("TestMember");
         cancelPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
         cancelPartnerRequestCommand.setMemberId("TestMember");
 
@@ -928,6 +928,7 @@ public class PartnerRequestResourceTest {
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
 
         CancelPartnerRequestCommand cancelPartnerRequestCommand = new CancelPartnerRequestCommand();
+        cancelPartnerRequestCommand.setMemberId("TestMember");
         cancelPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
         cancelPartnerRequestCommand.setMemberId("TestMember");
 

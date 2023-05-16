@@ -1,14 +1,7 @@
  package at.fhv.matchpoint.partnerservice.infrastructure;
 
- import java.time.Duration;
- import java.util.HashMap;
- import java.util.Map;
- import java.util.UUID;
-
-import org.jboss.logging.Logger;
-
-import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
- import at.fhv.matchpoint.partnerservice.events.MemberLockedEvent;
+ import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
+ import at.fhv.matchpoint.partnerservice.events.ClubLockedEvent;
  import io.quarkus.redis.datasource.RedisDataSource;
  import io.quarkus.redis.datasource.stream.XGroupCreateArgs;
  import io.quarkus.scheduler.Scheduled;
@@ -16,8 +9,15 @@ import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
  import jakarta.enterprise.context.ApplicationScoped;
  import jakarta.inject.Inject;
 
+ import java.time.Duration;
+ import java.util.HashMap;
+ import java.util.Map;
+ import java.util.UUID;
+
+import org.jboss.logging.Logger;
+
  @ApplicationScoped
- public class LockMemberListener {
+ public class LockClubConsumer {
 
      @Inject
      RedisDataSource redisDataSource;
@@ -25,30 +25,30 @@ import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
      @Inject
      LockPartnerRequestService lockPartnerRequestService;
 
-     private static final Logger LOGGER = Logger.getLogger(LockMemberListener.class);
+     private static final Logger LOGGER = Logger.getLogger(LockClubConsumer.class);
 
      final String GROUP_NAME = "partnerService";
-     final String STREAM_KEY = "lockMember";
+     final String STREAM_KEY = "lockClub";
      final String CONSUMER = UUID.randomUUID().toString();
-     final Class<MemberLockedEvent> TYPE = MemberLockedEvent.class;
+     final Class<ClubLockedEvent> TYPE = ClubLockedEvent.class;
 
      // create group for horizontal scaling. this way each partner service instance doesnt ready messages multiple times
      @PostConstruct
      public void createGroup(){
          try {
-            redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
+             redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
          } catch (Exception e) {
-            LOGGER.info("Group already exists");
+             LOGGER.info("Group already exists");
              //TODO delete old consumers
          }
      }
 
      // just for testing may not be needed
-     public void sendMessage(String memberId){
+     public void sendMessage(String clubId){
 
-         Map<String, MemberLockedEvent> events = new HashMap<>();
-         MemberLockedEvent event =  new MemberLockedEvent();
-         event.memberId = memberId;
+         Map<String, ClubLockedEvent> events = new HashMap<>();
+         ClubLockedEvent event =  new ClubLockedEvent();
+         event.clubId = clubId;
          events.put("data", event);
 
          redisDataSource.stream(TYPE).xadd(STREAM_KEY, events);
@@ -64,11 +64,11 @@ import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
                  .forEach(message -> {
                      message.payload().values().stream().forEach(object -> {
                          try {
-                             lockPartnerRequestService.lockPartnerRequestByMemberId(object.memberId);
+                             lockPartnerRequestService.lockPartnerRequestByClubId(object.clubId);
                              redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
-                             System.out.println(object.memberId);
                          } catch (Exception e) {
                             LOGGER.info("Not all Request could be cancelled. Message will not be acknowledged");
+                            
                          }
                      });
                  });
@@ -82,7 +82,7 @@ import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
                  .getMessages().forEach(message -> {
                      message.payload().values().stream().forEach(object -> {
                          try {
-                             lockPartnerRequestService.lockPartnerRequestByMemberId(object.memberId);
+                             lockPartnerRequestService.lockPartnerRequestByClubId(object.clubId);
                              redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
                          } catch (Exception e) {
                             LOGGER.info("Not all Request could be cancelled. Message will not be acknowledged");

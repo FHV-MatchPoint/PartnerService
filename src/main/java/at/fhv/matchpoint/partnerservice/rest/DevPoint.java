@@ -1,10 +1,9 @@
 package at.fhv.matchpoint.partnerservice.rest;
 
-import at.fhv.matchpoint.partnerservice.application.CacheService;
 import at.fhv.matchpoint.partnerservice.application.impl.CacheServiceImpl;
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
-import at.fhv.matchpoint.partnerservice.infrastructure.LockClubListener;
-import at.fhv.matchpoint.partnerservice.infrastructure.LockMemberListener;
+import at.fhv.matchpoint.partnerservice.infrastructure.LockClubConsumer;
+import at.fhv.matchpoint.partnerservice.infrastructure.MemberEventConsumer;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -15,10 +14,10 @@ import jakarta.ws.rs.core.Response;
 public class DevPoint {
 
     @Inject
-    LockMemberListener lockMemberListener;
+    MemberEventConsumer memberEventConsumer;
 
     @Inject
-    LockClubListener lockClubListener;
+    LockClubConsumer lockClubListener;
 
     @Inject
     EventRepository eventRepository;
@@ -32,7 +31,7 @@ public class DevPoint {
         if (!password.equals("admin")) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("So nicht mein Freund").build();
         }
-        lockMemberListener.sendMessage(memberId);
+        memberEventConsumer.sendMessage(memberId);
         return Response.ok().build();
     }
 

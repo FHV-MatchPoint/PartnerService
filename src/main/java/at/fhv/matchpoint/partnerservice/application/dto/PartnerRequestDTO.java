@@ -1,8 +1,11 @@
 package at.fhv.matchpoint.partnerservice.application.dto;
 
+import java.util.Optional;
+
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
+import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
 
 @Schema(name = "PartnerRequest", readOnly = true)
 public class PartnerRequestDTO {
@@ -102,6 +105,18 @@ public class PartnerRequestDTO {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public static PartnerRequestDTO buildDTO(PartnerRequestReadModel partnerRequest) {
+        MemberDTO owner = MemberDTO.buildDTO(partnerRequest.getOwnerId());
+        MemberDTO partner = MemberDTO.buildDTO(partnerRequest.getPartnerId());
+        ClubDTO club = ClubDTO.buildDTO(partnerRequest.getClubId());
+        return new PartnerRequestDTO(partnerRequest.getPartnerRequestId(), 
+        owner, partner, club, 
+        partnerRequest.getDate().toString(),
+        partnerRequest.getStartTime().toString(), 
+        partnerRequest.getEndTime().toString(), 
+        partnerRequest.getState().toString());
     }
 
     
