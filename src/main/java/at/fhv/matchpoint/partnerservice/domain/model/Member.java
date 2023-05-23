@@ -40,7 +40,7 @@ public class Member {
     }
 
     public Member apply(MemberAddedEvent event, JsonNode jsonNode) {
-        this.memberId = event.aggregateId;
+        this.memberId = event.entity_id;
         this.clubId = jsonNode.get("tennisClubId").toString();
         this.name = jsonNode.get("name").toString();
         this.isLocked = false;
