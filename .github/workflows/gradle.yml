@@ -5,11 +5,11 @@
 # This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
 
-name: Java CI with Gradle
+name: Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   pull_request:
     branches: [ "main", "dev" ]
 
@@ -31,31 +31,4 @@ jobs:
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
-        arguments: build
-    - name: Docker login
-      env:
-        DOCKERHUB_USER: ${{secrets.DOCKERHUB_USER}}
-        DOCKERHUB_PW: ${{secrets.DOCKERHUB_PW}}
-      run: |
-        docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PW
-    - name: Build docker image
-      run: docker build . --file src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm} --tag matchpoint-partnerservice
-    - name: Push docker image to docker hub
-      run: docker push ${{secrets.DOCKERHUB_USER}}/matchpoint-partnerservice
-
-#  docker-image:
-#    needs: [build, copy-artifact]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Docker login
-#        env:
-#          DOCKERHUB_USER: ${{secrets.DOCKERHUB_USER}}
-#          DOCKERHUB_PW: ${{secrets.DOCKERHUB_PW}}
-#        run: |
-#          docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PW
-#      - name: Build docker image
-#        run: docker build . --file src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm} --tag matchpoint/partnerservice:$(date +%s)
-#      - name: Push docker image to docker hub
-#        run: docker push ${{secrets.DOCKERHUB_USER}}/matchpoint-partnerservice
-
+        arguments: test
