@@ -43,7 +43,7 @@ public class PartnerRequestDTOTest {
 
         PartnerRequest partnerRequest = new PartnerRequest();
         partnerRequest.apply(RequestInitiatedEvent.create(initiatePartnerRequestCommand));
-        partnerRequest.apply(RequestAcceptedEvent.create(acceptPartnerRequestCommand));
+        partnerRequest.apply(RequestAcceptedEvent.create(acceptPartnerRequestCommand, partnerRequest));
         PartnerRequestDTO partnerRequestDTO = PartnerRequestDTO.buildDTO(partnerRequest);
         assertEquals(MEMBER_ID, partnerRequestDTO.getOwner());
         assertEquals("0001-01-01", partnerRequestDTO.getDate());

@@ -22,12 +22,10 @@ import at.fhv.matchpoint.partnerservice.utils.exceptions.RequestStateChangeExcep
 import at.fhv.matchpoint.partnerservice.utils.exceptions.VersionNotMatchingException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.Response;
 
 import io.quarkus.cache.CacheInvalidate;
-import io.quarkus.panache.common.Parameters;
 import io.quarkus.cache.CacheResult;
 import java.time.LocalDate;
 import java.util.List;

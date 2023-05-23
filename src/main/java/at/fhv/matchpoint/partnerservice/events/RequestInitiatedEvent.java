@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
@@ -21,6 +22,7 @@ public class RequestInitiatedEvent extends Event {
     public LocalDate date;
     public LocalTime startTime;
     public LocalTime endTime;
+    public RequestState state;
 
     public RequestInitiatedEvent() {
     }
@@ -32,6 +34,7 @@ public class RequestInitiatedEvent extends Event {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.state = RequestState.INITIATED;
     }
 
     public static RequestInitiatedEvent create(InitiatePartnerRequestCommand command) throws DateTimeFormatException {

@@ -6,7 +6,6 @@ import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.ResponseExceptionBuilder;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.ResponseException;
 import io.quarkus.security.Authenticated;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.*;

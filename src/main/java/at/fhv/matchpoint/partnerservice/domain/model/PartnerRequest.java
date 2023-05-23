@@ -100,18 +100,18 @@ public class PartnerRequest {
         if(this.state.equals(RequestState.CANCELLED) || this.state.equals(RequestState.ACCEPTED)){
             throw new RequestStateChangeException();
         }
-        return RequestAcceptedEvent.create(acceptPartnerRequestCommand);
+        return RequestAcceptedEvent.create(acceptPartnerRequestCommand, this);
     }
 
     public RequestUpdatedEvent process (UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException {
         if(this.state.equals(RequestState.CANCELLED) || this.state.equals(RequestState.ACCEPTED)){
             throw new RequestStateChangeException();
         }
-        return RequestUpdatedEvent.create(updatePartnerRequestCommand);
+        return RequestUpdatedEvent.create(updatePartnerRequestCommand, this);
     }
 
     public RequestCancelledEvent process (CancelPartnerRequestCommand cancelPartnerRequestCommand) {
-        return RequestCancelledEvent.create(cancelPartnerRequestCommand);
+        return RequestCancelledEvent.create(cancelPartnerRequestCommand, this);
     }
 
     
