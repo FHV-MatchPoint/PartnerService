@@ -47,9 +47,9 @@ jobs:
       with:
         name: quarkus-app
         path: build/quarkus-app
-    - shell: bash
-      run: |
-        ls -a /home/runner/work/PartnerService/PartnerService/build
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+          name: quarkus-app
     - name: Docker login
       env:
         DOCKERHUB_USER: ${{secrets.DOCKERHUB_USER}}
