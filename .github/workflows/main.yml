@@ -33,7 +33,7 @@ jobs:
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: quarkus
+        name: quarkus-app
         path: build/quarkus-app
         retention-days: 1
   
@@ -45,7 +45,7 @@ jobs:
     - name: Download build/quarkus-app
       uses: actions/download-artifact@v3
       with:
-        name: quarkus
+        name: quarkus-app
         path: build
     - name: Docker login
       env:
