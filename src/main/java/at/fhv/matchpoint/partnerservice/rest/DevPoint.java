@@ -1,6 +1,5 @@
 package at.fhv.matchpoint.partnerservice.rest;
 
-import at.fhv.matchpoint.partnerservice.application.impl.CacheServiceImpl;
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.LockClubConsumer;
 import at.fhv.matchpoint.partnerservice.infrastructure.MemberEventConsumer;
@@ -23,9 +22,6 @@ public class DevPoint {
 
     @Inject
     EventRepository eventRepository;
-
-    @Inject
-    CacheServiceImpl cacheService;
 
     @GET
     @Path("lockmember/{memberId}")
@@ -65,28 +61,4 @@ public class DevPoint {
         return Response.ok(eventRepository.findAll().list()).build();
     }
 
-    @GET
-    @Path("cache")
-    public Response cacheTest(@PathParam("password") String password) {
-        if (!password.equals("admin")) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("So nicht mein Freund").build();
-        }
-        long executionStart = System.currentTimeMillis();
-        String res = this.cacheService.getCache();
-        long executionEnd = System.currentTimeMillis();
-        long duration = executionEnd - executionStart;
-        String response = res + " " + duration;
-        return Response.ok(response).build();
-    }
-
-    @GET
-    @Path("updatecache")
-    public Response cacheUpdate(@PathParam("password") String password) {
-        if (!password.equals("admin")) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("So nicht mein Freund").build();
-        }
-        int res = this.cacheService.updateCache();
-        String response = "Updated Cache " + res;
-        return Response.ok(response).build();
-    }
 }
