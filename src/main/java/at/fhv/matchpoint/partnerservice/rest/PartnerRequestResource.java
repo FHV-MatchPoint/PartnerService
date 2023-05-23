@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponseSchema;
@@ -43,6 +44,9 @@ public class PartnerRequestResource {
     @Inject
     PartnerRequestServiceImpl partnerRequestService;
 
+    @Inject
+    JsonWebToken webToken;
+
     @POST
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
@@ -55,6 +59,8 @@ public class PartnerRequestResource {
         summary = "Create a PartnerRequest",
         description = "Create a PartnerRequest for the given date and time period")
     public Response create(InitiatePartnerRequestCommand initiatePartnerRequestCommand) {
+        System.out.println(webToken.getRawToken());
+        System.out.println(webToken.getIssuer());
         try {
             return Response.status(Status.CREATED).entity(partnerRequestService.initiatePartnerRequest(initiatePartnerRequestCommand)).build();
         } catch (ConstraintViolationException e) {
