@@ -34,15 +34,17 @@ jobs:
         arguments: build
 
   copy-artifact:
-  - uses: actions/checkout@v3
-  - uses: actions/upload-artifact@v3
-    with:
-      name: build-files
-      path: |
-        build/quarkus-app/lib/
-        build/quarkus-app/*.jar
-        build/quarkus-app/app/
-        build/quarkus-app/quarkus/
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build-files
+        path: |
+          build/quarkus-app/lib/
+          build/quarkus-app/*.jar
+          build/quarkus-app/app/
+          build/quarkus-app/quarkus/
 
   docker-image:
     needs: [build, copy-artifact]
