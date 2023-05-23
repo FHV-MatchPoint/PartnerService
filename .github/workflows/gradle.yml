@@ -33,19 +33,19 @@ jobs:
       with:
         arguments: build
 
-  copy-build:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: |
-        COPY --chown=185 build/quarkus-app/lib/ /build/quarkus-app/lib/
-        COPY --chown=185 build/quarkus-app/*.jar /build/quarkus-app/*.jar
-        COPY --chown=185 build/quarkus-app/app/ /build/quarkus-app/app/
-        COPY --chown=185 build/quarkus-app/quarkus/ /build/quarkus-app/quarkus/
+  copy-artifact:
+  - uses: actions/checkout@v3
+  - uses: actions/upload-artifact@v3
+    with:
+      name: build-files
+      path: |
+        build/quarkus-app/lib/
+        build/quarkus-app/*.jar
+        build/quarkus-app/app/
+        build/quarkus-app/quarkus/
 
   docker-image:
-    needs: [build, copy-build]
+    needs: [build, copy-artifact]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -56,7 +56,7 @@ jobs:
         run: |
           docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PW
       - name: Build docker image
-        run:
-          docker build . --file src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm} --tag matchpoint/partnerservice:$(date +%s)
+        run: docker build . --file src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm} --tag matchpoint/partnerservice:$(date +%s)
       - name: Push docker image to docker hub
         run: docker push ${{secrets.DOCKERHUB_USER}}/matchpoint-partnerservice
+
