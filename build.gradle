@@ -22,10 +22,12 @@ dependencies {
     implementation 'io.quarkus:quarkus-scheduler'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-hibernate-validator'
-    implementation("io.quarkus:quarkus-hibernate-orm-panache")
-    implementation("io.quarkus:quarkus-jdbc-postgresql")
+    implementation 'io.quarkus:quarkus-hibernate-orm-panache'
+    implementation 'io.quarkus:quarkus-jdbc-postgresql'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1'
-    implementation "io.quarkus:quarkus-cache"
+    implementation 'io.quarkus:quarkus-cache'
+    implementation 'io.quarkus:quarkus-smallrye-jwt'
+    testImplementation 'io.quarkus:quarkus-test-security-jwt'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'io.quarkus:quarkus-jacoco'

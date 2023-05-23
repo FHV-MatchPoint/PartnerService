@@ -6,41 +6,27 @@ import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
-import at.fhv.matchpoint.partnerservice.infrastructure.remote.FakeItTillTheyMakeIt;
-import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
-import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServicesRestClient;
-import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest
 public class PartnerRequestResourceTest {
+
+    private static final String USER_NAME ="partnerService";
+    private static final String ROLE ="user";
 
     @Inject
     PartnerRequestResource api;
 
     @Inject
     EventRepository eventRepository;
-
-    @Inject
-    RemoteServices mockBean;
-
-    // for later so that we now how to setup mocks
-    @BeforeAll
-    public static void setup() {
-//        FakeItTillTheyMakeIt mock = Mockito.mock(FakeItTillTheyMakeIt.class);
-//        Mockito.when(mock.iSaidIgnoreThisAndStopLookingAtThisFunctionItIsJustSomeQuarkusMagic()).thenReturn(true);
-//        QuarkusMock.installMockForType(mock, RemoteServices.class);
-    }
 
     @BeforeEach
     public void clearDatabase() {
@@ -54,6 +40,7 @@ public class PartnerRequestResourceTest {
      *****************************/
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_initiate_valid_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -61,6 +48,7 @@ public class PartnerRequestResourceTest {
         initiatePartnerRequestCommand.setDate("01-01-2020");
         initiatePartnerRequestCommand.setStartTime("20:00");
         initiatePartnerRequestCommand.setEndTime("21:00");
+
         given()
                 .header("Content-Type", "application/json")
                 .body(initiatePartnerRequestCommand)
@@ -72,12 +60,14 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_initiate_missing_memberId_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
         initiatePartnerRequestCommand.setDate("01-01-2020");
         initiatePartnerRequestCommand.setStartTime("20:00");
         initiatePartnerRequestCommand.setEndTime("21:00");
+        
         given()
                 .header("Content-Type", "application/json")
                 .body(initiatePartnerRequestCommand)
@@ -89,6 +79,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_initiate_missing_clubId_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setMemberId("TestMember");
@@ -106,6 +97,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_initiate_missing_date_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -123,6 +115,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_initiate_missing_startTime_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -140,6 +133,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_initiate_missing_endTime_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -157,6 +151,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_initiate_wrong_date_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -175,6 +170,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_initiate_wrong_startTime_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -193,6 +189,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_initiate_wrong_endTime_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -217,6 +214,7 @@ public class PartnerRequestResourceTest {
      ***************************/
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_valid_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -244,6 +242,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_already_accepted_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -273,6 +272,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_already_cancelled_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -306,6 +306,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_own_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -333,6 +334,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_foreign_club_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -360,6 +362,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_unknown_PartnerRequest() {
         AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
         acceptPartnerRequestCommand.setPartnerRequestId("RANDOMORNOTKOWNID");
@@ -378,6 +381,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_missing_partnerRequestId_PartnerRequest() {
         AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
         acceptPartnerRequestCommand.setPartnerId("TestPartner");
@@ -395,6 +399,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_missing_partnerId_PartnerRequest() {
         AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
         acceptPartnerRequestCommand.setPartnerRequestId("RANDOMORNOTKOWNID");
@@ -412,6 +417,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_missing_startTime_PartnerRequest() {
         AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
         acceptPartnerRequestCommand.setPartnerRequestId("RANDOMORNOTKOWNID");
@@ -429,6 +435,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_missing_endTime_PartnerRequest() {
         AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
         acceptPartnerRequestCommand.setPartnerRequestId("RANDOMORNOTKOWNID");
@@ -446,6 +453,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_wrong_startTime_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -473,6 +481,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_accept_wrong_endTime_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -506,6 +515,7 @@ public class PartnerRequestResourceTest {
      *****************************/
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_valid_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -534,6 +544,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_already_updated_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -568,6 +579,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_accepted_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -604,6 +616,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_cancelled_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -639,6 +652,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_foreign_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -667,6 +681,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_unknown_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -695,6 +710,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_missing_partnerRequestId_PartnerRequest() {
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setMemberId("TestMember");
@@ -713,6 +729,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_missing_memberId_PartnerRequest() {
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setPartnerRequestId("NOTAREALIDBUTNOTNEEDEDFORTHISTEST");
@@ -731,6 +748,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_missing_date_PartnerRequest() {
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setPartnerRequestId("NOTAREALIDBUTNOTNEEDEDFORTHISTEST");
@@ -749,6 +767,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_missing_startTime_PartnerRequest() {
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setPartnerRequestId("NOTAREALIDBUTNOTNEEDEDFORTHISTEST");
@@ -767,6 +786,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_missing_endTime_PartnerRequest() {
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setPartnerRequestId("NOTAREALIDBUTNOTNEEDEDFORTHISTEST");
@@ -785,6 +805,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_wrong_date_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -813,6 +834,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_wrong_startTime_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -841,6 +863,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_update_wrong_endTime_format_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -891,6 +914,7 @@ public class PartnerRequestResourceTest {
      *                         *
      ***************************/
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_cancel_valid_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -917,6 +941,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     public void test_cancel_already_cancelled_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -945,6 +970,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     void test_cancel_missing_partnerRequestId_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -969,6 +995,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     void test_cancel_missing_memberId_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");
@@ -993,6 +1020,7 @@ public class PartnerRequestResourceTest {
     }
 
     @Test
+    @TestSecurity(user = USER_NAME, roles = ROLE)
     void test_cancel_invalid_partnerRequestId_PartnerRequest() {
         InitiatePartnerRequestCommand initiatePartnerRequestCommand = new InitiatePartnerRequestCommand();
         initiatePartnerRequestCommand.setClubId("TestClub");

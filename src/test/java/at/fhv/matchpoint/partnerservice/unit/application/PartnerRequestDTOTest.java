@@ -1,7 +1,6 @@
 package at.fhv.matchpoint.partnerservice.unit.application;
 
 import at.fhv.matchpoint.partnerservice.application.dto.ClubDTO;
-import at.fhv.matchpoint.partnerservice.application.dto.MemberDTO;
 import at.fhv.matchpoint.partnerservice.application.dto.PartnerRequestDTO;
 import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
@@ -44,14 +43,14 @@ public class PartnerRequestDTOTest {
 
         PartnerRequest partnerRequest = new PartnerRequest();
         partnerRequest.apply(RequestInitiatedEvent.create(initiatePartnerRequestCommand));
-        partnerRequest.apply(RequestAcceptedEvent.create(acceptPartnerRequestCommand));
+        partnerRequest.apply(RequestAcceptedEvent.create(acceptPartnerRequestCommand, partnerRequest));
         PartnerRequestDTO partnerRequestDTO = PartnerRequestDTO.buildDTO(partnerRequest);
-        assertEquals(MEMBER_ID, partnerRequestDTO.getOwner().getMemberId());
+        assertEquals(MEMBER_ID, partnerRequestDTO.getOwner());
         assertEquals("0001-01-01", partnerRequestDTO.getDate());
         assertEquals(START_TIME, partnerRequestDTO.getStartTime());
         assertEquals(END_TIME, partnerRequestDTO.getEndTime());
         assertEquals(CLUB_ID, partnerRequestDTO.getClub().getClubId());
-        assertEquals(PARTNER_ID, partnerRequestDTO.getPartner().getMemberId());
+        assertEquals(PARTNER_ID, partnerRequestDTO.getPartner());
         assertNotNull(partnerRequestDTO.getPartnerRequestId());
     }
 
@@ -67,20 +66,20 @@ public class PartnerRequestDTOTest {
         partnerRequest.apply(RequestInitiatedEvent.create(initiatePartnerRequestCommand));
 
         PartnerRequestDTO partnerRequestDTO = PartnerRequestDTO.buildDTO(partnerRequest);
-        partnerRequestDTO.setPartner(MemberDTO.buildDTO(PARTNER_ID));
+        partnerRequestDTO.setPartner(PARTNER_ID);
         partnerRequestDTO.setClub(ClubDTO.buildDTO(CLUB_ID));
         partnerRequestDTO.setDate(DATE);
         partnerRequestDTO.setStartTime(START_TIME);
         partnerRequestDTO.setEndTime(END_TIME);
-        partnerRequestDTO.setOwner(MemberDTO.buildDTO(MEMBER_ID));
+        partnerRequestDTO.setOwner(MEMBER_ID);
         partnerRequestDTO.setPartnerRequestId(PARTNER_REQUEST_ID);
         partnerRequestDTO.setState(STATE);
-        assertEquals(MEMBER_ID, partnerRequestDTO.getOwner().getMemberId());
+        assertEquals(MEMBER_ID, partnerRequestDTO.getOwner());
         assertEquals(DATE, partnerRequestDTO.getDate());
         assertEquals(START_TIME, partnerRequestDTO.getStartTime());
         assertEquals(END_TIME, partnerRequestDTO.getEndTime());
         assertEquals(CLUB_ID, partnerRequestDTO.getClub().getClubId());
-        assertEquals(PARTNER_ID, partnerRequestDTO.getPartner().getMemberId());
+        assertEquals(PARTNER_ID, partnerRequestDTO.getPartner());
         assertEquals(PARTNER_REQUEST_ID, partnerRequestDTO.getPartnerRequestId());
         assertEquals(STATE, partnerRequestDTO.getState());
     }

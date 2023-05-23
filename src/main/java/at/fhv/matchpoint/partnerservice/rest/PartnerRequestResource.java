@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.ResponseExceptionBuilder;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.ResponseException;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.*;
@@ -27,6 +28,7 @@ import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 
+@Authenticated
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "PartnerRequest-Endpoints")

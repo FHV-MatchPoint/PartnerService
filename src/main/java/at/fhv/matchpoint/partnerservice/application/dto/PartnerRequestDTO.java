@@ -1,7 +1,5 @@
 package at.fhv.matchpoint.partnerservice.application.dto;
 
-import java.util.Optional;
-
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
@@ -11,15 +9,15 @@ import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel
 public class PartnerRequestDTO {
 
     private String partnerRequestId;
-    private MemberDTO owner;
-    private MemberDTO partner;
+    private String owner;
+    private String partner;
     private ClubDTO club;
     private String date;
     private String startTime;
     private String endTime;
     private String state;    
 
-    private PartnerRequestDTO(String partnerRequestId, MemberDTO owner, MemberDTO partner, ClubDTO club, String date,
+    private PartnerRequestDTO(String partnerRequestId, String owner, String partner, ClubDTO club, String date,
             String startTime, String endTime, String state) {
         this.partnerRequestId = partnerRequestId;
         this.owner = owner;
@@ -32,8 +30,8 @@ public class PartnerRequestDTO {
     }
 
     public static PartnerRequestDTO buildDTO(PartnerRequest partnerRequest){
-        MemberDTO owner = MemberDTO.buildDTO(partnerRequest.getOwnerId());
-        MemberDTO partner = MemberDTO.buildDTO(partnerRequest.getPartnerId());
+        String owner = partnerRequest.getOwnerId();
+        String partner = partnerRequest.getPartnerId();
         ClubDTO club = ClubDTO.buildDTO(partnerRequest.getClubId());
         return new PartnerRequestDTO(partnerRequest.getPartnerRequestId(), 
         owner, partner, club, 
@@ -51,19 +49,19 @@ public class PartnerRequestDTO {
         this.partnerRequestId = partnerRequestId;
     }
 
-    public MemberDTO getOwner() {
+    public String getOwner() {
         return owner;
     }
 
-    public void setOwner(MemberDTO owner) {
+    public void setOwner(String owner) {
         this.owner = owner;
     }
 
-    public MemberDTO getPartner() {
+    public String getPartner() {
         return partner;
     }
 
-    public void setPartner(MemberDTO partner) {
+    public void setPartner(String partner) {
         this.partner = partner;
     }
 
@@ -108,8 +106,8 @@ public class PartnerRequestDTO {
     }
 
     public static PartnerRequestDTO buildDTO(PartnerRequestReadModel partnerRequest) {
-        MemberDTO owner = MemberDTO.buildDTO(partnerRequest.getOwnerId());
-        MemberDTO partner = MemberDTO.buildDTO(partnerRequest.getPartnerId());
+        String owner = partnerRequest.getOwnerId();
+        String partner = partnerRequest.getPartnerId();
         ClubDTO club = ClubDTO.buildDTO(partnerRequest.getClubId());
         return new PartnerRequestDTO(partnerRequest.getPartnerRequestId(), 
         owner, partner, club, 

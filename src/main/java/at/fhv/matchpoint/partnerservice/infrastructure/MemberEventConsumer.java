@@ -74,7 +74,7 @@ public class MemberEventConsumer {
             try {
                 MemberEvent memberEvent = mapper.readValue(payload.get("value").get("payload").get("after").asText(), MemberEvent.class);
                 System.out.println(memberEvent);
-                Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.aggregateId);
+                Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.entity_id);
                 Member member = new Member();
                 if (optMember.isPresent()) {
                     member = optMember.get();
@@ -99,7 +99,7 @@ public class MemberEventConsumer {
             try {
                 MemberEvent memberEvent = mapper.readValue(payload.get("value").get("payload").get("after").asText(), MemberEvent.class);
                 System.out.println(memberEvent);
-                Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.aggregateId);
+                Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.entity_id);
                 Member member = new Member();
                 if (optMember.isPresent()) {
                     member = optMember.get();
@@ -125,7 +125,7 @@ public class MemberEventConsumer {
             Map<String,JsonNode> payload = message.payload();
             try {
                 MemberEvent memberEvent = mapper.readValue(payload.get("value").get("payload").get("after").asText(), MemberEvent.class);
-                Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.aggregateId);
+                Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.entity_id);
                 Member member = new Member();
                 if(optMember.isPresent()){
                     member = optMember.get();
@@ -174,7 +174,7 @@ public class MemberEventConsumer {
 
         Map<String, JsonNode> events = new HashMap<>();
         MemberLockedEvent event =  new MemberLockedEvent();
-        event.aggregateId = memberId;
+        event.entity_id = memberId;
         events.put("data", mapper.convertValue(event, JsonNode.class));
 
         redisDataSource.stream(TYPE).xadd(STREAM_KEY, events);
