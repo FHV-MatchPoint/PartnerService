@@ -52,7 +52,7 @@ jobs:
           DOCKERHUB_USER: ${{secrets.DOCKERHUB_USER}}
           DOCKERHUB_PW: ${{secrets.DOCKERHUB_PW}}
         run: |
-          docker login -u $DOCKERHUB_EMAIL -p $DOCKERHUB_PW
+          docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PW
       - name: Build docker image
         run: docker build . --file src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm} --tag matchpoint/partnerservice:$(date +%s)
       - name: Push docker image to docker hub
