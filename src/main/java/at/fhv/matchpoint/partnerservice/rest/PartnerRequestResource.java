@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.ResponseExceptionBuilder;
-import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotAuthorizedException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.ResponseException;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
@@ -14,7 +13,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponseSchema;
@@ -62,7 +60,6 @@ public class PartnerRequestResource {
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
         } catch (ResponseException e) {
-            e.printStackTrace();
             return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
     }
