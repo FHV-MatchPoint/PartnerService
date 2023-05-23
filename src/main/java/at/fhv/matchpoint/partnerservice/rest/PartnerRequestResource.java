@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.ResponseExceptionBuilder;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotAuthorizedException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.ResponseException;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
@@ -29,7 +30,7 @@ import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 
-//@Authenticated
+@Authenticated
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "PartnerRequest-Endpoints")
@@ -44,9 +45,6 @@ public class PartnerRequestResource {
     @Inject
     PartnerRequestServiceImpl partnerRequestService;
 
-    @Inject
-    JsonWebToken webToken;
-
     @POST
     @APIResponse(
         responseCode = "400", description = "Missing JSON Fields")
@@ -59,8 +57,6 @@ public class PartnerRequestResource {
         summary = "Create a PartnerRequest",
         description = "Create a PartnerRequest for the given date and time period")
     public Response create(InitiatePartnerRequestCommand initiatePartnerRequestCommand) {
-        System.out.println(webToken.getRawToken());
-        System.out.println(webToken.getIssuer());
         try {
             return Response.status(Status.CREATED).entity(partnerRequestService.initiatePartnerRequest(initiatePartnerRequestCommand)).build();
         } catch (ConstraintViolationException e) {
@@ -208,6 +204,8 @@ public class PartnerRequestResource {
             return Response.ok(partnerRequestService.getPartnerRequestsByMemberId(memberId)).build();
         } catch (ConstraintViolationException e) {
             return ResponseExceptionBuilder.buildMissingJSONFieldsResponse(e);
+        } catch (ResponseException e) {
+            return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
     }
 

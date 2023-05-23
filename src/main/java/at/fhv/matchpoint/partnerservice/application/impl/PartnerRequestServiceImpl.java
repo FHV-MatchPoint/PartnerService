@@ -16,15 +16,13 @@ import at.fhv.matchpoint.partnerservice.infrastructure.MemberRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestReadModelRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotAuthorizedException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MongoDBPersistenceError;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestNotFoundException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.RequestStateChangeException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.VersionNotMatchingException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.core.Response;
-
 import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
 import java.time.LocalDate;
@@ -51,10 +49,10 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
-    public PartnerRequestDTO initiatePartnerRequest(InitiatePartnerRequestCommand initiatePartnerRequestCommand) throws DateTimeFormatException, MongoDBPersistenceError {
+    public PartnerRequestDTO initiatePartnerRequest(InitiatePartnerRequestCommand initiatePartnerRequestCommand) throws DateTimeFormatException, MongoDBPersistenceError, MemberNotAuthorizedException {
         Optional<Member> optMember = memberRepository.verify(initiatePartnerRequestCommand.getMemberId(), initiatePartnerRequestCommand.getClubId());
         if(!optMember.isPresent()){
-            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+            throw new MemberNotAuthorizedException("Not Authorized");
         }
         PartnerRequest partnerRequest = new PartnerRequest();
         RequestInitiatedEvent event = partnerRequest.process(initiatePartnerRequestCommand);
@@ -69,10 +67,10 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
-    public PartnerRequestDTO acceptPartnerRequest(AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
+    public PartnerRequestDTO acceptPartnerRequest(AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException, MemberNotAuthorizedException {
         Optional<Member> optMember = memberRepository.verify(acceptPartnerRequestCommand.getPartnerId());
         if(!optMember.isPresent()){
-            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+            throw new MemberNotAuthorizedException( "Not Authorized");
         }
         List<Event> events = getEventsByAggregateId(acceptPartnerRequestCommand.getPartnerRequestId());
         if(events.size() == 0){
@@ -80,7 +78,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         }
         PartnerRequest partnerRequest = buildAggregate(events);
         if(optMember.get().memberId.equals(partnerRequest.getOwnerId()) || !optMember.get().clubId.equals(partnerRequest.getClubId())){
-            throw new NotAuthorizedException(Response.status(401, "Cannot accept own Request"));
+            throw new MemberNotAuthorizedException("Cannot accept own Request");
         }
         RequestAcceptedEvent event = partnerRequest.process(acceptPartnerRequestCommand);
         checkForVersionMismatch(events, partnerRequest);
@@ -95,10 +93,10 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
-    public PartnerRequestDTO updatePartnerRequest(UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
+    public PartnerRequestDTO updatePartnerRequest(UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException, MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException, MemberNotAuthorizedException {
         Optional<Member> optMember = memberRepository.verify(updatePartnerRequestCommand.getMemberId());
         if(!optMember.isPresent()){
-            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+            throw new MemberNotAuthorizedException("Not Authorized");
         }
         List<Event> events = getEventsByAggregateId(updatePartnerRequestCommand.getPartnerRequestId());
         if(events.size() == 0){
@@ -106,7 +104,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         }
         PartnerRequest partnerRequest = buildAggregate(events);
         if(!optMember.get().memberId.equals(partnerRequest.getOwnerId())){
-            throw new NotAuthorizedException(Response.status(401, "Cannot change foreign requests"));
+            throw new MemberNotAuthorizedException("Cannot change foreign requests");
         }
         RequestUpdatedEvent event = partnerRequest.process(updatePartnerRequestCommand);
         checkForVersionMismatch(events, partnerRequest);
@@ -121,10 +119,10 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
-    public PartnerRequestDTO cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand) throws MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException {
+    public PartnerRequestDTO cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand) throws MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException, MemberNotAuthorizedException {
         Optional<Member> optMember = memberRepository.verify(cancelPartnerRequestCommand.getMemberId());
         if(!optMember.isPresent()){
-            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+            throw new MemberNotAuthorizedException("Not Authorized");
         }
         List<Event> events = getEventsByAggregateId(cancelPartnerRequestCommand.getPartnerRequestId());
         if(events.size() == 0){
@@ -132,7 +130,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         }
         PartnerRequest partnerRequest = buildAggregate(events);
         if(!optMember.get().memberId.equals(partnerRequest.getOwnerId())){
-            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+            throw new MemberNotAuthorizedException("Not Authorized");
         }
         RequestCancelledEvent event = partnerRequest.process(cancelPartnerRequestCommand);
         checkForVersionMismatch(events, partnerRequest);
@@ -146,11 +144,11 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     }
 
     @Override
-    public PartnerRequestDTO getPartnerRequestById(String memberId, String partnerRequestId) throws PartnerRequestNotFoundException {
+    public PartnerRequestDTO getPartnerRequestById(String memberId, String partnerRequestId) throws PartnerRequestNotFoundException, MemberNotAuthorizedException {
         Optional<Member> optMember = memberRepository.verify(memberId);
         Optional<PartnerRequestReadModel> model = partnerRequestReadModelRepository.findByIdOptional(partnerRequestId);
         if(!optMember.isPresent() || !optMember.get().memberId.equals(memberId)){
-            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+            throw new MemberNotAuthorizedException("Not Authorized");
         }
         if(!model.isPresent()){
             throw new PartnerRequestNotFoundException();
@@ -160,20 +158,20 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     @CacheResult(cacheName = "openrequests-cache")
     @Override
-    public List<PartnerRequestDTO> getOpenPartnerRequests(String memberId, String clubId, LocalDate from, LocalDate to) {
+    public List<PartnerRequestDTO> getOpenPartnerRequests(String memberId, String clubId, LocalDate from, LocalDate to) throws MemberNotAuthorizedException {
         Optional<Member> optMember = memberRepository.verify(memberId, clubId);
         if(!optMember.isPresent()){
-            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+            throw new MemberNotAuthorizedException("Not Authorized");
         }
         return partnerRequestReadModelRepository.getOpenPartnerRequests(memberId,clubId,from,to)
         .stream().map(PartnerRequestDTO::buildDTO).collect(Collectors.toList());
     }
 
     @Override
-    public List<PartnerRequestDTO> getPartnerRequestsByMemberId(String memberId) {
+    public List<PartnerRequestDTO> getPartnerRequestsByMemberId(String memberId) throws MemberNotAuthorizedException {
         Optional<Member> optMember = memberRepository.verify(memberId);
         if(!optMember.isPresent()){
-            throw new NotAuthorizedException(Response.status(401, "Not Authorized"));
+            throw new MemberNotAuthorizedException("Not Authorized");
         }
         return partnerRequestReadModelRepository.getPartnerRequestsByMemberId(memberId)
         .stream().map(PartnerRequestDTO::buildDTO).collect(Collectors.toList());
