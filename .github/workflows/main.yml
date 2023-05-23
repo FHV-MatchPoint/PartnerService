@@ -46,7 +46,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: quarkus-app
-        path: build
+        path: build/quarkus-app
     - shell: bash
       run: |
         ls -a /home/runner/work/PartnerService/PartnerService/build
