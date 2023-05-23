@@ -43,7 +43,7 @@ jobs:
 #      path: path/to/artifact/world.txt
 
   docker-image:
-    needs: [build, build-artifact]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
