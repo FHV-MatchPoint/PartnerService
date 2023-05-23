@@ -4,6 +4,7 @@ import at.fhv.matchpoint.partnerservice.application.impl.CacheServiceImpl;
 import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.LockClubConsumer;
 import at.fhv.matchpoint.partnerservice.infrastructure.MemberEventConsumer;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -11,6 +12,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 
 @Path("supersecret/{password}")
+@RolesAllowed("Admin")
 public class DevPoint {
 
     @Inject
