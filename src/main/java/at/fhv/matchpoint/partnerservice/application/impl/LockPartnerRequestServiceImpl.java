@@ -4,7 +4,7 @@ import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
 import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.events.RequestCancelledEvent;
-import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
+import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.EventRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

@@ -1,7 +1,8 @@
-package at.fhv.matchpoint.partnerservice.infrastructure;
+package at.fhv.matchpoint.partnerservice.infrastructure.consumer;
 
 import at.fhv.matchpoint.partnerservice.domain.model.Member;
 import at.fhv.matchpoint.partnerservice.events.*;
+import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.MemberRepository;
 import at.fhv.matchpoint.partnerservice.utils.*;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
