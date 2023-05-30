@@ -111,17 +111,17 @@ public class PartnerRequest {
     }
 
     public RequestAcceptPendingEvent process (AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException {
-        if(this.state.equals(RequestState.CANCELLED) || this.state.equals(RequestState.ACCEPTED)){
-            throw new RequestStateChangeException();
+        if(this.state.equals(RequestState.OPEN)){
+            return RequestAcceptPendingEvent.create(acceptPartnerRequestCommand, this);
         }
-        return RequestAcceptPendingEvent.create(acceptPartnerRequestCommand, this);
+        throw new RequestStateChangeException();        
     }
 
     public RequestUpdatedEvent process (UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException {
-        if(this.state.equals(RequestState.CANCELLED) || this.state.equals(RequestState.ACCEPTED)){
-            throw new RequestStateChangeException();
+        if(this.state.equals(RequestState.OPEN)){
+            return RequestUpdatedEvent.create(updatePartnerRequestCommand, this);
         }
-        return RequestUpdatedEvent.create(updatePartnerRequestCommand, this);
+        throw new RequestStateChangeException();        
     }
 
     public RequestCancelledEvent process (CancelPartnerRequestCommand cancelPartnerRequestCommand) {

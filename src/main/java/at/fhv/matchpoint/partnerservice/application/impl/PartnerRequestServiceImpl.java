@@ -10,7 +10,6 @@ import at.fhv.matchpoint.partnerservice.domain.model.Member;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
 import at.fhv.matchpoint.partnerservice.events.request.*;
-import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
 import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.EventRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.MemberRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.PartnerRequestReadModelRepository;
@@ -39,9 +38,6 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     @Inject
     MemberRepository memberRepository;
-
-    @Inject
-    RemoteServices remoteServices;
 
     @Inject
     PartnerRequestReadModelRepository partnerRequestReadModelRepository;
