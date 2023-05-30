@@ -1,16 +1,11 @@
-package at.fhv.matchpoint.partnerservice.infrastructure;
+package at.fhv.matchpoint.partnerservice.infrastructure.consumer;
 
-import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
 import at.fhv.matchpoint.partnerservice.events.Event;
-import at.fhv.matchpoint.partnerservice.events.RequestAcceptedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestCancelledEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestUpdatedEvent;
+import at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestEventHandler;
 import at.fhv.matchpoint.partnerservice.utils.LocalDateDeserializer;
 import at.fhv.matchpoint.partnerservice.utils.LocalDateTimeDeserializer;
 import at.fhv.matchpoint.partnerservice.utils.LocalTimeDeserializer;
 import at.fhv.matchpoint.partnerservice.utils.ObjectIdDeserializer;
-import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.stream.StreamMessage;
 import io.quarkus.redis.datasource.stream.XGroupCreateArgs;
@@ -24,7 +19,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.bson.types.ObjectId;
@@ -42,10 +36,10 @@ public class PartnerRequestEventConsumer {
     RedisDataSource redisDataSource;
 
     @Inject
-    ObjectMapper mapper;
+    PartnerRequestEventHandler partnerRequestEventHandler;
 
     @Inject
-    PartnerRequestReadModelRepository partnerRequestReadModelRepository;
+    ObjectMapper mapper;
 
     private static final Logger LOGGER = Logger.getLogger(PartnerRequestEventConsumer.class);
 
@@ -83,15 +77,8 @@ public class PartnerRequestEventConsumer {
             Map<String,JsonNode> payload = message.payload();
             try {
                 Event event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), Event.class);
-                System.out.println(event);
-                Optional<PartnerRequestReadModel> optPartnerRequest = partnerRequestReadModelRepository.findByIdOptional(event.aggregateId);
-                PartnerRequestReadModel partnerRequestReadModel = new PartnerRequestReadModel();
-                if(optPartnerRequest.isPresent()){
-                    partnerRequestReadModel = optPartnerRequest.get();    
-                }
-                partnerRequestReadModel = build(partnerRequestReadModel, event);
+                partnerRequestEventHandler.handleEvent(event);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
-                partnerRequestReadModelRepository.persistAndFlush(partnerRequestReadModel);
             } catch (Exception e) {
                 LOGGER.info(e.getMessage());                
             }
@@ -108,45 +95,12 @@ public class PartnerRequestEventConsumer {
             Map<String,JsonNode> payload = message.payload();
             try {
                 Event event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), Event.class);
-                Optional<PartnerRequestReadModel> optPartnerRequest = partnerRequestReadModelRepository.findByIdOptional(event.aggregateId);
-                PartnerRequestReadModel partnerRequestReadModel = new PartnerRequestReadModel();
-                if(optPartnerRequest.isPresent()){
-                    partnerRequestReadModel = optPartnerRequest.get();    
-                }
-                partnerRequestReadModel = build(partnerRequestReadModel, event);
+                partnerRequestEventHandler.handleEvent(event);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
-                partnerRequestReadModelRepository.persist(partnerRequestReadModel);
             } catch (Exception e) {
                 LOGGER.info(e.getMessage());                
             }
         }
-    }
-
-    private PartnerRequestReadModel build(PartnerRequestReadModel model, Event event){
-        PartnerRequestReadModel requestReadModel = model;
-        event.accept(new PartnerRequestVisitor() {
-    
-            @Override
-            public void visit(RequestAcceptedEvent event) {
-                requestReadModel.apply(event);
-            }
-
-            @Override
-            public void visit(RequestInitiatedEvent event) {
-                requestReadModel.apply(event);
-            }
-
-            @Override
-            public void visit(RequestUpdatedEvent event) {
-                requestReadModel.apply(event);
-            }
-
-            @Override
-            public void visit(RequestCancelledEvent event) {
-                requestReadModel.apply(event);
-            }
-        });
-        return requestReadModel;
     }
 
 }

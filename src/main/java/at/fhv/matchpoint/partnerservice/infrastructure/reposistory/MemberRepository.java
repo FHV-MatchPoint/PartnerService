@@ -1,4 +1,4 @@
-package at.fhv.matchpoint.partnerservice.infrastructure;
+package at.fhv.matchpoint.partnerservice.infrastructure.reposistory;
 
 import java.util.Optional;
 

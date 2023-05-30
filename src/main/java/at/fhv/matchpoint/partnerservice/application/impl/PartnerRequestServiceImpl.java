@@ -10,11 +10,10 @@ import at.fhv.matchpoint.partnerservice.domain.model.Member;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
 import at.fhv.matchpoint.partnerservice.events.*;
-
-import at.fhv.matchpoint.partnerservice.infrastructure.EventRepository;
-import at.fhv.matchpoint.partnerservice.infrastructure.MemberRepository;
-import at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestReadModelRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
+import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.EventRepository;
+import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.MemberRepository;
+import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.PartnerRequestReadModelRepository;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotAuthorizedException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MongoDBPersistenceError;

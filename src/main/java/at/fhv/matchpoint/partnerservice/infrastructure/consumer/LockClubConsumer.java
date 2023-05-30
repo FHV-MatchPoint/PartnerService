@@ -1,4 +1,4 @@
- package at.fhv.matchpoint.partnerservice.infrastructure;
+ package at.fhv.matchpoint.partnerservice.infrastructure.consumer;
 
  import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
  import at.fhv.matchpoint.partnerservice.events.ClubLockedEvent;
