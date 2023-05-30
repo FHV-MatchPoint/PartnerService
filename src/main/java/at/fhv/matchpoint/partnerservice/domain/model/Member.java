@@ -1,8 +1,8 @@
 package at.fhv.matchpoint.partnerservice.domain.model;
 
-import at.fhv.matchpoint.partnerservice.events.MemberAddedEvent;
-import at.fhv.matchpoint.partnerservice.events.MemberLockedEvent;
-import at.fhv.matchpoint.partnerservice.events.MemberUnlockedEvent;
+import at.fhv.matchpoint.partnerservice.events.member.MemberAddedEvent;
+import at.fhv.matchpoint.partnerservice.events.member.MemberLockedEvent;
+import at.fhv.matchpoint.partnerservice.events.member.MemberUnlockedEvent;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

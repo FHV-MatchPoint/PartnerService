@@ -1,6 +1,6 @@
 package at.fhv.matchpoint.partnerservice.infrastructure.consumer;
 
-import at.fhv.matchpoint.partnerservice.events.Event;
+import at.fhv.matchpoint.partnerservice.events.request.PartnerRequestEvent;
 import at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestEventHandler;
 import at.fhv.matchpoint.partnerservice.utils.LocalDateDeserializer;
 import at.fhv.matchpoint.partnerservice.utils.LocalDateTimeDeserializer;
@@ -76,7 +76,7 @@ public class PartnerRequestEventConsumer {
         for (StreamMessage<String, String, JsonNode> message : messages) {
             Map<String,JsonNode> payload = message.payload();
             try {
-                Event event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), Event.class);
+                PartnerRequestEvent event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), PartnerRequestEvent.class);
                 partnerRequestEventHandler.handleEvent(event);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
@@ -94,7 +94,7 @@ public class PartnerRequestEventConsumer {
         for (StreamMessage<String, String, JsonNode> message : messages) {
             Map<String,JsonNode> payload = message.payload();
             try {
-                Event event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), Event.class);
+                PartnerRequestEvent event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), PartnerRequestEvent.class);
                 partnerRequestEventHandler.handleEvent(event);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {

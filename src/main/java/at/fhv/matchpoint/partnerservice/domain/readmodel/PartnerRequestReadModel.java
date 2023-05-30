@@ -4,10 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
-import at.fhv.matchpoint.partnerservice.events.RequestAcceptedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestCancelledEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestUpdatedEvent;
+import at.fhv.matchpoint.partnerservice.events.request.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
@@ -69,6 +66,23 @@ public class PartnerRequestReadModel {
         this.startTime = event.startTime;
         this.endTime = event.endTime;
         this.state = RequestState.INITIATED;
+        return this;
+    }
+
+    public PartnerRequestReadModel apply(RequestOpenedEvent event){
+        this.state = RequestState.OPEN;
+        return this;
+    }
+
+    public PartnerRequestReadModel apply(RequestAcceptPendingEvent event){
+        this.partnerId = event.partnerId;
+        this.state = RequestState.ACCEPT_PENDING;
+        return this;
+    }
+
+    public PartnerRequestReadModel apply(RequestRevertPendingEvent event){
+        this.partnerId = null;
+        this.state = RequestState.OPEN;
         return this;
     }
 

@@ -1,7 +1,8 @@
-package at.fhv.matchpoint.partnerservice.events;
+package at.fhv.matchpoint.partnerservice.events.request;
 
 import java.time.LocalDateTime;
 
+import at.fhv.matchpoint.partnerservice.events.AggregateType;
 import at.fhv.matchpoint.partnerservice.utils.ObjectIdDeserializer;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
@@ -20,7 +21,7 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 		property = "_t"
 )
 @BsonDiscriminator
-public abstract class Event implements Comparable<Event> {
+public abstract class PartnerRequestEvent implements Comparable<PartnerRequestEvent> {
 
     @JsonProperty("_id")
     @JsonDeserialize(using = ObjectIdDeserializer.class)
@@ -29,9 +30,9 @@ public abstract class Event implements Comparable<Event> {
     public AggregateType aggregateType;
     public String aggregateId;
 
-    public Event(){}
+    public PartnerRequestEvent(){}
 
-    public Event(AggregateType aggregateType, String aggregateId){
+    public PartnerRequestEvent(AggregateType aggregateType, String aggregateId){
         this.createdAt = LocalDateTime.now();
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
@@ -42,7 +43,7 @@ public abstract class Event implements Comparable<Event> {
 //    public abstract void accept(MemberVisitor v);
 
     @Override
-    public int compareTo(Event e) {
+    public int compareTo(PartnerRequestEvent e) {
         return createdAt.compareTo(e.createdAt);
     }
     

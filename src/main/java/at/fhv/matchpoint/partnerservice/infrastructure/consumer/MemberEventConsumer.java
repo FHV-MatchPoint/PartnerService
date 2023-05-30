@@ -1,7 +1,10 @@
 package at.fhv.matchpoint.partnerservice.infrastructure.consumer;
 
 import at.fhv.matchpoint.partnerservice.domain.model.Member;
-import at.fhv.matchpoint.partnerservice.events.*;
+import at.fhv.matchpoint.partnerservice.events.member.MemberAddedEvent;
+import at.fhv.matchpoint.partnerservice.events.member.MemberEvent;
+import at.fhv.matchpoint.partnerservice.events.member.MemberLockedEvent;
+import at.fhv.matchpoint.partnerservice.events.member.MemberUnlockedEvent;
 import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.MemberRepository;
 import at.fhv.matchpoint.partnerservice.utils.*;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;

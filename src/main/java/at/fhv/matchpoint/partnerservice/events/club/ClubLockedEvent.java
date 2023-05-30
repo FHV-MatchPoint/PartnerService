@@ -1,4 +1,4 @@
-package at.fhv.matchpoint.partnerservice.events;
+package at.fhv.matchpoint.partnerservice.events.club;
 
 public class ClubLockedEvent {
 

@@ -3,11 +3,7 @@ package at.fhv.matchpoint.partnerservice.infrastructure;
 import java.util.Optional;
 
 import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
-import at.fhv.matchpoint.partnerservice.events.Event;
-import at.fhv.matchpoint.partnerservice.events.RequestAcceptedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestCancelledEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestUpdatedEvent;
+import at.fhv.matchpoint.partnerservice.events.request.*;
 import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.PartnerRequestReadModelRepository;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,7 +17,7 @@ public class PartnerRequestEventHandler {
     PartnerRequestReadModelRepository partnerRequestReadModelRepository;
 
     @Transactional
-    public void handleEvent(Event event){
+    public void handleEvent(PartnerRequestEvent event){
         Optional<PartnerRequestReadModel> optPartnerRequest = partnerRequestReadModelRepository.findByIdOptional(event.aggregateId);
         PartnerRequestReadModel partnerRequestReadModel = new PartnerRequestReadModel();
         if(optPartnerRequest.isPresent()){
@@ -30,7 +26,7 @@ public class PartnerRequestEventHandler {
         partnerRequestReadModelRepository.persistAndFlush(applyEvent(partnerRequestReadModel, event));
     }
 
-    private PartnerRequestReadModel applyEvent(PartnerRequestReadModel model, Event event){
+    private PartnerRequestReadModel applyEvent(PartnerRequestReadModel model, PartnerRequestEvent event){
         PartnerRequestReadModel requestReadModel = model;
         event.accept(new PartnerRequestVisitor() {
     
@@ -51,6 +47,21 @@ public class PartnerRequestEventHandler {
 
             @Override
             public void visit(RequestCancelledEvent event) {
+                requestReadModel.apply(event);
+            }
+
+            @Override
+            public void visit(RequestOpenedEvent event) {
+                requestReadModel.apply(event);
+            }
+
+            @Override
+            public void visit(RequestAcceptPendingEvent event) {
+                requestReadModel.apply(event);
+            }
+
+            @Override
+            public void visit(RequestRevertPendingEvent event) {
                 requestReadModel.apply(event);
             }
         });

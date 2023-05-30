@@ -1,5 +1,6 @@
-package at.fhv.matchpoint.partnerservice.events;
+package at.fhv.matchpoint.partnerservice.events.member;
 
+import at.fhv.matchpoint.partnerservice.events.AggregateType;
 import at.fhv.matchpoint.partnerservice.utils.MemberVisitor;
 import at.fhv.matchpoint.partnerservice.utils.ObjectIdDeserializer;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;

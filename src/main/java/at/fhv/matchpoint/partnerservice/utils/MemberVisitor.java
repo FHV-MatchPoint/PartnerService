@@ -1,8 +1,8 @@
 package at.fhv.matchpoint.partnerservice.utils;
 
-import at.fhv.matchpoint.partnerservice.events.MemberAddedEvent;
-import at.fhv.matchpoint.partnerservice.events.MemberLockedEvent;
-import at.fhv.matchpoint.partnerservice.events.MemberUnlockedEvent;
+import at.fhv.matchpoint.partnerservice.events.member.MemberAddedEvent;
+import at.fhv.matchpoint.partnerservice.events.member.MemberLockedEvent;
+import at.fhv.matchpoint.partnerservice.events.member.MemberUnlockedEvent;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;
 
 public interface MemberVisitor {

@@ -1,11 +1,12 @@
-package at.fhv.matchpoint.partnerservice.events;
+package at.fhv.matchpoint.partnerservice.events.request;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
-import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
+import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
+import at.fhv.matchpoint.partnerservice.events.AggregateType;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
@@ -15,38 +16,35 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 
 @MongoEntity(collection = "Event")
 @BsonDiscriminator
-public class RequestAcceptedEvent extends Event {
+public class RequestInitiatedEvent extends PartnerRequestEvent {
 
     public String ownerId;
     public String tennisClubId;
-    public String partnerId;
     public LocalDate date;
     public LocalTime startTime;
     public LocalTime endTime;
     public RequestState state;
 
-    public RequestAcceptedEvent(){}
+    public RequestInitiatedEvent() {
+    }
 
-    private RequestAcceptedEvent(AggregateType aggregateType, String aggregateId,
-     String ownerId, String tennisClubId, String partnerId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    private RequestInitiatedEvent(AggregateType aggregateType, String aggregateId, String ownerId, String tennisClubId, LocalDate date, LocalTime startTime, LocalTime endTime) {
         super(aggregateType, aggregateId);
         this.ownerId = ownerId;
         this.tennisClubId = tennisClubId;
-        this.partnerId = partnerId;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.state = RequestState.ACCEPTED;
+        this.state = RequestState.INITIATED;
     }
 
-    public static RequestAcceptedEvent create(AcceptPartnerRequestCommand command, PartnerRequest partnerRequest) throws DateTimeFormatException {
-        return new RequestAcceptedEvent(
+    public static RequestInitiatedEvent create(InitiatePartnerRequestCommand command) throws DateTimeFormatException {
+        return new RequestInitiatedEvent(
                 AggregateType.PARTNERREQUEST,
-                command.getPartnerRequestId(),
-                partnerRequest.getOwnerId(),
-                partnerRequest.getClubId(),
-                command.getPartnerId(),
-                partnerRequest.getDate(),
+                UUID.randomUUID().toString(),
+                command.getMemberId(),
+                command.getClubId(),
+                CustomDateTimeFormatter.parseDate(command.getDate()),
                 CustomDateTimeFormatter.parseTime(command.getStartTime()),
                 CustomDateTimeFormatter.parseTime(command.getEndTime()));
     }
