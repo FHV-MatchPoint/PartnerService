@@ -4,6 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
+import at.fhv.matchpoint.partnerservice.events.court.RequestInitiateFailedEvent;
+import at.fhv.matchpoint.partnerservice.events.court.RequestInitiateSucceededEvent;
+import at.fhv.matchpoint.partnerservice.events.court.SessionCreateFailedEvent;
+import at.fhv.matchpoint.partnerservice.events.court.SessionCreateSucceededEvent;
 import at.fhv.matchpoint.partnerservice.events.request.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -103,6 +107,26 @@ public class PartnerRequestReadModel {
 
     public PartnerRequestReadModel apply(RequestCancelledEvent event) {
         this.state = RequestState.CANCELLED;
+        return this;
+    }
+
+    public PartnerRequestReadModel apply(RequestInitiateFailedEvent event) {
+        this.state = RequestState.CANCELLED;
+        return this;
+    }
+
+    public PartnerRequestReadModel apply(RequestInitiateSucceededEvent event) {
+        this.state = RequestState.INITIATED;
+        return this;
+    }
+
+    public PartnerRequestReadModel apply(SessionCreateSucceededEvent event) {
+        this.state = RequestState.ACCEPTED;
+        return this;
+    }
+
+    public PartnerRequestReadModel apply(SessionCreateFailedEvent event) {
+        this.state = RequestState.OPEN;
         return this;
     }
 
