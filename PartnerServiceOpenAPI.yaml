@@ -1,0 +1,516 @@
+---
+openapi: 3.0.3
+info:
+  title: proPartnerService
+  version: 1.0.0-SNAPSHOT
+tags:
+- name: PartnerRequest-Endpoints
+- name: XForbidden
+paths:
+  /partnerRequest:
+    post:
+      tags:
+      - PartnerRequest-Endpoints
+      summary: Create a PartnerRequest
+      description: Create a PartnerRequest for the given date and time period
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiatePartnerRequestCommand'
+      responses:
+        "401":
+          description: Unauthorized
+        "403":
+          description: Invalid MemberId
+        "500":
+          description: Server Error
+        "400":
+          description: Missing JSON Fields
+        "422":
+          description: Wrong Date Format
+        "201":
+          description: PartnerRequest successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartnerRequest'
+      security:
+      - SecurityScheme: []
+  /partnerRequest/accept:
+    put:
+      tags:
+      - PartnerRequest-Endpoints
+      summary: Accept a PartnerRequest
+      description: Accept a PartnerRequest and select the time period for the booking
+        to be created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcceptPartnerRequestCommand'
+      responses:
+        "401":
+          description: Unauthorized
+        "403":
+          description: Invalid MemberId
+        "500":
+          description: Server Error
+        "400":
+          description: Missing JSON Fields
+        "422":
+          description: Wrong Date Format
+        "412":
+          description: Version Mismatch
+        "404":
+          description: Invalid PartnerRequestId
+        "200":
+          description: PartnerRequest successfully accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartnerRequest'
+      security:
+      - SecurityScheme: []
+  /partnerRequest/cancel:
+    put:
+      tags:
+      - PartnerRequest-Endpoints
+      summary: Cancel PartnerRequest
+      description: Cancel PartnerRequest with the given id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelPartnerRequestCommand'
+      responses:
+        "401":
+          description: Unauthorized
+        "403":
+          description: Invalid MemberId
+        "500":
+          description: Server Error
+        "400":
+          description: Missing JSON Fields
+        "412":
+          description: Version Mismatch
+        "404":
+          description: Invalid PartnerRequestId
+        "200":
+          description: PartnerRequest successfully canceled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartnerRequest'
+      security:
+      - SecurityScheme: []
+  /partnerRequest/cancel/club/{clubId}:
+    put:
+      tags:
+      - XForbidden
+      summary: Cancel all PartnerRequest at one Tennis Club
+      description: Cancel all open PartnerRequest at one Tennis Club as a result of
+        a Tennis Club Lock event
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "401":
+          description: Unauthorized
+        "403":
+          description: Invalid MemberId
+        "500":
+          description: Server Error
+        "200":
+          description: Bad Communication Decision
+          content:
+            text/plain:
+              schema:
+                type: string
+      security:
+      - SecurityScheme: []
+  /partnerRequest/cancel/member/{memberId}:
+    put:
+      tags:
+      - XForbidden
+      summary: Cancel all PartnerRequest of a Member
+      description: Cancel all open PartnerRequest of a Member as a result of a Member
+        Lock event
+      parameters:
+      - name: memberId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "401":
+          description: Unauthorized
+        "403":
+          description: Invalid MemberId
+        "500":
+          description: Server Error
+        "200":
+          description: Bad Communication Decision
+          content:
+            text/plain:
+              schema:
+                type: string
+      security:
+      - SecurityScheme: []
+  /partnerRequest/member/{memberId}:
+    get:
+      tags:
+      - PartnerRequest-Endpoints
+      summary: Find PartnerRequest by MemberId
+      description: Find all PartnerRequests where the given Member is either Owner
+        or Partner
+      parameters:
+      - name: memberId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "401":
+          description: Unauthorized
+        "403":
+          description: Invalid MemberId
+        "500":
+          description: Server Error
+        "400":
+          description: Missing Path Parameters
+        "200":
+          description: PartnerRequests found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PartnerRequest'
+      security:
+      - SecurityScheme: []
+  /partnerRequest/openRequests/member/{memberId}:
+    get:
+      tags:
+      - PartnerRequest-Endpoints
+      summary: Find open PartnerRequests
+      description: Find available PartnerRequests in the given time frame
+      parameters:
+      - name: memberId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: from
+        in: query
+        schema:
+          type: string
+      - name: tennisClubId
+        in: query
+        schema:
+          type: string
+      - name: to
+        in: query
+        schema:
+          type: string
+      responses:
+        "401":
+          description: Unauthorized
+        "403":
+          description: Invalid MemberId
+        "500":
+          description: Server Error
+        "422":
+          description: Wrong Date Format
+        "404":
+          description: Invalid ClubId
+        "400":
+          description: Missing Query Parameters
+        "200":
+          description: PartnerRequests found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PartnerRequest'
+      security:
+      - SecurityScheme: []
+  /partnerRequest/update:
+    put:
+      tags:
+      - PartnerRequest-Endpoints
+      summary: Update time period of PartnerRequest
+      description: Update the start end end time of the PartnerRequest with the given
+        id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePartnerRequestCommand'
+      responses:
+        "401":
+          description: Unauthorized
+        "403":
+          description: Invalid MemberId
+        "500":
+          description: Server Error
+        "400":
+          description: Missing JSON Fields
+        "422":
+          description: Wrong Date Format
+        "412":
+          description: Version Mismatch
+        "404":
+          description: Invalid PartnerRequestId
+        "200":
+          description: PartnerRequest successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartnerRequest'
+      security:
+      - SecurityScheme: []
+  /partnerRequest/{partnerRequestId}/member/{memberId}:
+    get:
+      tags:
+      - PartnerRequest-Endpoints
+      summary: Find PartnerRequest by PartnerRequestId
+      description: Find PartnerRequests with the given PartnerRequestId
+      parameters:
+      - name: memberId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: partnerRequestId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "401":
+          description: Unauthorized
+        "403":
+          description: Invalid MemberId
+        "500":
+          description: Server Error
+        "404":
+          description: Invalid PartnerRequestId
+        "400":
+          description: Missing Path Parameters
+        "200":
+          description: PartnerRequest found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartnerRequest'
+      security:
+      - SecurityScheme: []
+  /supersecret/{password}/all:
+    get:
+      tags:
+      - Dev Point
+      parameters:
+      - name: password
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "403":
+          description: Not Allowed
+        "401":
+          description: Not Authorized
+      security:
+      - SecurityScheme: []
+  /supersecret/{password}/delete:
+    get:
+      tags:
+      - Dev Point
+      parameters:
+      - name: password
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "403":
+          description: Not Allowed
+        "401":
+          description: Not Authorized
+      security:
+      - SecurityScheme: []
+  /supersecret/{password}/lockclub/{clubId}:
+    get:
+      tags:
+      - Dev Point
+      parameters:
+      - name: clubId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: password
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "403":
+          description: Not Allowed
+        "401":
+          description: Not Authorized
+      security:
+      - SecurityScheme: []
+  /supersecret/{password}/lockmember/{memberId}:
+    get:
+      tags:
+      - Dev Point
+      parameters:
+      - name: memberId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: password
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "403":
+          description: Not Allowed
+        "401":
+          description: Not Authorized
+      security:
+      - SecurityScheme: []
+components:
+  schemas:
+    AcceptPartnerRequestCommand:
+      required:
+      - partnerId
+      - partnerRequestId
+      - startTime
+      - endTime
+      type: object
+      properties:
+        partnerId:
+          type: string
+        partnerRequestId:
+          type: string
+        startTime:
+          format: HH:mm
+          type: string
+        endTime:
+          format: HH:mm
+          type: string
+    CancelPartnerRequestCommand:
+      required:
+      - memberId
+      - partnerRequestId
+      type: object
+      properties:
+        memberId:
+          type: string
+        partnerRequestId:
+          type: string
+    Club:
+      type: object
+      properties:
+        clubId:
+          type: string
+        clubName:
+          type: string
+      readOnly: true
+    InitiatePartnerRequestCommand:
+      required:
+      - memberId
+      - clubId
+      - date
+      - startTime
+      - endTime
+      type: object
+      properties:
+        memberId:
+          type: string
+        clubId:
+          type: string
+        date:
+          format: dd-MM-yyyy
+          type: string
+        startTime:
+          format: HH:mm
+          type: string
+        endTime:
+          format: HH:mm
+          type: string
+    Member:
+      type: object
+      properties:
+        memberId:
+          type: string
+        fistName:
+          type: string
+        lastName:
+          type: string
+      readOnly: true
+    PartnerRequest:
+      type: object
+      properties:
+        partnerRequestId:
+          type: string
+        owner:
+          type: string
+        partner:
+          type: string
+        club:
+          $ref: '#/components/schemas/Club'
+        date:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        state:
+          type: string
+      readOnly: true
+    UpdatePartnerRequestCommand:
+      required:
+      - memberId
+      - partnerRequestId
+      - date
+      - startTime
+      - endTime
+      type: object
+      properties:
+        memberId:
+          type: string
+        partnerRequestId:
+          type: string
+        date:
+          format: dd-MM-yyyy
+          type: string
+        startTime:
+          format: HH:mm
+          type: string
+        endTime:
+          format: HH:mm
+          type: string
+  securitySchemes:
+    SecurityScheme:
+      type: http
+      description: Authentication
+      scheme: bearer
+      bearerFormat: JWT
