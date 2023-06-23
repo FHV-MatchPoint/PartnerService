@@ -7,10 +7,7 @@ import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.events.RequestAcceptedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestCancelledEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestUpdatedEvent;
+import at.fhv.matchpoint.partnerservice.events.request.*;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.RequestStateChangeException;
 
@@ -72,6 +69,23 @@ public class PartnerRequest {
         return this;
     }
 
+    public PartnerRequest apply(RequestOpenedEvent event){
+        this.state = RequestState.OPEN;
+        return this;
+    }
+
+    public PartnerRequest apply(RequestAcceptPendingEvent event){
+        this.partnerId = event.partnerId;
+        this.state = RequestState.ACCEPT_PENDING;
+        return this;
+    }
+
+    public PartnerRequest apply(RequestRevertPendingEvent event){
+        this.partnerId = null;
+        this.state = RequestState.OPEN;
+        return this;
+    }
+
     public PartnerRequest apply(RequestAcceptedEvent event){
         this.partnerId = event.partnerId;
         this.startTime = event.startTime;
@@ -96,18 +110,18 @@ public class PartnerRequest {
         return RequestInitiatedEvent.create(initiatePartnerRequestCommand);
     }
 
-    public RequestAcceptedEvent process (AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException {
-        if(this.state.equals(RequestState.CANCELLED) || this.state.equals(RequestState.ACCEPTED)){
-            throw new RequestStateChangeException();
+    public RequestAcceptPendingEvent process (AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException {
+        if(this.state.equals(RequestState.OPEN)){
+            return RequestAcceptPendingEvent.create(acceptPartnerRequestCommand, this);
         }
-        return RequestAcceptedEvent.create(acceptPartnerRequestCommand, this);
+        throw new RequestStateChangeException();        
     }
 
     public RequestUpdatedEvent process (UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException {
-        if(this.state.equals(RequestState.CANCELLED) || this.state.equals(RequestState.ACCEPTED)){
-            throw new RequestStateChangeException();
+        if(this.state.equals(RequestState.OPEN)){
+            return RequestUpdatedEvent.create(updatePartnerRequestCommand, this);
         }
-        return RequestUpdatedEvent.create(updatePartnerRequestCommand, this);
+        throw new RequestStateChangeException();        
     }
 
     public RequestCancelledEvent process (CancelPartnerRequestCommand cancelPartnerRequestCommand) {

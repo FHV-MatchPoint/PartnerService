@@ -6,10 +6,7 @@ import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
-import at.fhv.matchpoint.partnerservice.events.RequestAcceptedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestCancelledEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestInitiatedEvent;
-import at.fhv.matchpoint.partnerservice.events.RequestUpdatedEvent;
+import at.fhv.matchpoint.partnerservice.events.request.*;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.RequestStateChangeException;
 import io.quarkus.test.junit.QuarkusTest;
@@ -64,6 +61,8 @@ public class PartnerRequestTest {
         PartnerRequest partnerRequest = new PartnerRequest();
         RequestInitiatedEvent event1 = partnerRequest.process(command1);
         partnerRequest.apply(event1);
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        partnerRequest.apply(event2);
         UpdatePartnerRequestCommand command = new UpdatePartnerRequestCommand();
         command.setMemberId(OWNER_ID);
         command.setDate("11-11-1111");
@@ -78,7 +77,7 @@ public class PartnerRequestTest {
         assertEquals(DATE, partnerRequest.getDate());
         assertEquals(LocalTime.of(15,0), partnerRequest.getStartTime());
         assertEquals(LocalTime.of(18,0), partnerRequest.getEndTime());
-        assertEquals(RequestState.INITIATED, partnerRequest.getState());
+        assertEquals(RequestState.OPEN, partnerRequest.getState());
    }
 
    @Test
@@ -92,19 +91,21 @@ public class PartnerRequestTest {
         PartnerRequest partnerRequest = new PartnerRequest();
         RequestInitiatedEvent event1 = partnerRequest.process(command1);
         partnerRequest.apply(event1);
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        partnerRequest.apply(event2);
         AcceptPartnerRequestCommand command = new AcceptPartnerRequestCommand();
         command.setPartnerId(PARTNER_ID);
         command.setStartTime("12:00");
         command.setEndTime("18:00");
-        RequestAcceptedEvent event = partnerRequest.process(command);
+        RequestAcceptPendingEvent event = partnerRequest.process(command);
         partnerRequest.apply(event);
         assertNotNull(partnerRequest.getPartnerRequestId());
         assertEquals(OWNER_ID, partnerRequest.getOwnerId());
         assertEquals(CLUB_ID, partnerRequest.getClubId());
         assertEquals(PARTNER_ID, partnerRequest.getPartnerId());
         assertEquals(START_TIME, partnerRequest.getStartTime());
-        assertEquals(LocalTime.of(18,0), partnerRequest.getEndTime());
-        assertEquals(RequestState.ACCEPTED, partnerRequest.getState());
+        assertEquals(LocalTime.of(0,0), partnerRequest.getEndTime());
+        assertEquals(RequestState.ACCEPT_PENDING, partnerRequest.getState());
    }
 
    @Test
@@ -164,7 +165,7 @@ public class PartnerRequestTest {
     }
 
      @Test
-     public void test_Process_Accept_For_Accepted_PartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
+     public void test_Process_Accept_For_Accepted_Pending_PartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
         InitiatePartnerRequestCommand command = new InitiatePartnerRequestCommand();
         command.setClubId(CLUB_ID);
         command.setMemberId(OWNER_ID);
@@ -174,12 +175,14 @@ public class PartnerRequestTest {
         PartnerRequest partnerRequest = new PartnerRequest();
         RequestInitiatedEvent event = partnerRequest.process(command);
         partnerRequest.apply(event);
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        partnerRequest.apply(event2);
         AcceptPartnerRequestCommand command2 = new AcceptPartnerRequestCommand();
         command2.setPartnerId(PARTNER_ID);
         command2.setStartTime("12:00");
         command2.setEndTime("18:00");
-        RequestAcceptedEvent event2 = partnerRequest.process(command2);
-        partnerRequest.apply(event2);
+        RequestAcceptPendingEvent event3 = partnerRequest.process(command2);
+        partnerRequest.apply(event3);
         AcceptPartnerRequestCommand command3 = new AcceptPartnerRequestCommand();
         command3.setPartnerId("NEW_PARTNER");
         command3.setStartTime("15:00");
@@ -194,8 +197,8 @@ public class PartnerRequestTest {
         assertEquals(PARTNER_ID, partnerRequest.getPartnerId());
         assertEquals(DATE, partnerRequest.getDate());
         assertEquals(START_TIME, partnerRequest.getStartTime());
-        assertEquals(LocalTime.of(18,0), partnerRequest.getEndTime());
-        assertEquals(RequestState.ACCEPTED, partnerRequest.getState());
+        assertEquals(LocalTime.of(0,0), partnerRequest.getEndTime());
+        assertEquals(RequestState.ACCEPT_PENDING, partnerRequest.getState());
     }
 
     @Test
@@ -241,12 +244,14 @@ public class PartnerRequestTest {
        PartnerRequest partnerRequest = new PartnerRequest();
        RequestInitiatedEvent event = partnerRequest.process(command);
        partnerRequest.apply(event);
+       RequestOpenedEvent event2 = new RequestOpenedEvent();
+       partnerRequest.apply(event2);
        AcceptPartnerRequestCommand command2 = new AcceptPartnerRequestCommand();
        command2.setPartnerId(PARTNER_ID);
        command2.setStartTime("12:00");
        command2.setEndTime("18:00");
-       RequestAcceptedEvent event2 = partnerRequest.process(command2);
-       partnerRequest.apply(event2);
+       RequestAcceptPendingEvent event3 = partnerRequest.process(command2);
+       partnerRequest.apply(event3);
        UpdatePartnerRequestCommand command3 = new UpdatePartnerRequestCommand();
        command3.setDate("11-12-1111");
        command3.setStartTime("15:00");
@@ -261,7 +266,7 @@ public class PartnerRequestTest {
        assertEquals(PARTNER_ID, partnerRequest.getPartnerId());
        assertEquals(DATE, partnerRequest.getDate());
        assertEquals(START_TIME, partnerRequest.getStartTime());
-       assertEquals(LocalTime.of(18,0), partnerRequest.getEndTime());
-       assertEquals(RequestState.ACCEPTED, partnerRequest.getState());
+       assertEquals(LocalTime.of(0,0), partnerRequest.getEndTime());
+       assertEquals(RequestState.ACCEPT_PENDING, partnerRequest.getState());
    }
 }

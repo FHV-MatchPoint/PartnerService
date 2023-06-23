@@ -1,7 +1,7 @@
  package at.fhv.matchpoint.partnerservice.infrastructure.consumer;
 
  import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
- import at.fhv.matchpoint.partnerservice.events.ClubLockedEvent;
+ import at.fhv.matchpoint.partnerservice.events.club.ClubLockedEvent;
  import io.quarkus.redis.datasource.RedisDataSource;
  import io.quarkus.redis.datasource.stream.XGroupCreateArgs;
  import io.quarkus.scheduler.Scheduled;

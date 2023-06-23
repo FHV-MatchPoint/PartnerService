@@ -9,8 +9,7 @@ import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.Member;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
-import at.fhv.matchpoint.partnerservice.events.*;
-import at.fhv.matchpoint.partnerservice.infrastructure.remote.RemoteServices;
+import at.fhv.matchpoint.partnerservice.events.request.*;
 import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.EventRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.MemberRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.PartnerRequestReadModelRepository;
@@ -41,9 +40,6 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
     MemberRepository memberRepository;
 
     @Inject
-    RemoteServices remoteServices;
-
-    @Inject
     PartnerRequestReadModelRepository partnerRequestReadModelRepository;
 
     @CacheInvalidate(cacheName = "openrequests-cache")
@@ -71,7 +67,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         if(!optMember.isPresent()){
             throw new MemberNotAuthorizedException( "Not Authorized");
         }
-        List<Event> events = getEventsByAggregateId(acceptPartnerRequestCommand.getPartnerRequestId());
+        List<PartnerRequestEvent> events = getEventsByAggregateId(acceptPartnerRequestCommand.getPartnerRequestId());
         if(events.size() == 0){
             throw new PartnerRequestNotFoundException();
         }
@@ -79,7 +75,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         if(optMember.get().memberId.equals(partnerRequest.getOwnerId()) || !optMember.get().clubId.equals(partnerRequest.getClubId())){
             throw new MemberNotAuthorizedException("Cannot accept own Request");
         }
-        RequestAcceptedEvent event = partnerRequest.process(acceptPartnerRequestCommand);
+        RequestAcceptPendingEvent event = partnerRequest.process(acceptPartnerRequestCommand);
         checkForVersionMismatch(events, partnerRequest);
         try {
             eventRepository.persist(event);
@@ -97,7 +93,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         if(!optMember.isPresent()){
             throw new MemberNotAuthorizedException("Not Authorized");
         }
-        List<Event> events = getEventsByAggregateId(updatePartnerRequestCommand.getPartnerRequestId());
+        List<PartnerRequestEvent> events = getEventsByAggregateId(updatePartnerRequestCommand.getPartnerRequestId());
         if(events.size() == 0){
             throw new PartnerRequestNotFoundException();
         }
@@ -123,7 +119,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         if(!optMember.isPresent()){
             throw new MemberNotAuthorizedException("Not Authorized");
         }
-        List<Event> events = getEventsByAggregateId(cancelPartnerRequestCommand.getPartnerRequestId());
+        List<PartnerRequestEvent> events = getEventsByAggregateId(cancelPartnerRequestCommand.getPartnerRequestId());
         if(events.size() == 0){
             throw new PartnerRequestNotFoundException();
         }
@@ -176,11 +172,11 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
         .stream().map(PartnerRequestDTO::buildDTO).collect(Collectors.toList());
     }
 
-    private List<Event> getEventsByAggregateId(String aggregateId) {
+    private List<PartnerRequestEvent> getEventsByAggregateId(String aggregateId) {
         return eventRepository.find("aggregateId", aggregateId).list();
     }
 
-    private void checkForVersionMismatch(List<Event> events, PartnerRequest partnerRequest) throws VersionNotMatchingException {
+    private void checkForVersionMismatch(List<PartnerRequestEvent> events, PartnerRequest partnerRequest) throws VersionNotMatchingException {
         if(events.size() != getEventsByAggregateId(partnerRequest.getPartnerRequestId()).size()){
             throw new VersionNotMatchingException();
         }

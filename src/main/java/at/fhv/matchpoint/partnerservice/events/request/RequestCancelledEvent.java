@@ -1,20 +1,20 @@
-package at.fhv.matchpoint.partnerservice.events;
+package at.fhv.matchpoint.partnerservice.events.request;
 
-import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
+import at.fhv.matchpoint.partnerservice.events.AggregateType;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
-import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
-import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import io.quarkus.mongodb.panache.common.MongoEntity;
-import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import org.bson.codecs.pojo.annotations.BsonDiscriminator;
+
 @MongoEntity(collection = "Event")
 @BsonDiscriminator
-public class RequestUpdatedEvent extends Event{
+public class RequestCancelledEvent extends PartnerRequestEvent {
 
     public String ownerId;
     public String tennisClubId;
@@ -23,29 +23,28 @@ public class RequestUpdatedEvent extends Event{
     public LocalTime endTime;
     public RequestState state;
 
-    public RequestUpdatedEvent(){}
+    public RequestCancelledEvent() {}
 
-    private RequestUpdatedEvent(AggregateType aggregateType, String aggregateId,
-        String ownerId, String tennisClubId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    private RequestCancelledEvent(AggregateType aggregateType, String aggregateId,
+                                  String ownerId, String tennisClubId, LocalDate date, LocalTime startTime, LocalTime endTime) {
        super(aggregateType, aggregateId);
        this.ownerId = ownerId;
        this.tennisClubId = tennisClubId;
        this.date = date;
        this.startTime = startTime;
        this.endTime = endTime;
-       this.state = RequestState.INITIATED;
+       this.state = RequestState.CANCELLED;
    }
 
-
-    public static RequestUpdatedEvent create(UpdatePartnerRequestCommand command, PartnerRequest partnerRequest) throws DateTimeFormatException {
-        return new RequestUpdatedEvent(
+    public static RequestCancelledEvent create(CancelPartnerRequestCommand command, PartnerRequest partnerRequest){
+        return new RequestCancelledEvent(
                 AggregateType.PARTNERREQUEST,
                 command.getPartnerRequestId(),
                 partnerRequest.getOwnerId(),
                 partnerRequest.getClubId(),
-                CustomDateTimeFormatter.parseDate(command.getDate()),
-                CustomDateTimeFormatter.parseTime(command.getStartTime()),
-                CustomDateTimeFormatter.parseTime(command.getEndTime())
+                partnerRequest.getDate(),
+                partnerRequest.getStartTime(),
+                partnerRequest.getEndTime()
         );
     }
 
@@ -53,4 +52,5 @@ public class RequestUpdatedEvent extends Event{
     public void accept(PartnerRequestVisitor v) {
         v.visit(this);
     }
+
 }

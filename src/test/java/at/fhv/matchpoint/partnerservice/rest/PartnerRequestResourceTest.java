@@ -5,12 +5,16 @@ import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.events.AggregateType;
+import at.fhv.matchpoint.partnerservice.events.request.RequestOpenedEvent;
 import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.EventRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -225,6 +229,12 @@ public class PartnerRequestResourceTest {
 
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
 
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        event2.aggregateId = dto.getPartnerRequestId();
+        event2.aggregateType = AggregateType.PARTNERREQUEST;
+        event2.createdAt = LocalDateTime.now();
+        eventRepository.persist(event2);
+
         AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
         acceptPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
         acceptPartnerRequestCommand.setPartnerId("TestPartner");
@@ -238,7 +248,7 @@ public class PartnerRequestResourceTest {
                 .then()
                 .statusCode(200);
 
-        assertEquals(2, eventRepository.listAll().size());
+        assertEquals(3, eventRepository.listAll().size());
     }
 
     @Test
@@ -252,6 +262,12 @@ public class PartnerRequestResourceTest {
         initiatePartnerRequestCommand.setEndTime("21:00");
 
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        event2.aggregateId = dto.getPartnerRequestId();
+        event2.aggregateType = AggregateType.PARTNERREQUEST;
+        event2.createdAt = LocalDateTime.now();
+        eventRepository.persist(event2);
 
         AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
         acceptPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
@@ -268,7 +284,7 @@ public class PartnerRequestResourceTest {
                 .then()
                 .statusCode(412);
 
-        assertEquals(2, eventRepository.listAll().size());
+        assertEquals(3, eventRepository.listAll().size());
     }
 
     @Test
@@ -464,6 +480,12 @@ public class PartnerRequestResourceTest {
 
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
 
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        event2.aggregateId = dto.getPartnerRequestId();
+        event2.aggregateType = AggregateType.PARTNERREQUEST;
+        event2.createdAt = LocalDateTime.now();
+        eventRepository.persist(event2);
+
         AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
         acceptPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
         acceptPartnerRequestCommand.setPartnerId("TestPartner");
@@ -477,7 +499,7 @@ public class PartnerRequestResourceTest {
                 .then()
                 .statusCode(422);
 
-        assertEquals(1, eventRepository.listAll().size());
+        assertEquals(2, eventRepository.listAll().size());
     }
 
     @Test
@@ -492,6 +514,12 @@ public class PartnerRequestResourceTest {
 
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
 
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        event2.aggregateId = dto.getPartnerRequestId();
+        event2.aggregateType = AggregateType.PARTNERREQUEST;
+        event2.createdAt = LocalDateTime.now();
+        eventRepository.persist(event2);
+
         AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
         acceptPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
         acceptPartnerRequestCommand.setPartnerId("TestPartner");
@@ -505,7 +533,7 @@ public class PartnerRequestResourceTest {
                 .then()
                 .statusCode(422);
 
-        assertEquals(1, eventRepository.listAll().size());
+        assertEquals(2, eventRepository.listAll().size());
     }
 
     /*****************************
@@ -526,6 +554,12 @@ public class PartnerRequestResourceTest {
 
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
 
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        event2.aggregateId = dto.getPartnerRequestId();
+        event2.aggregateType = AggregateType.PARTNERREQUEST;
+        event2.createdAt = LocalDateTime.now();
+        eventRepository.persist(event2);
+
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
         updatePartnerRequestCommand.setMemberId("TestMember");
@@ -540,7 +574,7 @@ public class PartnerRequestResourceTest {
                 .then()
                 .statusCode(200);
 
-        assertEquals(2, eventRepository.listAll().size());
+        assertEquals(3, eventRepository.listAll().size());
     }
 
     @Test
@@ -554,6 +588,12 @@ public class PartnerRequestResourceTest {
         initiatePartnerRequestCommand.setEndTime("21:00");
 
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        event2.aggregateId = dto.getPartnerRequestId();
+        event2.aggregateType = AggregateType.PARTNERREQUEST;
+        event2.createdAt = LocalDateTime.now();
+        eventRepository.persist(event2);
 
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
@@ -575,7 +615,7 @@ public class PartnerRequestResourceTest {
                 .then()
                 .statusCode(200);
 
-        assertEquals(3, eventRepository.listAll().size());
+        assertEquals(4, eventRepository.listAll().size());
     }
 
     @Test
@@ -589,6 +629,12 @@ public class PartnerRequestResourceTest {
         initiatePartnerRequestCommand.setEndTime("21:00");
 
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        event2.aggregateId = dto.getPartnerRequestId();
+        event2.aggregateType = AggregateType.PARTNERREQUEST;
+        event2.createdAt = LocalDateTime.now();
+        eventRepository.persist(event2);
 
         AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
         acceptPartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
@@ -612,7 +658,7 @@ public class PartnerRequestResourceTest {
                 .then()
                 .statusCode(412);
 
-        assertEquals(2, eventRepository.listAll().size());
+        assertEquals(3, eventRepository.listAll().size());
     }
 
     @Test
@@ -816,6 +862,12 @@ public class PartnerRequestResourceTest {
 
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
 
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        event2.aggregateId = dto.getPartnerRequestId();
+        event2.aggregateType = AggregateType.PARTNERREQUEST;
+        event2.createdAt = LocalDateTime.now();
+        eventRepository.persist(event2);
+
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
         updatePartnerRequestCommand.setMemberId("TestMember");
@@ -830,7 +882,7 @@ public class PartnerRequestResourceTest {
                 .then()
                 .statusCode(422);
 
-        assertEquals(1, eventRepository.listAll().size());
+        assertEquals(2, eventRepository.listAll().size());
     }
 
     @Test
@@ -844,6 +896,12 @@ public class PartnerRequestResourceTest {
         initiatePartnerRequestCommand.setEndTime("21:00");
 
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        event2.aggregateId = dto.getPartnerRequestId();
+        event2.aggregateType = AggregateType.PARTNERREQUEST;
+        event2.createdAt = LocalDateTime.now();
+        eventRepository.persist(event2);
 
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
@@ -859,7 +917,7 @@ public class PartnerRequestResourceTest {
                 .then()
                 .statusCode(422);
 
-        assertEquals(1, eventRepository.listAll().size());
+        assertEquals(2, eventRepository.listAll().size());
     }
 
     @Test
@@ -873,6 +931,12 @@ public class PartnerRequestResourceTest {
         initiatePartnerRequestCommand.setEndTime("21:00");
 
         PartnerRequestDTO dto = (PartnerRequestDTO) api.create(initiatePartnerRequestCommand).getEntity();
+
+        RequestOpenedEvent event2 = new RequestOpenedEvent();
+        event2.aggregateId = dto.getPartnerRequestId();
+        event2.aggregateType = AggregateType.PARTNERREQUEST;
+        event2.createdAt = LocalDateTime.now();
+        eventRepository.persist(event2);
 
         UpdatePartnerRequestCommand updatePartnerRequestCommand = new UpdatePartnerRequestCommand();
         updatePartnerRequestCommand.setPartnerRequestId(dto.getPartnerRequestId());
@@ -888,7 +952,7 @@ public class PartnerRequestResourceTest {
                 .then()
                 .statusCode(422);
 
-        assertEquals(1, eventRepository.listAll().size());
+        assertEquals(2, eventRepository.listAll().size());
     }
 
 
