@@ -5,7 +5,7 @@ import java.util.Optional;
 import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
 import at.fhv.matchpoint.partnerservice.events.court.*;
 import at.fhv.matchpoint.partnerservice.events.request.*;
-import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.PartnerRequestReadModelRepository;
+import at.fhv.matchpoint.partnerservice.infrastructure.repository.PartnerRequestReadModelRepository;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestCourtVisitor;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import jakarta.enterprise.context.ApplicationScoped;

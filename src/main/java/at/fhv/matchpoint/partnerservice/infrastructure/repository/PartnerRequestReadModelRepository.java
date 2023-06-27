@@ -1,4 +1,4 @@
-package at.fhv.matchpoint.partnerservice.infrastructure.reposistory;
+package at.fhv.matchpoint.partnerservice.infrastructure.repository;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -1,4 +1,4 @@
-package at.fhv.matchpoint.partnerservice.infrastructure.reposistory;
+package at.fhv.matchpoint.partnerservice.infrastructure.repository;
 
 import at.fhv.matchpoint.partnerservice.events.request.PartnerRequestEvent;
 import jakarta.enterprise.context.ApplicationScoped;

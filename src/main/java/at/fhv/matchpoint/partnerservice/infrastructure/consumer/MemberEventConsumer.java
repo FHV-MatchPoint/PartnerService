@@ -5,7 +5,7 @@ import at.fhv.matchpoint.partnerservice.events.member.MemberAddedEvent;
 import at.fhv.matchpoint.partnerservice.events.member.MemberEvent;
 import at.fhv.matchpoint.partnerservice.events.member.MemberLockedEvent;
 import at.fhv.matchpoint.partnerservice.events.member.MemberUnlockedEvent;
-import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.MemberRepository;
+import at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository;
 import at.fhv.matchpoint.partnerservice.utils.*;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;

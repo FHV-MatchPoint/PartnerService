@@ -7,7 +7,7 @@ import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.events.AggregateType;
 import at.fhv.matchpoint.partnerservice.events.request.RequestOpenedEvent;
-import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.EventRepository;
+import at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;

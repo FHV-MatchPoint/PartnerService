@@ -2,7 +2,7 @@ package at.fhv.matchpoint.partnerservice.rest;
 
 import at.fhv.matchpoint.partnerservice.infrastructure.consumer.LockClubConsumer;
 import at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberEventConsumer;
-import at.fhv.matchpoint.partnerservice.infrastructure.reposistory.EventRepository;
+import at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
