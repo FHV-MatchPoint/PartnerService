@@ -36,7 +36,7 @@ public class CourtEventConsumer {
     final String STREAM_KEY = "courtservice.event.Event";
     final String CONSUMER = UUID.randomUUID().toString();
     final Class<JsonNode> TYPE = JsonNode.class;
-    final String PAYLOAD_KEY = "value"; //TODO find out
+    final String PAYLOAD_KEY = "value";
 
     // create group for horizontal scaling. this way each partner service instance doesnt ready messages multiple times
     @PostConstruct
@@ -58,7 +58,7 @@ public class CourtEventConsumer {
         for (StreamMessage<String, String, JsonNode> message : messages) {
             Map<String, JsonNode> payload = message.payload();
             try {
-                CourtEvent courtEvent = mapper.readValue(payload.get("value").get("payload").get("after").asText(), CourtEvent.class);
+                CourtEvent courtEvent = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), CourtEvent.class);
                 partnerRequestEventHandler.handleEvent(courtEvent);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
@@ -77,7 +77,7 @@ public class CourtEventConsumer {
         for (StreamMessage<String, String, JsonNode> message : messages) {
             Map<String,JsonNode> payload = message.payload();
             try {
-                CourtEvent event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), CourtEvent.class);
+                CourtEvent event = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), CourtEvent.class);
                 partnerRequestEventHandler.handleEvent(event);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {

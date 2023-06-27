@@ -1,5 +1,6 @@
 package at.fhv.matchpoint.partnerservice.infrastructure.consumer;
 
+import at.fhv.matchpoint.partnerservice.application.LockPartnerRequestService;
 import at.fhv.matchpoint.partnerservice.domain.model.Member;
 import at.fhv.matchpoint.partnerservice.events.member.MemberAddedEvent;
 import at.fhv.matchpoint.partnerservice.events.member.MemberEvent;
@@ -41,17 +42,20 @@ public class MemberEventConsumer {
     @Inject
     MemberRepository memberRepository;
 
+    @Inject
+    LockPartnerRequestService lockPartnerRequestService;
+
     private static final Logger LOGGER = Logger.getLogger(MemberEventConsumer.class);
 
     final String GROUP_NAME = "partnerService";
     final String STREAM_KEY = "member.event.Event"; //TODO find out
     final String CONSUMER = UUID.randomUUID().toString();
     final Class<JsonNode> TYPE = JsonNode.class;
-    final String PAYLOAD_KEY = "value"; //TODO find out
+    final String PAYLOAD_KEY = "value";
 
     // create group for horizontal scaling. this way each partner service instance doesnt ready messages multiple times
     @PostConstruct
-    public void createGroup(){
+    public void createGroup() {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
         module.addDeserializer(LocalDate.class, new LocalDateDeserializer());
@@ -68,15 +72,15 @@ public class MemberEventConsumer {
     }
 
     //constantly checks if new messages are available to be read and processed
-    @Scheduled(every="0s")
-    void readMessage(){
+    @Scheduled(every = "0s")
+    void readMessage() {
         // > reads only messages that have not been read by any other consumer of the group
         List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xreadgroup(GROUP_NAME, CONSUMER, STREAM_KEY, ">");
 
         for (StreamMessage<String, String, JsonNode> message : messages) {
-            Map<String,JsonNode> payload = message.payload();
+            Map<String, JsonNode> payload = message.payload();
             try {
-                MemberEvent memberEvent = mapper.readValue(payload.get("value").get("payload").get("after").asText(), MemberEvent.class);
+                MemberEvent memberEvent = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), MemberEvent.class);
                 System.out.println(memberEvent);
                 Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.entity_id);
                 Member member = new Member();
@@ -94,14 +98,14 @@ public class MemberEventConsumer {
         }
     }
 
-    void readAllMessages(MemberNotFoundException exception){
+    void readAllMessages(MemberNotFoundException exception) {
         // > reads only messages that have not been read by any other consumer of the group
         List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xreadgroup(GROUP_NAME, CONSUMER, STREAM_KEY, "0");
 
         for (StreamMessage<String, String, JsonNode> message : messages) {
-            Map<String,JsonNode> payload = message.payload();
+            Map<String, JsonNode> payload = message.payload();
             try {
-                MemberEvent memberEvent = mapper.readValue(payload.get("value").get("payload").get("after").asText(), MemberEvent.class);
+                MemberEvent memberEvent = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), MemberEvent.class);
                 System.out.println(memberEvent);
                 Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.entity_id);
                 Member member = new Member();
@@ -121,17 +125,17 @@ public class MemberEventConsumer {
 
 
     // when consumer fails, claim the open messages
-    @Scheduled(every="600s")
-    void claimOpenMessages(){
-        List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xautoclaim(STREAM_KEY, GROUP_NAME, CONSUMER, Duration.ofSeconds(600) , "0").getMessages();
+    @Scheduled(every = "600s")
+    void claimOpenMessages() {
+        List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xautoclaim(STREAM_KEY, GROUP_NAME, CONSUMER, Duration.ofSeconds(600), "0").getMessages();
 
         for (StreamMessage<String, String, JsonNode> message : messages) {
-            Map<String,JsonNode> payload = message.payload();
+            Map<String, JsonNode> payload = message.payload();
             try {
-                MemberEvent memberEvent = mapper.readValue(payload.get("value").get("payload").get("after").asText(), MemberEvent.class);
+                MemberEvent memberEvent = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), MemberEvent.class);
                 Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.entity_id);
                 Member member = new Member();
-                if(optMember.isPresent()){
+                if (optMember.isPresent()) {
                     member = optMember.get();
                 }
                 member = build(member, memberEvent);
@@ -148,15 +152,20 @@ public class MemberEventConsumer {
         memberEvent.accept(new MemberVisitor() {
             @Override
             public void visit(MemberLockedEvent event) throws MemberNotFoundException {
-                if(member.memberId == null) {
+                if (member.memberId == null) {
                     throw new MemberNotFoundException();
                 }
                 model.apply(event);
+                try {
+                    lockPartnerRequestService.lockPartnerRequestByMemberId(member.memberId);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             @Override
             public void visit(MemberUnlockedEvent event) throws MemberNotFoundException {
-                if(member.memberId == null) {
+                if (member.memberId == null) {
                     throw new MemberNotFoundException();
                 }
                 model.apply(event);
@@ -174,10 +183,10 @@ public class MemberEventConsumer {
         return member;
     }
 
-    public void sendMessage(String memberId){
+    public void sendMessage(String memberId) {
 
         Map<String, JsonNode> events = new HashMap<>();
-        MemberLockedEvent event =  new MemberLockedEvent();
+        MemberLockedEvent event = new MemberLockedEvent();
         event.entity_id = memberId;
         events.put("data", mapper.convertValue(event, JsonNode.class));
 
