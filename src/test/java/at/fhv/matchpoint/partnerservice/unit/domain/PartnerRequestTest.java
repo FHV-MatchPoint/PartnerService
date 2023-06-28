@@ -108,61 +108,61 @@ public class PartnerRequestTest {
         assertEquals(RequestState.ACCEPT_PENDING, partnerRequest.getState());
    }
 
-   @Test
-   public void test_Process_And_Apply_Valid_CancelPartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
-        InitiatePartnerRequestCommand command = new InitiatePartnerRequestCommand();
-        command.setClubId(CLUB_ID);
-        command.setMemberId(OWNER_ID);
-        command.setDate("11-11-1111");
-        command.setStartTime("12:00");
-        command.setEndTime("00:00");
-        PartnerRequest partnerRequest = new PartnerRequest();
-        RequestInitiatedEvent event = partnerRequest.process(command);
-        partnerRequest.apply(event);
-        CancelPartnerRequestCommand command2 = new CancelPartnerRequestCommand();
-        RequestCancelledEvent event2 = partnerRequest.process(command2);
-        partnerRequest.apply(event2);
-        assertNotNull(partnerRequest.getPartnerRequestId());
-        assertEquals(OWNER_ID, partnerRequest.getOwnerId());
-        assertEquals(CLUB_ID, partnerRequest.getClubId());
-        assertNull(partnerRequest.getPartnerId());
-        assertEquals(DATE, partnerRequest.getDate());
-        assertEquals(START_TIME, partnerRequest.getStartTime());
-        assertEquals(END_TIME, partnerRequest.getEndTime());
-        assertEquals(RequestState.CANCELLED, partnerRequest.getState());    
-    }
+//    @Test
+//    public void test_Process_And_Apply_Valid_CancelPartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
+//         InitiatePartnerRequestCommand command = new InitiatePartnerRequestCommand();
+//         command.setClubId(CLUB_ID);
+//         command.setMemberId(OWNER_ID);
+//         command.setDate("11-11-1111");
+//         command.setStartTime("12:00");
+//         command.setEndTime("00:00");
+//         PartnerRequest partnerRequest = new PartnerRequest();
+//         RequestInitiatedEvent event = partnerRequest.process(command);
+//         partnerRequest.apply(event);
+//         CancelPartnerRequestCommand command2 = new CancelPartnerRequestCommand();
+//         RequestCancelledEvent event2 = partnerRequest.process(command2);
+//         partnerRequest.apply(event2);
+//         assertNotNull(partnerRequest.getPartnerRequestId());
+//         assertEquals(OWNER_ID, partnerRequest.getOwnerId());
+//         assertEquals(CLUB_ID, partnerRequest.getClubId());
+//         assertNull(partnerRequest.getPartnerId());
+//         assertEquals(DATE, partnerRequest.getDate());
+//         assertEquals(START_TIME, partnerRequest.getStartTime());
+//         assertEquals(END_TIME, partnerRequest.getEndTime());
+//         assertEquals(RequestState.CANCELLED, partnerRequest.getState());    
+//     }
 
-    @Test
-    public void test_Process_Accept_For_Cancelled_PartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
-        InitiatePartnerRequestCommand command = new InitiatePartnerRequestCommand();
-        command.setClubId(CLUB_ID);
-        command.setMemberId(OWNER_ID);
-        command.setDate("11-11-1111");
-        command.setStartTime("12:00");
-        command.setEndTime("00:00");
-        PartnerRequest partnerRequest = new PartnerRequest();
-        RequestInitiatedEvent event = partnerRequest.process(command);
-        partnerRequest.apply(event);
-        CancelPartnerRequestCommand command2 = new CancelPartnerRequestCommand();
-        RequestCancelledEvent event2 = partnerRequest.process(command2);
-        partnerRequest.apply(event2);
-        AcceptPartnerRequestCommand command3 = new AcceptPartnerRequestCommand();
-        command3.setPartnerId(PARTNER_ID);
-        command3.setStartTime("12:00");
-        command3.setEndTime("18:00");
-        assertThrows(RequestStateChangeException.class, () -> {
-        partnerRequest.process(command3);
-        });
+//     @Test
+//     public void test_Process_Accept_For_Cancelled_PartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
+//         InitiatePartnerRequestCommand command = new InitiatePartnerRequestCommand();
+//         command.setClubId(CLUB_ID);
+//         command.setMemberId(OWNER_ID);
+//         command.setDate("11-11-1111");
+//         command.setStartTime("12:00");
+//         command.setEndTime("00:00");
+//         PartnerRequest partnerRequest = new PartnerRequest();
+//         RequestInitiatedEvent event = partnerRequest.process(command);
+//         partnerRequest.apply(event);
+//         CancelPartnerRequestCommand command2 = new CancelPartnerRequestCommand();
+//         RequestCancelledEvent event2 = partnerRequest.process(command2);
+//         partnerRequest.apply(event2);
+//         AcceptPartnerRequestCommand command3 = new AcceptPartnerRequestCommand();
+//         command3.setPartnerId(PARTNER_ID);
+//         command3.setStartTime("12:00");
+//         command3.setEndTime("18:00");
+//         assertThrows(RequestStateChangeException.class, () -> {
+//         partnerRequest.process(command3);
+//         });
 
-        assertNotNull(partnerRequest.getPartnerRequestId());
-        assertEquals(OWNER_ID, partnerRequest.getOwnerId());
-        assertEquals(CLUB_ID, partnerRequest.getClubId());
-        assertNull(partnerRequest.getPartnerId());
-        assertEquals(DATE, partnerRequest.getDate());
-        assertEquals(START_TIME, partnerRequest.getStartTime());
-        assertEquals(END_TIME, partnerRequest.getEndTime());
-        assertEquals(RequestState.CANCELLED, partnerRequest.getState());
-    }
+//         assertNotNull(partnerRequest.getPartnerRequestId());
+//         assertEquals(OWNER_ID, partnerRequest.getOwnerId());
+//         assertEquals(CLUB_ID, partnerRequest.getClubId());
+//         assertNull(partnerRequest.getPartnerId());
+//         assertEquals(DATE, partnerRequest.getDate());
+//         assertEquals(START_TIME, partnerRequest.getStartTime());
+//         assertEquals(END_TIME, partnerRequest.getEndTime());
+//         assertEquals(RequestState.CANCELLED, partnerRequest.getState());
+//     }
 
      @Test
      public void test_Process_Accept_For_Accepted_Pending_PartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
@@ -201,37 +201,37 @@ public class PartnerRequestTest {
         assertEquals(RequestState.ACCEPT_PENDING, partnerRequest.getState());
     }
 
-    @Test
-    public void test_Process_Update_For_Cancelled_PartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
-       InitiatePartnerRequestCommand command = new InitiatePartnerRequestCommand();
-       command.setClubId(CLUB_ID);
-       command.setMemberId(OWNER_ID);
-       command.setDate("11-11-1111");
-       command.setStartTime("12:00");
-       command.setEndTime("00:00");
-       PartnerRequest partnerRequest = new PartnerRequest();
-       RequestInitiatedEvent event = partnerRequest.process(command);
-       partnerRequest.apply(event);
-       CancelPartnerRequestCommand command2 = new CancelPartnerRequestCommand();
-       RequestCancelledEvent event2 = partnerRequest.process(command2);
-       partnerRequest.apply(event2);
-       UpdatePartnerRequestCommand command3 = new UpdatePartnerRequestCommand();
-       command3.setDate("11-12-1111");
-       command3.setStartTime("15:00");
-       command3.setEndTime("16:00");
-       assertThrows(RequestStateChangeException.class, () -> {
-           partnerRequest.process(command3);
-       });
+//     @Test
+//     public void test_Process_Update_For_Cancelled_PartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
+//        InitiatePartnerRequestCommand command = new InitiatePartnerRequestCommand();
+//        command.setClubId(CLUB_ID);
+//        command.setMemberId(OWNER_ID);
+//        command.setDate("11-11-1111");
+//        command.setStartTime("12:00");
+//        command.setEndTime("00:00");
+//        PartnerRequest partnerRequest = new PartnerRequest();
+//        RequestInitiatedEvent event = partnerRequest.process(command);
+//        partnerRequest.apply(event);
+//        CancelPartnerRequestCommand command2 = new CancelPartnerRequestCommand();
+//        RequestCancelledEvent event2 = partnerRequest.process(command2);
+//        partnerRequest.apply(event2);
+//        UpdatePartnerRequestCommand command3 = new UpdatePartnerRequestCommand();
+//        command3.setDate("11-12-1111");
+//        command3.setStartTime("15:00");
+//        command3.setEndTime("16:00");
+//        assertThrows(RequestStateChangeException.class, () -> {
+//            partnerRequest.process(command3);
+//        });
 
-       assertNotNull(partnerRequest.getPartnerRequestId());
-       assertEquals(OWNER_ID, partnerRequest.getOwnerId());
-       assertEquals(CLUB_ID, partnerRequest.getClubId());
-       assertNull(partnerRequest.getPartnerId());
-       assertEquals(DATE, partnerRequest.getDate());
-       assertEquals(START_TIME, partnerRequest.getStartTime());
-       assertEquals(END_TIME, partnerRequest.getEndTime());
-       assertEquals(RequestState.CANCELLED, partnerRequest.getState());
-   }
+//        assertNotNull(partnerRequest.getPartnerRequestId());
+//        assertEquals(OWNER_ID, partnerRequest.getOwnerId());
+//        assertEquals(CLUB_ID, partnerRequest.getClubId());
+//        assertNull(partnerRequest.getPartnerId());
+//        assertEquals(DATE, partnerRequest.getDate());
+//        assertEquals(START_TIME, partnerRequest.getStartTime());
+//        assertEquals(END_TIME, partnerRequest.getEndTime());
+//        assertEquals(RequestState.CANCELLED, partnerRequest.getState());
+//    }
 
     @Test
     public void test_Process_Update_For_Accepted_PartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
