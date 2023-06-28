@@ -109,7 +109,7 @@ public class PartnerRequestTest {
    }
 
    @Test
-   public void test_Process_And_Apply_Valid_CancelPartnerRequest() throws DateTimeFormatException{
+   public void test_Process_And_Apply_Valid_CancelPartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
         InitiatePartnerRequestCommand command = new InitiatePartnerRequestCommand();
         command.setClubId(CLUB_ID);
         command.setMemberId(OWNER_ID);
@@ -133,7 +133,7 @@ public class PartnerRequestTest {
     }
 
     @Test
-    public void test_Process_Accept_For_Cancelled_PartnerRequest() throws DateTimeFormatException{
+    public void test_Process_Accept_For_Cancelled_PartnerRequest() throws DateTimeFormatException, RequestStateChangeException{
         InitiatePartnerRequestCommand command = new InitiatePartnerRequestCommand();
         command.setClubId(CLUB_ID);
         command.setMemberId(OWNER_ID);

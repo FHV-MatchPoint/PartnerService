@@ -7,6 +7,10 @@ import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.events.court.RequestInitiateFailedEvent;
+import at.fhv.matchpoint.partnerservice.events.court.RequestInitiateSucceededEvent;
+import at.fhv.matchpoint.partnerservice.events.court.SessionCreateFailedEvent;
+import at.fhv.matchpoint.partnerservice.events.court.SessionCreateSucceededEvent;
 import at.fhv.matchpoint.partnerservice.events.request.*;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.RequestStateChangeException;
@@ -124,9 +128,27 @@ public class PartnerRequest {
         throw new RequestStateChangeException();        
     }
 
-    public RequestCancelledEvent process (CancelPartnerRequestCommand cancelPartnerRequestCommand) {
-        return RequestCancelledEvent.create(cancelPartnerRequestCommand, this);
+    public RequestCancelledEvent process (CancelPartnerRequestCommand cancelPartnerRequestCommand) throws RequestStateChangeException {
+        if(this.state.equals(RequestState.OPEN)){
+            return RequestCancelledEvent.create(cancelPartnerRequestCommand, this);
+        }
+        throw new RequestStateChangeException();
     }
 
+    public RequestCancelledEvent process (RequestInitiateFailedEvent requestInitiateFailedEvent) {
+        return RequestCancelledEvent.create(requestInitiateFailedEvent, this);
+    }
+
+    public RequestOpenedEvent process (RequestInitiateSucceededEvent requestInitiateSucceededEvent) throws DateTimeFormatException {
+        return RequestOpenedEvent.create(requestInitiateSucceededEvent, this);
+    }
+
+    public RequestRevertPendingEvent process (SessionCreateFailedEvent sessionCreateFailedEvent) {
+        return RequestRevertPendingEvent.create(sessionCreateFailedEvent, this);
+    }
+
+    public RequestAcceptedEvent process (SessionCreateSucceededEvent sessionCreateSucceededEvent) throws DateTimeFormatException {
+        return RequestAcceptedEvent.create(sessionCreateSucceededEvent, this);
+    }
     
 }

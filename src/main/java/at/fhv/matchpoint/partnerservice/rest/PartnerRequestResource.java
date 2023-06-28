@@ -28,7 +28,7 @@ import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 
-@Authenticated
+//@Authenticated
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "PartnerRequest-Endpoints")

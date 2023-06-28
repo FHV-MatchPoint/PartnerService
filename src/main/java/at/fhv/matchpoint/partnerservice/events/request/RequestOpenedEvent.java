@@ -1,8 +1,9 @@
 package at.fhv.matchpoint.partnerservice.events.request;
 
-import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
 import at.fhv.matchpoint.partnerservice.events.AggregateType;
+import at.fhv.matchpoint.partnerservice.events.court.RequestInitiateSucceededEvent;
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
@@ -37,19 +38,20 @@ public class RequestOpenedEvent extends PartnerRequestEvent {
         this.state = RequestState.INITIATED;
     }
 
-    public static RequestOpenedEvent create(InitiatePartnerRequestCommand command) throws DateTimeFormatException {
-        return new RequestOpenedEvent(
-                AggregateType.PARTNERREQUEST,
-                UUID.randomUUID().toString(),
-                command.getMemberId(),
-                command.getClubId(),
-                CustomDateTimeFormatter.parseDate(command.getDate()),
-                CustomDateTimeFormatter.parseTime(command.getStartTime()),
-                CustomDateTimeFormatter.parseTime(command.getEndTime()));
-    }
-
     @Override
     public void accept(PartnerRequestVisitor v) {
         v.visit(this);
+    }
+
+    public static RequestOpenedEvent create(RequestInitiateSucceededEvent requestInitiateSucceededEvent,
+            PartnerRequest partnerRequest) throws DateTimeFormatException {
+        return new RequestOpenedEvent(
+                AggregateType.PARTNERREQUEST,
+                UUID.randomUUID().toString(),
+                requestInitiateSucceededEvent.getMemberId(),
+                requestInitiateSucceededEvent.getClubId(),
+                CustomDateTimeFormatter.parseDate(requestInitiateSucceededEvent.getDate()),
+                CustomDateTimeFormatter.parseTime(requestInitiateSucceededEvent.getStartTime()),
+                CustomDateTimeFormatter.parseTime(requestInitiateSucceededEvent.getEndTime()));
     }
 }

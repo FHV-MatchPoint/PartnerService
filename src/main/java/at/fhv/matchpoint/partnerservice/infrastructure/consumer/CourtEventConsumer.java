@@ -1,10 +1,8 @@
 package at.fhv.matchpoint.partnerservice.infrastructure.consumer;
 
-import at.fhv.matchpoint.partnerservice.application.PartnerRequestService;
 import at.fhv.matchpoint.partnerservice.events.court.CourtEvent;
-import at.fhv.matchpoint.partnerservice.events.request.PartnerRequestEvent;
-import at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestEventHandler;
-import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;
+import at.fhv.matchpoint.partnerservice.infrastructure.CourtEventHandler;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.redis.datasource.RedisDataSource;
@@ -26,10 +24,10 @@ public class CourtEventConsumer {
     RedisDataSource redisDataSource;
 
     @Inject
-    ObjectMapper mapper;
+    CourtEventHandler courtEventHandler;
 
     @Inject
-    PartnerRequestEventHandler partnerRequestEventHandler;
+    ObjectMapper mapper;
 
     private static final Logger LOGGER = Logger.getLogger(CourtEventConsumer.class);
     final String GROUP_NAME = "partnerService";
@@ -59,7 +57,7 @@ public class CourtEventConsumer {
             Map<String, JsonNode> payload = message.payload();
             try {
                 CourtEvent courtEvent = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), CourtEvent.class);
-                partnerRequestEventHandler.handleEvent(courtEvent);
+                courtEventHandler.handleEvent(courtEvent);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
                 LOGGER.info(e.getMessage());
@@ -67,7 +65,6 @@ public class CourtEventConsumer {
         }
 
     }
-
 
     // when consumer fails, claim the open messages
     @Scheduled(every = "600s")
@@ -78,7 +75,7 @@ public class CourtEventConsumer {
             Map<String,JsonNode> payload = message.payload();
             try {
                 CourtEvent event = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), CourtEvent.class);
-                partnerRequestEventHandler.handleEvent(event);
+                courtEventHandler.handleEvent(event);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
                 LOGGER.info(e.getMessage());

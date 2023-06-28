@@ -43,19 +43,6 @@ import org.jboss.logging.Logger;
          }
      }
 
-     // just for testing may not be needed
-     public void sendMessage(String clubId){
-
-         Map<String, ClubLockedEvent> events = new HashMap<>();
-         ClubLockedEvent event =  new ClubLockedEvent();
-         event.clubId = clubId;
-         events.put("data", event);
-
-         redisDataSource.stream(TYPE).xadd(STREAM_KEY, events);
-         System.out.println(redisDataSource.stream(TYPE).xlen(STREAM_KEY));
-
-     }
-
      // constantly checks if new messages are available to be read and processed
      @Scheduled(every="0s")
      void readMessage(){

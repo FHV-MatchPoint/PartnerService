@@ -4,6 +4,7 @@ import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
 import at.fhv.matchpoint.partnerservice.events.AggregateType;
+import at.fhv.matchpoint.partnerservice.events.court.RequestInitiateFailedEvent;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 
@@ -51,6 +52,19 @@ public class RequestCancelledEvent extends PartnerRequestEvent {
     @Override
     public void accept(PartnerRequestVisitor v) {
         v.visit(this);
+    }
+
+    public static RequestCancelledEvent create(RequestInitiateFailedEvent requestInitiateFailedEvent,
+            PartnerRequest partnerRequest) {
+        return new RequestCancelledEvent(
+                AggregateType.PARTNERREQUEST,
+                requestInitiateFailedEvent.getPartnerRequestId(),
+                partnerRequest.getOwnerId(),
+                partnerRequest.getClubId(),
+                partnerRequest.getDate(),
+                partnerRequest.getStartTime(),
+                partnerRequest.getEndTime()
+        );
     }
 
 }

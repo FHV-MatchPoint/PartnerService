@@ -5,7 +5,7 @@ import at.fhv.matchpoint.partnerservice.application.dto.PartnerRequestDTO;
 import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
-import at.fhv.matchpoint.partnerservice.events.request.RequestAcceptedEvent;
+import at.fhv.matchpoint.partnerservice.events.request.RequestAcceptPendingEvent;
 import at.fhv.matchpoint.partnerservice.events.request.RequestInitiatedEvent;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import io.quarkus.test.junit.QuarkusTest;
@@ -43,7 +43,7 @@ public class PartnerRequestDTOTest {
 
         PartnerRequest partnerRequest = new PartnerRequest();
         partnerRequest.apply(RequestInitiatedEvent.create(initiatePartnerRequestCommand));
-        partnerRequest.apply(RequestAcceptedEvent.create(acceptPartnerRequestCommand, partnerRequest));
+        partnerRequest.apply(RequestAcceptPendingEvent.create(acceptPartnerRequestCommand, partnerRequest));
         PartnerRequestDTO partnerRequestDTO = PartnerRequestDTO.buildDTO(partnerRequest);
         assertEquals(MEMBER_ID, partnerRequestDTO.getOwner());
         assertEquals("0001-01-01", partnerRequestDTO.getDate());

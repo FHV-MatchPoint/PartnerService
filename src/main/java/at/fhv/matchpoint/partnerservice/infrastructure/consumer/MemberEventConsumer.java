@@ -48,7 +48,7 @@ public class MemberEventConsumer {
     private static final Logger LOGGER = Logger.getLogger(MemberEventConsumer.class);
 
     final String GROUP_NAME = "partnerService";
-    final String STREAM_KEY = "member.event.Event"; //TODO find out
+    final String STREAM_KEY = "memberserivce.public.event"; //TODO find out
     final String CONSUMER = UUID.randomUUID().toString();
     final Class<JsonNode> TYPE = JsonNode.class;
     final String PAYLOAD_KEY = "value";
@@ -88,8 +88,8 @@ public class MemberEventConsumer {
                     member = optMember.get();
                 }
                 member = build(member, memberEvent);
-                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
                 memberRepository.persistAndFlush(member);
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());                
             } catch (MemberNotFoundException e) {
                 readAllMessages(e);
             } catch (Exception e) {
@@ -113,8 +113,8 @@ public class MemberEventConsumer {
                     member = optMember.get();
                 }
                 member = build(member, memberEvent);
-                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
                 memberRepository.persistAndFlush(member);
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (MemberNotFoundException e) {
                 LOGGER.info(exception.getMessage());
             } catch (Exception e) {
@@ -181,18 +181,6 @@ public class MemberEventConsumer {
             }
         });
         return member;
-    }
-
-    public void sendMessage(String memberId) {
-
-        Map<String, JsonNode> events = new HashMap<>();
-        MemberLockedEvent event = new MemberLockedEvent();
-        event.entity_id = memberId;
-        events.put("data", mapper.convertValue(event, JsonNode.class));
-
-        redisDataSource.stream(TYPE).xadd(STREAM_KEY, events);
-        System.out.println(redisDataSource.stream(TYPE).xlen(STREAM_KEY));
-
     }
 
 }

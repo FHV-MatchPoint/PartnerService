@@ -114,7 +114,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService {
 
     @CacheInvalidate(cacheName = "openrequests-cache")
     @Override
-    public PartnerRequestDTO cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand) throws MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException, MemberNotAuthorizedException {
+    public PartnerRequestDTO cancelPartnerRequest(CancelPartnerRequestCommand cancelPartnerRequestCommand) throws MongoDBPersistenceError, VersionNotMatchingException, PartnerRequestNotFoundException, MemberNotAuthorizedException, RequestStateChangeException {
         Optional<Member> optMember = memberRepository.verify(cancelPartnerRequestCommand.getMemberId());
         if(!optMember.isPresent()){
             throw new MemberNotAuthorizedException("Not Authorized");

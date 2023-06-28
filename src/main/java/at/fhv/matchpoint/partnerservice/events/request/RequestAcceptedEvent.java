@@ -3,10 +3,10 @@ package at.fhv.matchpoint.partnerservice.events.request;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
 import at.fhv.matchpoint.partnerservice.events.AggregateType;
+import at.fhv.matchpoint.partnerservice.events.court.SessionCreateSucceededEvent;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
@@ -40,20 +40,21 @@ public class RequestAcceptedEvent extends PartnerRequestEvent {
         this.state = RequestState.ACCEPTED;
     }
 
-    public static RequestAcceptedEvent create(AcceptPartnerRequestCommand command, PartnerRequest partnerRequest) throws DateTimeFormatException {
-        return new RequestAcceptedEvent(
-                AggregateType.PARTNERREQUEST,
-                command.getPartnerRequestId(),
-                partnerRequest.getOwnerId(),
-                partnerRequest.getClubId(),
-                command.getPartnerId(),
-                partnerRequest.getDate(),
-                CustomDateTimeFormatter.parseTime(command.getStartTime()),
-                CustomDateTimeFormatter.parseTime(command.getEndTime()));
-    }
-
     @Override
     public void accept(PartnerRequestVisitor v) {
         v.visit(this);
+    }
+
+    public static RequestAcceptedEvent create(SessionCreateSucceededEvent sessionCreateSucceededEvent,
+            PartnerRequest partnerRequest) throws DateTimeFormatException {
+        return new RequestAcceptedEvent(
+                AggregateType.PARTNERREQUEST,
+                sessionCreateSucceededEvent.getPartnerRequestId(),
+                partnerRequest.getOwnerId(),
+                partnerRequest.getClubId(),
+                sessionCreateSucceededEvent.getPartnerId(),
+                partnerRequest.getDate(),
+                CustomDateTimeFormatter.parseTime(sessionCreateSucceededEvent.getStartTime()),
+                CustomDateTimeFormatter.parseTime(sessionCreateSucceededEvent.getEndTime()));
     }
 }

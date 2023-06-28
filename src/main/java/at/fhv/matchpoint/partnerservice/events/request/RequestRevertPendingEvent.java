@@ -1,11 +1,10 @@
 package at.fhv.matchpoint.partnerservice.events.request;
 
-import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
+import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
 import at.fhv.matchpoint.partnerservice.events.AggregateType;
-import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
+import at.fhv.matchpoint.partnerservice.events.court.SessionCreateFailedEvent;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
-import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 
@@ -27,29 +26,20 @@ public class RequestRevertPendingEvent extends PartnerRequestEvent {
     public RequestRevertPendingEvent() {
     }
 
-    private RequestRevertPendingEvent(AggregateType aggregateType, String aggregateId, String ownerId, String tennisClubId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    private RequestRevertPendingEvent(AggregateType aggregateType, String aggregateId) {
         super(aggregateType, aggregateId);
-        this.ownerId = ownerId;
-        this.tennisClubId = tennisClubId;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.state = RequestState.INITIATED;
-    }
-
-    public static RequestRevertPendingEvent create(InitiatePartnerRequestCommand command) throws DateTimeFormatException {
-        return new RequestRevertPendingEvent(
-                AggregateType.PARTNERREQUEST,
-                UUID.randomUUID().toString(),
-                command.getMemberId(),
-                command.getClubId(),
-                CustomDateTimeFormatter.parseDate(command.getDate()),
-                CustomDateTimeFormatter.parseTime(command.getStartTime()),
-                CustomDateTimeFormatter.parseTime(command.getEndTime()));
+        this.state = RequestState.OPEN;
     }
 
     @Override
     public void accept(PartnerRequestVisitor v) {
         v.visit(this);
+    }
+
+    public static RequestRevertPendingEvent create(SessionCreateFailedEvent sessionCreateFailedEvent,
+            PartnerRequest partnerRequest) {
+        return new RequestRevertPendingEvent(
+                AggregateType.PARTNERREQUEST,
+                UUID.randomUUID().toString());
     }
 }
