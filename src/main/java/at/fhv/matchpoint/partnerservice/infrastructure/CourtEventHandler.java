@@ -18,10 +18,12 @@ import at.fhv.matchpoint.partnerservice.utils.AggregateBuilder;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestCourtVisitor;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MongoDBPersistenceError;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestAlreadyCancelledException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestNotFoundException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.VersionNotMatchingException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class CourtEventHandler {
@@ -30,7 +32,8 @@ public class CourtEventHandler {
     @Inject
     EventRepository eventRepository;
 
-        public void handleEvent(CourtEvent courtEvent) throws PartnerRequestNotFoundException, VersionNotMatchingException, MongoDBPersistenceError, DateTimeFormatException {
+    @Transactional
+    public void handleEvent(CourtEvent courtEvent) throws PartnerRequestNotFoundException, VersionNotMatchingException, MongoDBPersistenceError, DateTimeFormatException, PartnerRequestAlreadyCancelledException {
         List<PartnerRequestEvent> events = getEventsByAggregateId(courtEvent.getPartnerRequestId());
         if(events.size() == 0){
             throw new PartnerRequestNotFoundException();
@@ -40,7 +43,7 @@ public class CourtEventHandler {
         courtEvent.accept(new PartnerRequestCourtVisitor() {
 
             @Override
-            public void visit(RequestInitiateFailedEvent event) throws MongoDBPersistenceError {
+            public void visit(RequestInitiateFailedEvent event) throws MongoDBPersistenceError, PartnerRequestAlreadyCancelledException {
                 RequestCancelledEvent cancelledEvent = partnerRequest.process(event);
                 try {
                     eventRepository.persist(cancelledEvent);
@@ -51,8 +54,8 @@ public class CourtEventHandler {
             }
 
             @Override
-            public void visit(RequestInitiateSucceededEvent event) throws MongoDBPersistenceError, DateTimeFormatException {
-                                RequestOpenedEvent openedEvent = partnerRequest.process(event);
+            public void visit(RequestInitiateSucceededEvent event) throws MongoDBPersistenceError, DateTimeFormatException, PartnerRequestAlreadyCancelledException {
+                RequestOpenedEvent openedEvent = partnerRequest.process(event);
                 try {
                     eventRepository.persist(openedEvent);
                     partnerRequest.apply(openedEvent);
@@ -62,8 +65,8 @@ public class CourtEventHandler {
             }
 
             @Override
-            public void visit(SessionCreateSucceededEvent event) throws MongoDBPersistenceError, DateTimeFormatException {
-                                RequestAcceptedEvent acceptedEvent = partnerRequest.process(event);
+            public void visit(SessionCreateSucceededEvent event) throws MongoDBPersistenceError, DateTimeFormatException, PartnerRequestAlreadyCancelledException {
+                RequestAcceptedEvent acceptedEvent = partnerRequest.process(event);
                 try {
                     eventRepository.persist(acceptedEvent);
                     partnerRequest.apply(acceptedEvent);
@@ -73,8 +76,8 @@ public class CourtEventHandler {
             }
 
             @Override
-            public void visit(SessionCreateFailedEvent event) throws MongoDBPersistenceError {
-                                RequestRevertPendingEvent requestRevertPendingEvent = partnerRequest.process(event);
+            public void visit(SessionCreateFailedEvent event) throws MongoDBPersistenceError, PartnerRequestAlreadyCancelledException {
+                RequestRevertPendingEvent requestRevertPendingEvent = partnerRequest.process(event);
                 try {
                     eventRepository.persist(requestRevertPendingEvent);
                     partnerRequest.apply(requestRevertPendingEvent);

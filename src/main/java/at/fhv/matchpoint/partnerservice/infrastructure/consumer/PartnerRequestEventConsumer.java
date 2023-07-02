@@ -6,6 +6,7 @@ import at.fhv.matchpoint.partnerservice.utils.LocalDateDeserializer;
 import at.fhv.matchpoint.partnerservice.utils.LocalDateTimeDeserializer;
 import at.fhv.matchpoint.partnerservice.utils.LocalTimeDeserializer;
 import at.fhv.matchpoint.partnerservice.utils.ObjectIdDeserializer;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.MessageAlreadyProcessedException;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.stream.StreamMessage;
 import io.quarkus.redis.datasource.stream.XGroupCreateArgs;
@@ -60,7 +61,7 @@ public class PartnerRequestEventConsumer {
         mapper.registerModule(module);
         mapper.registerModule(new JavaTimeModule());
         try {
-            redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
+            redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "0", new XGroupCreateArgs().mkstream());
         } catch (Exception e) {
             LOGGER.info("Group already exists");
             //TODO delete old consumers
@@ -78,6 +79,8 @@ public class PartnerRequestEventConsumer {
             try {
                 PartnerRequestEvent event = mapper.readValue(payload.get("value").get("payload").get("after").asText(), PartnerRequestEvent.class);
                 partnerRequestEventHandler.handleEvent(event);
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
+            } catch (MessageAlreadyProcessedException e) {
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
                 LOGGER.info(e.getMessage());                

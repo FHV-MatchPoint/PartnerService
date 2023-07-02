@@ -19,6 +19,7 @@ public class RequestCancelledEvent extends PartnerRequestEvent {
 
     public String ownerId;
     public String tennisClubId;
+    public String partnerId;
     public LocalDate date;
     public LocalTime startTime;
     public LocalTime endTime;
@@ -27,10 +28,11 @@ public class RequestCancelledEvent extends PartnerRequestEvent {
     public RequestCancelledEvent() {}
 
     private RequestCancelledEvent(AggregateType aggregateType, String aggregateId,
-                                  String ownerId, String tennisClubId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+                                  String ownerId, String tennisClubId, String partnerId, LocalDate date, LocalTime startTime, LocalTime endTime) {
        super(aggregateType, aggregateId);
        this.ownerId = ownerId;
        this.tennisClubId = tennisClubId;
+       this.partnerId = partnerId;
        this.date = date;
        this.startTime = startTime;
        this.endTime = endTime;
@@ -43,6 +45,7 @@ public class RequestCancelledEvent extends PartnerRequestEvent {
                 command.getPartnerRequestId(),
                 partnerRequest.getOwnerId(),
                 partnerRequest.getClubId(),
+                partnerRequest.getPartnerId(),
                 partnerRequest.getDate(),
                 partnerRequest.getStartTime(),
                 partnerRequest.getEndTime()
@@ -61,6 +64,7 @@ public class RequestCancelledEvent extends PartnerRequestEvent {
                 requestInitiateFailedEvent.getPartnerRequestId(),
                 partnerRequest.getOwnerId(),
                 partnerRequest.getClubId(),
+                partnerRequest.getPartnerId(),
                 partnerRequest.getDate(),
                 partnerRequest.getStartTime(),
                 partnerRequest.getEndTime()

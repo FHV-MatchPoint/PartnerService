@@ -10,8 +10,6 @@
  import jakarta.inject.Inject;
 
  import java.time.Duration;
- import java.util.HashMap;
- import java.util.Map;
  import java.util.UUID;
 
 import org.jboss.logging.Logger;
@@ -28,18 +26,17 @@ import org.jboss.logging.Logger;
      private static final Logger LOGGER = Logger.getLogger(LockClubConsumer.class);
 
      final String GROUP_NAME = "partnerService";
-     final String STREAM_KEY = "lockClub";
+     final String STREAM_KEY = "club";
      final String CONSUMER = UUID.randomUUID().toString();
-     final Class<ClubLockedEvent> TYPE = ClubLockedEvent.class;
+     final Class<String> TYPE = String.class;
 
      // create group for horizontal scaling. this way each partner service instance doesnt ready messages multiple times
      @PostConstruct
      public void createGroup(){
          try {
-             redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
+             redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "0", new XGroupCreateArgs().mkstream());
          } catch (Exception e) {
              LOGGER.info("Group already exists");
-             //TODO delete old consumers
          }
      }
 
@@ -49,15 +46,19 @@ import org.jboss.logging.Logger;
          // > reads only messages that have not been read by any other consumer of the group
          redisDataSource.stream(TYPE).xreadgroup(GROUP_NAME, CONSUMER, STREAM_KEY, ">")
                  .forEach(message -> {
-                     message.payload().values().stream().forEach(object -> {
+                    ClubLockedEvent event = new ClubLockedEvent();
+                    event.aggregateId = message.payload().get("aggregateId");
+                    event.eventType = message.payload().get("eventType");
+                    event.id = message.payload().get("id");
+                    if(event.eventType.equals("ClubLockedEvent")){
                          try {
-                             lockPartnerRequestService.lockPartnerRequestByClubId(object.clubId);
+                             lockPartnerRequestService.lockPartnerRequestByClubId(event.aggregateId);
                              redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
                          } catch (Exception e) {
                             LOGGER.info("Not all Request could be cancelled. Message will not be acknowledged");
-                            
+
                          }
-                     });
+                    }
                  });
      }
 
@@ -67,14 +68,19 @@ import org.jboss.logging.Logger;
      void claimOpenMessages(){
          redisDataSource.stream(TYPE).xautoclaim(STREAM_KEY, GROUP_NAME, CONSUMER, Duration.ofSeconds(600) , "0")
                  .getMessages().forEach(message -> {
-                     message.payload().values().stream().forEach(object -> {
+                    ClubLockedEvent event = new ClubLockedEvent();
+                    event.aggregateId = message.payload().get("aggregateId");
+                    event.eventType = message.payload().get("eventType");
+                    event.id = message.payload().get("id");
+                    if(event.eventType.equals("ClubLockedEvent")){
                          try {
-                             lockPartnerRequestService.lockPartnerRequestByClubId(object.clubId);
+                             lockPartnerRequestService.lockPartnerRequestByClubId(event.aggregateId);
                              redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
                          } catch (Exception e) {
                             LOGGER.info("Not all Request could be cancelled. Message will not be acknowledged");
+
                          }
-                     });
+                    }
                  });
      }
     

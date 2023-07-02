@@ -1,8 +1,13 @@
 package at.fhv.matchpoint.partnerservice.events.member;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import at.fhv.matchpoint.partnerservice.utils.MemberVisitor;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;
+import jakarta.persistence.Entity;
 
+@JsonTypeName("MemberAddedEvent")
+@Entity
 public class MemberAddedEvent extends MemberEvent{
 
     public String name;

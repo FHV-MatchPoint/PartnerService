@@ -1,8 +1,8 @@
 package at.fhv.matchpoint.partnerservice.utils.exceptions;
 
-public class RequestStateChangeException extends ResponseException {
+public abstract class RequestStateChangeException extends ResponseException {
 
     public RequestStateChangeException() {
-        super(412, "The request could not be process as the PartnerRequest no longer fulfills the necessary preconditions");
+        super(412, "The request could not be process as the PartnerRequest no longer fulfills the necessary preconditions or was cancelled.");
     }
 }
