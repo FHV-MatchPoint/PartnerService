@@ -146,34 +146,34 @@ public class MemberEventConsumer {
         memberRepository.persistAndFlush(member);
     }
 
-    private Member build(Member model, MemberEvent memberEvent, MemberEvent lastProcessedEvent) throws MemberNotFoundException, MessageAlreadyProcessedException {
+    private Member build(Member model, MemberEvent memberEvent, MemberEvent lastProcessedEvent) throws MemberNotFoundException {
         Member member = model;
         memberEvent.accept(new MemberVisitor() {
             @Override
-            public void visit(MemberLockedEvent event) throws MemberNotFoundException, MessageAlreadyProcessedException {
+            public void visit(MemberLockedEvent event) throws MemberNotFoundException {
                 if (member.memberId == null) {
                     throw new MemberNotFoundException();
                 }
-                if (lastProcessedEvent != null && lastProcessedEvent.timestamp > event.timestamp){
-                    throw new MessageAlreadyProcessedException();
+                if (lastProcessedEvent != null && lastProcessedEvent.timestamp < event.timestamp){
+                    model.apply(event);
+                    try {
+                        lockPartnerRequestService.lockPartnerRequestByMemberId(member.memberId);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-                model.apply(event);
-                try {
-                    lockPartnerRequestService.lockPartnerRequestByMemberId(member.memberId);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+
             }
 
             @Override
-            public void visit(MemberUnlockedEvent event) throws MemberNotFoundException, MessageAlreadyProcessedException {
+            public void visit(MemberUnlockedEvent event) throws MemberNotFoundException {
                 if (member.memberId == null) {
                     throw new MemberNotFoundException();
                 }
-                if (lastProcessedEvent != null && lastProcessedEvent.timestamp > event.timestamp){
-                    throw new MessageAlreadyProcessedException();
+                if (lastProcessedEvent != null && lastProcessedEvent.timestamp < event.timestamp){
+                    model.apply(event);
                 }
-                model.apply(event);
+
             }
 
             @Override
