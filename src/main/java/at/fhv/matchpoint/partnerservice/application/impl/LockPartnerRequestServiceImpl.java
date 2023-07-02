@@ -5,6 +5,7 @@ import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.events.request.RequestCancelledEvent;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestAlreadyCancelledException;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -45,11 +46,14 @@ public class LockPartnerRequestServiceImpl implements LockPartnerRequestService 
                 .values().stream().map(eventList -> buildAggregate(eventList)).collect(Collectors.toList());
         for (PartnerRequest partnerRequest: partnerRequests) {
             CancelPartnerRequestCommand command = new CancelPartnerRequestCommand();
+            command.setMemberId(partnerRequest.getOwnerId());
             command.setPartnerRequestId(partnerRequest.getPartnerRequestId());
-            RequestCancelledEvent event = partnerRequest.process(command);
             try {
+                RequestCancelledEvent event = partnerRequest.process(command);
                 eventRepository.persist(event);
                 partnerRequest.apply(event);
+            } catch (PartnerRequestAlreadyCancelledException e) {
+                // If already canceled nothing happens
             } catch (Exception e) {
                 allLocked = false;
             }
