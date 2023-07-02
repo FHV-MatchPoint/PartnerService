@@ -1,5 +1,22 @@
 version: '3.1'
 
+## Docker Desktop needed
+## Run this docker compose file
+## If you use another redis you have to update the connection string 
+## below for debezium and in src/main/java/resources/application.properties for the %dev
+
+## After running the docker compose run:
+## ./gradlew quarkusDev
+## At least Java 11 is required to run the project
+
+## Available Users in Testmode are:
+## TestMember
+## TestPartner
+## Both are part of TestClub
+## More details are in the src/main/java/resources/import.sql
+
+## Swagger-Ui can be accessed localhost:8080/q/swagger-ui/
+
 services:
   redis:
     container_name: redis
@@ -63,17 +80,17 @@ services:
       - mongodb-init
       - redis
 
-  partnerservice:
-    container_name: matchpoint-partnerservice
-    image: "justinstroehlefh/matchpoint-partnerservice"
-    depends_on:
-      - postgres-partnerservice
-      - mongodb-partnerservice
-    environment:
-      QUARKUS_MONGODB_CONNECTION_STRING: mongodb://mongodb-partnerservice:27017
-      QUARKUS_REDIS_HOSTS: redis://redis:6379
-      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres-partnerservice:5432/partnerservice
-      QUARKUS_DATASOURCE_USERNAME: test
-      QUARKUS_DATASOURCE_PASSWORD: test
-    ports:
-      - "8081:8080"
+  # partnerservice:
+  #   container_name: matchpoint-partnerservice
+  #   image: "justinstroehlefh/matchpoint-partnerservice"
+  #   depends_on:
+  #     - postgres-partnerservice
+  #     - mongodb-partnerservice
+  #   environment:
+  #     QUARKUS_MONGODB_CONNECTION_STRING: mongodb://mongodb-partnerservice:27017
+  #     QUARKUS_REDIS_HOSTS: redis://redis:6379
+  #     QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres-partnerservice:5432/partnerservice
+  #     QUARKUS_DATASOURCE_USERNAME: test
+  #     QUARKUS_DATASOURCE_PASSWORD: test
+  #   ports:
+  #     - "8081:8080"
