@@ -32,7 +32,7 @@ import at.fhv.matchpoint.partnerservice.domain.model.Member;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository;
 
-@Authenticated
+//@Authenticated
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "PartnerRequest-Endpoints")

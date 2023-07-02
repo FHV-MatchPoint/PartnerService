@@ -1,22 +1,79 @@
 version: '3.1'
 
 services:
-  mongodb:
+  redis:
+    container_name: redis
+    image: redislabs/redismod
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+    restart: on-failure
+
+  redisinsight:
+    image: redislabs/redisinsight
+    container_name: redisinsight
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis
+    restart: on-failure
+
+  postgres-partnerservice:
+    image: "postgres:10.5"
+    mem_limit: 128m
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=partnerservice
+    ports:
+      - "5433:5432"
+
+  mongodb-partnerservice:
     image: mongo
     container_name: mongodb
-    volumes:
-      - ./scripts/init.sh:/usr/local/bin/init.sh
     ports:
       - 27017:27017
-    environment:
-      - MONGODB_USER=debezium
-      - MONGODB_PASSWORD=dbz
     command: ["--replSet", "rs0", "--dbpath", "/data/db", "--bind_ip_all"]
-  debezium:
+
+  mongodb-init:
+    image: mongo:6.0.6-jammy
+    command: ["bash", "-c", "mongosh --host mongodb-partnerservice --port 27017 --authenticationDatabase admin /scripts/init_replica.js"]
+    volumes:
+      - ./scripts:/scripts
+    depends_on:
+      - mongodb-partnerservice
+
+  debezium-partnerservice:
     image: debezium/server
     environment:
-      - debezium_source_mongodb_connection_string=$DEBEZIUM_MONGO
-    volumes:
-      - ./debezium:/debezium/conf
+      - debezium_source_mongodb_connection_string=mongodb://mongodb-partnerservice:27017
+      - debezium_sink_type=redis
+      # change this to your redis address
+      - debezium_sink_redis_address=redis:6379
+      - debezium_sink_redis_message_format=extended
+      - debezium_source_connector_class=io.debezium.connector.mongodb.MongoDbConnector
+      - debezium_source_database_history=io.debezium.relational.history.FileDatabaseHistory
+      - debezium_source_tasks_max=1
+      - debezium_source_topic_prefix=partnerservice
+      - debezium_source_offset_storage_file_filename=/tmp/offsets.dat
+      - debezium_source_offset_flush_interval_ms=0
+      - quarkus_http_port=9090
     depends_on:
-      - mongodb
+      - mongodb-init
+      - redis
+
+  partnerservice:
+    container_name: matchpoint-partnerservice
+    image: "justinstroehlefh/matchpoint-partnerservice"
+    depends_on:
+      - postgres-partnerservice
+      - mongodb-partnerservice
+    environment:
+      QUARKUS_MONGODB_CONNECTION_STRING: mongodb://mongodb-partnerservice:27017
+      QUARKUS_REDIS_HOSTS: redis://redis:6379
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres-partnerservice:5432/partnerservice
+      QUARKUS_DATASOURCE_USERNAME: test
+      QUARKUS_DATASOURCE_PASSWORD: test
+    ports:
+      - "8081:8080"

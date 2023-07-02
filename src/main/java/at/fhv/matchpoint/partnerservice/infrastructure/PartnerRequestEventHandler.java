@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
+import at.fhv.matchpoint.partnerservice.events.PartnerRequestEventTracking;
 import at.fhv.matchpoint.partnerservice.events.request.*;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.PartnerRequestEventTrackingRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.PartnerRequestReadModelRepository;
@@ -25,10 +26,11 @@ public class PartnerRequestEventHandler {
 
     @Transactional
     public void handleEvent(PartnerRequestEvent event) throws MessageAlreadyProcessedException {
-        PartnerRequestEvent lastProcessedEvent;
+        PartnerRequestEventTracking lastProcessedEvent;
+        PartnerRequestEventTracking newTrackedEvent = new PartnerRequestEventTracking(event);
         try {
             lastProcessedEvent = partnerRequestEventTrackingRepository.find("aggregateId", Sort.by("createdAt").descending(), event.aggregateId).firstResult();
-            partnerRequestEventTrackingRepository.persist(event);
+            partnerRequestEventTrackingRepository.persist(newTrackedEvent);
         } catch (Exception e) {
             throw new MessageAlreadyProcessedException();
         }
@@ -40,7 +42,7 @@ public class PartnerRequestEventHandler {
         partnerRequestReadModelRepository.persistAndFlush(applyEvent(partnerRequestReadModel, event, lastProcessedEvent));
     }
 
-    private PartnerRequestReadModel applyEvent(PartnerRequestReadModel model, PartnerRequestEvent event, PartnerRequestEvent lastProcessedEvent) {
+    private PartnerRequestReadModel applyEvent(PartnerRequestReadModel model, PartnerRequestEvent event, PartnerRequestEventTracking lastProcessedEvent) {
         PartnerRequestReadModel requestReadModel = model;
         event.accept(new PartnerRequestVisitor() {
 

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import io.quarkus.mongodb.panache.common.MongoEntity;
+import jakarta.persistence.Id;
 
 @MongoEntity(collection = "Event")
 @JsonTypeInfo(
