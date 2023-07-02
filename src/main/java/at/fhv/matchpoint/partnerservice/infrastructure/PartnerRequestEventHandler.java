@@ -27,8 +27,8 @@ public class PartnerRequestEventHandler {
     public void handleEvent(PartnerRequestEvent event) throws MessageAlreadyProcessedException {
         PartnerRequestEvent lastProcessedEvent;
         try {
-            partnerRequestEventTrackingRepository.persist(event);
             lastProcessedEvent = partnerRequestEventTrackingRepository.find("aggregateId", Sort.by("createdAt").descending(), event.aggregateId).firstResult();
+            partnerRequestEventTrackingRepository.persist(event);
         } catch (Exception e) {
             throw new MessageAlreadyProcessedException();
         }

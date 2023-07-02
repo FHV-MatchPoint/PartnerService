@@ -132,8 +132,8 @@ public class MemberEventConsumer {
     public void handleEvent(MemberEvent memberEvent) throws MemberNotFoundException, MessageAlreadyProcessedException {
         MemberEvent lastProcessedEvent;
         try {
-            memberEventTrackingRepository.persist(memberEvent);
             lastProcessedEvent = memberEventTrackingRepository.find("entity_id", Sort.by("timestamp").descending(), memberEvent.entity_id).firstResult();
+            memberEventTrackingRepository.persist(memberEvent);
         } catch (Exception e) {
             throw new MessageAlreadyProcessedException();
         }
