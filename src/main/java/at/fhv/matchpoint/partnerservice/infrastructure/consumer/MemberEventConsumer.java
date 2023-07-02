@@ -10,9 +10,13 @@ import at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberEventTra
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository;
 import at.fhv.matchpoint.partnerservice.utils.*;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.MessageAlreadyProcessedException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.quarkus.panache.common.Sort;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.stream.StreamMessage;
 import io.quarkus.redis.datasource.stream.XGroupCreateArgs;
@@ -49,7 +53,7 @@ public class MemberEventConsumer {
     private static final Logger LOGGER = Logger.getLogger(MemberEventConsumer.class);
 
     final String GROUP_NAME = "partnerService";
-    final String STREAM_KEY = "memberservice.public.event"; //TODO find out
+    final String STREAM_KEY = "memberservice.public.event";
     final String CONSUMER = UUID.randomUUID().toString();
     final Class<JsonNode> TYPE = JsonNode.class;
     final String PAYLOAD_KEY = "value";
@@ -73,31 +77,31 @@ public class MemberEventConsumer {
             Entry<String, JsonNode> payload = message.payload().entrySet().stream().findFirst().get();
             try {
                 MemberEvent memberEvent = mapper.readValue(payload.getValue().get("payload").get("after").toString(), MemberEvent.class);
-                System.out.println(memberEvent);
                 handleEvent(memberEvent);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());                
             } catch (MemberNotFoundException e) {
                 readAllMessages(e);
+            } catch (MessageAlreadyProcessedException e) {
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
-                e.printStackTrace();
-                LOGGER.info(e.getStackTrace());
+                LOGGER.info(e.getMessage());
             }
         }
     }
 
     void readAllMessages(MemberNotFoundException exception) {
-        // > reads only messages that have not been read by any other consumer of the group
         List<StreamMessage<String, String, JsonNode>> messages = redisDataSource.stream(TYPE).xreadgroup(GROUP_NAME, CONSUMER, STREAM_KEY, "0");
 
         for (StreamMessage<String, String, JsonNode> message : messages) {
             Map<String, JsonNode> payload = message.payload();
             try {
                 MemberEvent memberEvent = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), MemberEvent.class);
-                System.out.println(memberEvent);
                 handleEvent(memberEvent);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (MemberNotFoundException e) {
                 LOGGER.info(exception.getMessage());
+            } catch (MessageAlreadyProcessedException e) {
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
                 LOGGER.info(e.getMessage());
             }
@@ -116,6 +120,8 @@ public class MemberEventConsumer {
                 MemberEvent memberEvent = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), MemberEvent.class);
                 handleEvent(memberEvent);
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
+            } catch (MessageAlreadyProcessedException e) {
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
                 LOGGER.info(e.getMessage());
             }
@@ -123,24 +129,33 @@ public class MemberEventConsumer {
     }
 
     @Transactional
-    public void handleEvent(MemberEvent memberEvent) throws MemberNotFoundException {
-        memberEventTrackingRepository.persist(memberEvent);
+    public void handleEvent(MemberEvent memberEvent) throws MemberNotFoundException, MessageAlreadyProcessedException {
+        MemberEvent lastProcessedEvent;
+        try {
+            memberEventTrackingRepository.persist(memberEvent);
+            lastProcessedEvent = memberEventTrackingRepository.find("entity_id", Sort.by("timestamp").descending(), memberEvent.entity_id).firstResult();
+        } catch (Exception e) {
+            throw new MessageAlreadyProcessedException();
+        }
         Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.entity_id);
         Member member = new Member();
         if (optMember.isPresent()) {
             member = optMember.get();
         }
-        member = build(member, memberEvent);
+        member = build(member, memberEvent, lastProcessedEvent);
         memberRepository.persistAndFlush(member);
     }
 
-    private Member build(Member model, MemberEvent memberEvent) throws MemberNotFoundException {
+    private Member build(Member model, MemberEvent memberEvent, MemberEvent lastProcessedEvent) throws MemberNotFoundException, MessageAlreadyProcessedException {
         Member member = model;
         memberEvent.accept(new MemberVisitor() {
             @Override
-            public void visit(MemberLockedEvent event) throws MemberNotFoundException {
+            public void visit(MemberLockedEvent event) throws MemberNotFoundException, MessageAlreadyProcessedException {
                 if (member.memberId == null) {
                     throw new MemberNotFoundException();
+                }
+                if (lastProcessedEvent != null && lastProcessedEvent.timestamp > event.timestamp){
+                    throw new MessageAlreadyProcessedException();
                 }
                 model.apply(event);
                 try {
@@ -151,9 +166,12 @@ public class MemberEventConsumer {
             }
 
             @Override
-            public void visit(MemberUnlockedEvent event) throws MemberNotFoundException {
+            public void visit(MemberUnlockedEvent event) throws MemberNotFoundException, MessageAlreadyProcessedException {
                 if (member.memberId == null) {
                     throw new MemberNotFoundException();
+                }
+                if (lastProcessedEvent != null && lastProcessedEvent.timestamp > event.timestamp){
+                    throw new MessageAlreadyProcessedException();
                 }
                 model.apply(event);
             }

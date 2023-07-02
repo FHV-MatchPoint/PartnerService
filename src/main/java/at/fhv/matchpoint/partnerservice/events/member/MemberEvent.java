@@ -2,6 +2,7 @@ package at.fhv.matchpoint.partnerservice.events.member;
 
 import at.fhv.matchpoint.partnerservice.utils.MemberVisitor;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.MessageAlreadyProcessedException;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
@@ -45,7 +46,7 @@ public abstract class MemberEvent implements Comparable<MemberEvent> {
         this.entity_id = entity_id;
     }
 
-    public abstract void accept(MemberVisitor v) throws MemberNotFoundException;
+    public abstract void accept(MemberVisitor v) throws MemberNotFoundException, MessageAlreadyProcessedException;
 
     @Override
     public int compareTo(MemberEvent e) {
