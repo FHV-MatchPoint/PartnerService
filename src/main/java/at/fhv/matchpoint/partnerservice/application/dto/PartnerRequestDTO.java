@@ -11,18 +11,18 @@ public class PartnerRequestDTO {
     private String partnerRequestId;
     private String owner;
     private String partner;
-    private ClubDTO club;
+    private String clubId;
     private String date;
     private String startTime;
     private String endTime;
     private String state;    
 
-    private PartnerRequestDTO(String partnerRequestId, String owner, String partner, ClubDTO club, String date,
+    private PartnerRequestDTO(String partnerRequestId, String owner, String partner, String clubId, String date,
             String startTime, String endTime, String state) {
         this.partnerRequestId = partnerRequestId;
         this.owner = owner;
         this.partner = partner;
-        this.club = club;
+        this.clubId = clubId;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -32,9 +32,9 @@ public class PartnerRequestDTO {
     public static PartnerRequestDTO buildDTO(PartnerRequest partnerRequest){
         String owner = partnerRequest.getOwnerId();
         String partner = partnerRequest.getPartnerId();
-        ClubDTO club = ClubDTO.buildDTO(partnerRequest.getClubId());
         return new PartnerRequestDTO(partnerRequest.getPartnerRequestId(), 
-        owner, partner, club, 
+        owner, partner,
+        partnerRequest.getClubId(), 
         partnerRequest.getDate().toString(),
         partnerRequest.getStartTime().toString(), 
         partnerRequest.getEndTime().toString(), 
@@ -65,12 +65,12 @@ public class PartnerRequestDTO {
         this.partner = partner;
     }
 
-    public ClubDTO getClub() {
-        return club;
+    public String getClubId() {
+        return clubId;
     }
 
-    public void setClub(ClubDTO club) {
-        this.club = club;
+    public void setClub(String clubId) {
+        this.clubId = clubId;
     }
 
     public String getDate() {
@@ -108,9 +108,9 @@ public class PartnerRequestDTO {
     public static PartnerRequestDTO buildDTO(PartnerRequestReadModel partnerRequest) {
         String owner = partnerRequest.getOwnerId();
         String partner = partnerRequest.getPartnerId();
-        ClubDTO club = ClubDTO.buildDTO(partnerRequest.getClubId());
         return new PartnerRequestDTO(partnerRequest.getPartnerRequestId(), 
-        owner, partner, club, 
+        owner, partner,
+        partnerRequest.getClubId(), 
         partnerRequest.getDate().toString(),
         partnerRequest.getStartTime().toString(), 
         partnerRequest.getEndTime().toString(), 

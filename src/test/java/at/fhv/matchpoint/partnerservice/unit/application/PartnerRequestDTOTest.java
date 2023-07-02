@@ -1,6 +1,5 @@
 package at.fhv.matchpoint.partnerservice.unit.application;
 
-import at.fhv.matchpoint.partnerservice.application.dto.ClubDTO;
 import at.fhv.matchpoint.partnerservice.application.dto.PartnerRequestDTO;
 import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
@@ -49,7 +48,7 @@ public class PartnerRequestDTOTest {
         assertEquals("0001-01-01", partnerRequestDTO.getDate());
         assertEquals(START_TIME, partnerRequestDTO.getStartTime());
         assertEquals(END_TIME, partnerRequestDTO.getEndTime());
-        assertEquals(CLUB_ID, partnerRequestDTO.getClub().getClubId());
+        assertEquals(CLUB_ID, partnerRequestDTO.getClubId());
         assertEquals(PARTNER_ID, partnerRequestDTO.getPartner());
         assertNotNull(partnerRequestDTO.getPartnerRequestId());
     }
@@ -67,7 +66,7 @@ public class PartnerRequestDTOTest {
 
         PartnerRequestDTO partnerRequestDTO = PartnerRequestDTO.buildDTO(partnerRequest);
         partnerRequestDTO.setPartner(PARTNER_ID);
-        partnerRequestDTO.setClub(ClubDTO.buildDTO(CLUB_ID));
+        partnerRequestDTO.setClub((CLUB_ID));
         partnerRequestDTO.setDate(DATE);
         partnerRequestDTO.setStartTime(START_TIME);
         partnerRequestDTO.setEndTime(END_TIME);
@@ -78,7 +77,7 @@ public class PartnerRequestDTOTest {
         assertEquals(DATE, partnerRequestDTO.getDate());
         assertEquals(START_TIME, partnerRequestDTO.getStartTime());
         assertEquals(END_TIME, partnerRequestDTO.getEndTime());
-        assertEquals(CLUB_ID, partnerRequestDTO.getClub().getClubId());
+        assertEquals(CLUB_ID, partnerRequestDTO.getClubId());
         assertEquals(PARTNER_ID, partnerRequestDTO.getPartner());
         assertEquals(PARTNER_REQUEST_ID, partnerRequestDTO.getPartnerRequestId());
         assertEquals(STATE, partnerRequestDTO.getState());
