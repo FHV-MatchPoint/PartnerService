@@ -1,8 +1,72 @@
-# partnerservice
+# Partnerservice
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+
+## Technologies
+- Quarkus 3.0
+- Redis streams
+- Debezium
+- Postgresql
+- MongoDB
+- Java 11
+- Docker
+- Kubernetes
+- Swagger UI
+- Linode Server Deployment (only during development)
+
+## Domain Driven Design
+We created the PartnerRequest Entity according to the domain model that was defined during the modelling process.
+_at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest_
+## Event Sourcing
+at.fhv.matchpoint.partnerservice.events.*
+at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository
+
+at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest\
+Apply and Process methods (67 - 172)
+### Optimistic Locking
+at.fhv.matchpoint.partnerservice.application.impl.PartnerRequestServiceImpl
+Lines: 
+- 79
+- 105
+- 131
+- 179 - 183
+
+
+### Message Ordering
+
+### Message Tracking
+
+## Interprocess Communication
+Asynchronous Message Consumers
+at.fhv.matchpoint.partnerservice.infrastructure.consumer.*
+## CQRS
+at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository
+at.fhv.matchpoint.partnerservice.infrastructure.repository.PartnerRequestReadModel
+at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberRepository
+at.fhv.matchpoint.partnerservice.infrastructure.consumer.PartnerRequestReadModel
+## Sagas
+### Semantic Locking
+at.fhv.matchpoint.partnerservice.events.request.RequestInitiatedEvent
+at.fhv.matchpoint.partnerservice.events.request.AcceptPendingEvent
+
+at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest\
+Lines:
+- 120
+- 130
+- 140
+
+## Role Based Authorization
+at.fhv.matchpoint.partnerservice.rest.PartnerRequestResource\
+@Authenticated Annotation in REST Controller Class
+## API Gateway
+
+### Authentication
+### Fault tolerance
+#### Circuit Breaker
+#### Fallback
+
 
 ## Running the application in dev mode
 
