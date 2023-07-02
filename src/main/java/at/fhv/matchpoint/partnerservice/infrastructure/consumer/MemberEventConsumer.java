@@ -6,6 +6,7 @@ import at.fhv.matchpoint.partnerservice.events.member.MemberAddedEvent;
 import at.fhv.matchpoint.partnerservice.events.member.MemberEvent;
 import at.fhv.matchpoint.partnerservice.events.member.MemberLockedEvent;
 import at.fhv.matchpoint.partnerservice.events.member.MemberUnlockedEvent;
+import at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberEventTrackingRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository;
 import at.fhv.matchpoint.partnerservice.utils.*;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;
@@ -42,6 +43,9 @@ public class MemberEventConsumer {
     @Inject
     LockPartnerRequestService lockPartnerRequestService;
 
+    @Inject
+    MemberEventTrackingRepository memberEventTrackingRepository;
+
     private static final Logger LOGGER = Logger.getLogger(MemberEventConsumer.class);
 
     final String GROUP_NAME = "partnerService";
@@ -54,10 +58,9 @@ public class MemberEventConsumer {
     @PostConstruct
     public void createGroup() {
         try {
-            redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
+            redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "0", new XGroupCreateArgs().mkstream());
         } catch (Exception e) {
             LOGGER.info("Group already exists");
-            //TODO delete old consumers
         }
     }
 
@@ -121,6 +124,7 @@ public class MemberEventConsumer {
 
     @Transactional
     public void handleEvent(MemberEvent memberEvent) throws MemberNotFoundException {
+        memberEventTrackingRepository.persist(memberEvent);
         Optional<Member> optMember = memberRepository.findByIdOptional(memberEvent.entity_id);
         Member member = new Member();
         if (optMember.isPresent()) {

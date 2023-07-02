@@ -10,8 +10,6 @@
  import jakarta.inject.Inject;
 
  import java.time.Duration;
- import java.util.HashMap;
- import java.util.Map;
  import java.util.UUID;
 
 import org.jboss.logging.Logger;
@@ -36,10 +34,9 @@ import org.jboss.logging.Logger;
      @PostConstruct
      public void createGroup(){
          try {
-             redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
+             redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "0", new XGroupCreateArgs().mkstream());
          } catch (Exception e) {
              LOGGER.info("Group already exists");
-             //TODO delete old consumers
          }
      }
 

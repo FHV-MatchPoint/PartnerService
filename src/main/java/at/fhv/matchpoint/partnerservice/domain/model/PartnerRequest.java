@@ -13,6 +13,8 @@ import at.fhv.matchpoint.partnerservice.events.court.SessionCreateFailedEvent;
 import at.fhv.matchpoint.partnerservice.events.court.SessionCreateSucceededEvent;
 import at.fhv.matchpoint.partnerservice.events.request.*;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestAlreadyCancelledException;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestNotOpenException;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.RequestStateChangeException;
 
 public class PartnerRequest {
@@ -117,37 +119,55 @@ public class PartnerRequest {
     public RequestAcceptPendingEvent process (AcceptPartnerRequestCommand acceptPartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException {
         if(this.state.equals(RequestState.OPEN)){
             return RequestAcceptPendingEvent.create(acceptPartnerRequestCommand, this);
+        } 
+        else if(this.state.equals(RequestState.CANCELLED)){
+            throw new PartnerRequestAlreadyCancelledException();
         }
-        throw new RequestStateChangeException();        
+        throw new PartnerRequestNotOpenException();        
     }
 
     public RequestUpdatedEvent process (UpdatePartnerRequestCommand updatePartnerRequestCommand) throws DateTimeFormatException, RequestStateChangeException {
         if(this.state.equals(RequestState.OPEN)){
             return RequestUpdatedEvent.create(updatePartnerRequestCommand, this);
+        } 
+        else if(this.state.equals(RequestState.CANCELLED)){
+            throw new PartnerRequestAlreadyCancelledException();
         }
-        throw new RequestStateChangeException();        
+        throw new PartnerRequestNotOpenException();        
     }
 
     public RequestCancelledEvent process (CancelPartnerRequestCommand cancelPartnerRequestCommand) throws RequestStateChangeException {
-        if(this.state.equals(RequestState.OPEN)){
+        if(!this.state.equals(RequestState.CANCELLED)){
             return RequestCancelledEvent.create(cancelPartnerRequestCommand, this);
         }
-        throw new RequestStateChangeException();
+        throw new PartnerRequestAlreadyCancelledException();
     }
 
-    public RequestCancelledEvent process (RequestInitiateFailedEvent requestInitiateFailedEvent) {
+    public RequestCancelledEvent process (RequestInitiateFailedEvent requestInitiateFailedEvent) throws PartnerRequestAlreadyCancelledException {
+        if(this.state.equals(RequestState.CANCELLED)){
+            throw new PartnerRequestAlreadyCancelledException();
+        }
         return RequestCancelledEvent.create(requestInitiateFailedEvent, this);
     }
 
-    public RequestOpenedEvent process (RequestInitiateSucceededEvent requestInitiateSucceededEvent) throws DateTimeFormatException {
+    public RequestOpenedEvent process (RequestInitiateSucceededEvent requestInitiateSucceededEvent) throws DateTimeFormatException, PartnerRequestAlreadyCancelledException {
+        if(this.state.equals(RequestState.CANCELLED)){
+            throw new PartnerRequestAlreadyCancelledException();
+        }
         return RequestOpenedEvent.create(requestInitiateSucceededEvent, this);
     }
 
-    public RequestRevertPendingEvent process (SessionCreateFailedEvent sessionCreateFailedEvent) {
+    public RequestRevertPendingEvent process (SessionCreateFailedEvent sessionCreateFailedEvent) throws PartnerRequestAlreadyCancelledException {
+        if(this.state.equals(RequestState.CANCELLED)){
+            throw new PartnerRequestAlreadyCancelledException();
+        }
         return RequestRevertPendingEvent.create(sessionCreateFailedEvent, this);
     }
 
-    public RequestAcceptedEvent process (SessionCreateSucceededEvent sessionCreateSucceededEvent) throws DateTimeFormatException {
+    public RequestAcceptedEvent process (SessionCreateSucceededEvent sessionCreateSucceededEvent) throws DateTimeFormatException, PartnerRequestAlreadyCancelledException {
+        if(this.state.equals(RequestState.CANCELLED)){
+            throw new PartnerRequestAlreadyCancelledException();
+        }
         return RequestAcceptedEvent.create(sessionCreateSucceededEvent, this);
     }
     

@@ -2,6 +2,7 @@ package at.fhv.matchpoint.partnerservice.infrastructure.consumer;
 
 import at.fhv.matchpoint.partnerservice.events.court.CourtEvent;
 import at.fhv.matchpoint.partnerservice.infrastructure.CourtEventHandler;
+import at.fhv.matchpoint.partnerservice.utils.exceptions.PartnerRequestAlreadyCancelledException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,10 +41,9 @@ public class CourtEventConsumer {
     @PostConstruct
     public void createGroup() {
         try {
-            redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
+            redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "0", new XGroupCreateArgs().mkstream());
         } catch (Exception e) {
             LOGGER.info("Group already exists");
-            //TODO delete old consumers
         }
     }
 
@@ -58,6 +58,9 @@ public class CourtEventConsumer {
             try {
                 CourtEvent courtEvent = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), CourtEvent.class);
                 courtEventHandler.handleEvent(courtEvent);
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
+            } catch (PartnerRequestAlreadyCancelledException e) {
+                // when already cancelled event can be ignored and acknowledged
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
                 LOGGER.info(e.getMessage());
@@ -76,6 +79,9 @@ public class CourtEventConsumer {
             try {
                 CourtEvent event = mapper.readValue(payload.get(PAYLOAD_KEY).get("payload").get("after").asText(), CourtEvent.class);
                 courtEventHandler.handleEvent(event);
+                redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
+            } catch (PartnerRequestAlreadyCancelledException e) {
+                // when already cancelled event can be ignored and acknowledged
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
                 LOGGER.info(e.getMessage());

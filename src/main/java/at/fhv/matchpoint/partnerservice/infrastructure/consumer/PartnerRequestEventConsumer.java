@@ -60,7 +60,7 @@ public class PartnerRequestEventConsumer {
         mapper.registerModule(module);
         mapper.registerModule(new JavaTimeModule());
         try {
-            redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "$", new XGroupCreateArgs().mkstream());
+            redisDataSource.stream(TYPE).xgroupCreate(STREAM_KEY, GROUP_NAME, "0", new XGroupCreateArgs().mkstream());
         } catch (Exception e) {
             LOGGER.info("Group already exists");
             //TODO delete old consumers

@@ -1,18 +1,17 @@
 package at.fhv.matchpoint.partnerservice.events.member;
 
-import at.fhv.matchpoint.partnerservice.events.AggregateType;
 import at.fhv.matchpoint.partnerservice.utils.MemberVisitor;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.MemberNotFoundException;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.databind.JsonNode;
 
-import java.time.LocalDateTime;
-
+@Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -27,6 +26,7 @@ import java.time.LocalDateTime;
 })
 public abstract class MemberEvent implements Comparable<MemberEvent> {
 
+    @Id
     @JsonProperty("event_id")
     public String eventId;
     @JsonProperty("timestamp")
