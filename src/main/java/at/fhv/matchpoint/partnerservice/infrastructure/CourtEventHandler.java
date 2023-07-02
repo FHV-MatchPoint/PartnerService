@@ -55,7 +55,7 @@ public class CourtEventHandler {
 
             @Override
             public void visit(RequestInitiateSucceededEvent event) throws MongoDBPersistenceError, DateTimeFormatException, PartnerRequestAlreadyCancelledException {
-                                RequestOpenedEvent openedEvent = partnerRequest.process(event);
+                RequestOpenedEvent openedEvent = partnerRequest.process(event);
                 try {
                     eventRepository.persist(openedEvent);
                     partnerRequest.apply(openedEvent);
@@ -66,7 +66,7 @@ public class CourtEventHandler {
 
             @Override
             public void visit(SessionCreateSucceededEvent event) throws MongoDBPersistenceError, DateTimeFormatException, PartnerRequestAlreadyCancelledException {
-                                RequestAcceptedEvent acceptedEvent = partnerRequest.process(event);
+                RequestAcceptedEvent acceptedEvent = partnerRequest.process(event);
                 try {
                     eventRepository.persist(acceptedEvent);
                     partnerRequest.apply(acceptedEvent);
@@ -77,7 +77,7 @@ public class CourtEventHandler {
 
             @Override
             public void visit(SessionCreateFailedEvent event) throws MongoDBPersistenceError, PartnerRequestAlreadyCancelledException {
-                                RequestRevertPendingEvent requestRevertPendingEvent = partnerRequest.process(event);
+                RequestRevertPendingEvent requestRevertPendingEvent = partnerRequest.process(event);
                 try {
                     eventRepository.persist(requestRevertPendingEvent);
                     partnerRequest.apply(requestRevertPendingEvent);

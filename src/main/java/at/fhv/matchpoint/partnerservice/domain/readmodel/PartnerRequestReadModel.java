@@ -70,23 +70,45 @@ public class PartnerRequestReadModel {
     }
 
     public PartnerRequestReadModel apply(RequestOpenedEvent event){
+        this.partnerRequestId = event.aggregateId;
+        this.ownerId = event.ownerId;
+        this.clubId = event.tennisClubId;
+        this.date = event.date;
+        this.startTime = event.startTime;
+        this.endTime = event.endTime;
         this.state = RequestState.OPEN;
         return this;
     }
 
     public PartnerRequestReadModel apply(RequestAcceptPendingEvent event){
+        this.partnerRequestId = event.aggregateId;
+        this.ownerId = event.ownerId;
+        this.clubId = event.tennisClubId;
+        this.date = event.date;
+        this.startTime = event.startTime;
+        this.endTime = event.endTime;
         this.partnerId = event.partnerId;
         this.state = RequestState.ACCEPT_PENDING;
         return this;
     }
 
     public PartnerRequestReadModel apply(RequestRevertPendingEvent event){
+        this.partnerRequestId = event.aggregateId;
+        this.ownerId = event.ownerId;
+        this.clubId = event.tennisClubId;
+        this.date = event.date;
+        this.startTime = event.startTime;
+        this.endTime = event.endTime;
         this.partnerId = null;
         this.state = RequestState.OPEN;
         return this;
     }
 
     public PartnerRequestReadModel apply(RequestAcceptedEvent event){
+        this.partnerRequestId = event.aggregateId;
+        this.ownerId = event.ownerId;
+        this.clubId = event.tennisClubId;
+        this.date = event.date;
         this.partnerId = event.partnerId;
         this.startTime = event.startTime;
         this.endTime = event.endTime;
@@ -95,6 +117,10 @@ public class PartnerRequestReadModel {
     }
 
     public PartnerRequestReadModel apply(RequestUpdatedEvent event) {
+        this.partnerRequestId = event.aggregateId;
+        this.ownerId = event.ownerId;
+        this.clubId = event.tennisClubId;
+        this.state = event.state;
         this.date = event.date;
         this.startTime = event.startTime;
         this.endTime = event.endTime;
@@ -102,6 +128,13 @@ public class PartnerRequestReadModel {
     }
 
     public PartnerRequestReadModel apply(RequestCancelledEvent event) {
+        this.partnerRequestId = event.aggregateId;
+        this.ownerId = event.ownerId;
+        this.clubId = event.tennisClubId;
+        this.date = event.date;
+        this.startTime = event.startTime;
+        this.endTime = event.endTime;
+        this.partnerId = event.partnerId;
         this.state = RequestState.CANCELLED;
         return this;
     }
