@@ -29,6 +29,7 @@ import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.Member;
+import at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository;
 
 //@Authenticated
@@ -48,6 +49,9 @@ public class PartnerRequestResource {
 
     @Inject
     MemberRepository memberRepository;
+
+    @Inject
+    EventRepository eventRepository;
 
     @GET
     public List<Member> test(){

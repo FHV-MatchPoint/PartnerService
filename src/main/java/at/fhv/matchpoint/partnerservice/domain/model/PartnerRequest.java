@@ -108,6 +108,13 @@ public class PartnerRequest {
     }
 
     public PartnerRequest apply(RequestCancelledEvent event) {
+        this.partnerRequestId = event.aggregateId;
+        this.ownerId = event.ownerId;
+        this.clubId = event.tennisClubId;
+        this.partnerId = event.partnerId;
+        this.date = event.date;
+        this.startTime = event.startTime;
+        this.endTime = event.endTime;
         this.state = RequestState.CANCELLED;
         return this;
     }
@@ -137,7 +144,7 @@ public class PartnerRequest {
     }
 
     public RequestCancelledEvent process (CancelPartnerRequestCommand cancelPartnerRequestCommand) throws RequestStateChangeException {
-        if(!this.state.equals(RequestState.CANCELLED)){
+        if(!this.state.equals(RequestState.CANCELLED) && !this.state.equals(RequestState.ACCEPTED)){
             return RequestCancelledEvent.create(cancelPartnerRequestCommand, this);
         }
         throw new PartnerRequestAlreadyCancelledException();
