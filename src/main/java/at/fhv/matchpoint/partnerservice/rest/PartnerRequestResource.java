@@ -29,7 +29,7 @@ import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository;
 
-@RolesAllowed("User")
+//@RolesAllowed("User")
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "PartnerRequest-Endpoints")
@@ -208,31 +208,5 @@ public class PartnerRequestResource {
         } catch (ResponseException e) {
             return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
-    }
-
-    @PUT
-    @Path("/cancel/member/{memberId}")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Tag(name="XForbidden")
-    @APIResponse(
-        responseCode = "200", description = "Bad Communication Decision")
-    @Operation(
-        summary = "Cancel all PartnerRequest of a Member",
-        description = "Cancel all open PartnerRequest of a Member as a result of a Member Lock event")
-    public String lockMemberHandler(@PathParam("memberId") String memberId){
-        return "This should be handled with asynchronous messaging. Therefore this endpoint will only return this string. USE REDIS STREAMS!\n\nWe recommend Kafka though";
-    }
-
-    @PUT
-    @Path("/cancel/club/{clubId}")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Tag(name="XForbidden")
-    @APIResponse(
-        responseCode = "200", description = "Bad Communication Decision")
-    @Operation(
-        summary = "Cancel all PartnerRequest at one Tennis Club",
-        description = "Cancel all open PartnerRequest at one Tennis Club as a result of a Tennis Club Lock event")
-    public String lockTennisClubHandler(@PathParam("clubId") String clubId){
-        return "This should be handled with asynchronous messaging. Therefore this endpoint will only return this string. USE REDIS STREAMS!\n\nWe recommend Kafka though";
     }
 }

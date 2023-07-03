@@ -54,7 +54,7 @@ public class RequestAcceptedEvent extends PartnerRequestEvent {
                 partnerRequest.getClubId(),
                 sessionCreateSucceededEvent.getPartnerId(),
                 partnerRequest.getDate(),
-                CustomDateTimeFormatter.parseTime(sessionCreateSucceededEvent.getStartTime()),
-                CustomDateTimeFormatter.parseTime(sessionCreateSucceededEvent.getEndTime()));
+                sessionCreateSucceededEvent.getStartTime(),
+                sessionCreateSucceededEvent.getEndTime());
     }
 }
