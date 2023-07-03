@@ -12,7 +12,6 @@ import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.UUID;
 
 @MongoEntity(collection = "Event")
 @BsonDiscriminator
@@ -47,11 +46,11 @@ public class RequestOpenedEvent extends PartnerRequestEvent {
             PartnerRequest partnerRequest) throws DateTimeFormatException {
         return new RequestOpenedEvent(
                 AggregateType.PARTNERREQUEST,
-                UUID.randomUUID().toString(),
-                requestInitiateSucceededEvent.getMemberId(),
-                requestInitiateSucceededEvent.getClubId(),
-                CustomDateTimeFormatter.parseDate(requestInitiateSucceededEvent.getDate()),
-                CustomDateTimeFormatter.parseTime(requestInitiateSucceededEvent.getStartTime()),
-                CustomDateTimeFormatter.parseTime(requestInitiateSucceededEvent.getEndTime()));
+                partnerRequest.getPartnerRequestId(),
+                partnerRequest.getOwnerId(),
+                partnerRequest.getClubId(),
+                requestInitiateSucceededEvent.getDate(),
+                requestInitiateSucceededEvent.getStartTime(),
+                requestInitiateSucceededEvent.getEndTime());
     }
 }

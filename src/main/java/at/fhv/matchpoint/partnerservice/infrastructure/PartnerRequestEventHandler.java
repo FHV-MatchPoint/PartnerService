@@ -2,7 +2,7 @@ package at.fhv.matchpoint.partnerservice.infrastructure;
 
 import java.util.Optional;
 
-import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
+
 import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
 import at.fhv.matchpoint.partnerservice.events.PartnerRequestEventTracking;
 import at.fhv.matchpoint.partnerservice.events.request.*;

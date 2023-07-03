@@ -1,12 +1,11 @@
 package at.fhv.matchpoint.partnerservice.rest;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.ResponseExceptionBuilder;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.ResponseException;
-import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.*;
@@ -28,11 +27,9 @@ import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.domain.model.Member;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository;
-import at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository;
 
-//@Authenticated
+@RolesAllowed("User")
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "PartnerRequest-Endpoints")
@@ -48,15 +45,7 @@ public class PartnerRequestResource {
     PartnerRequestServiceImpl partnerRequestService;
 
     @Inject
-    MemberRepository memberRepository;
-
-    @Inject
     EventRepository eventRepository;
-
-    @GET
-    public List<Member> test(){
-        return memberRepository.findAll().list();
-    }
 
     @POST
     @APIResponse(
@@ -219,31 +208,5 @@ public class PartnerRequestResource {
         } catch (ResponseException e) {
             return ResponseExceptionBuilder.buildDateTimeErrorResponse(e);
         }
-    }
-
-    @PUT
-    @Path("/cancel/member/{memberId}")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Tag(name="XForbidden")
-    @APIResponse(
-        responseCode = "200", description = "Bad Communication Decision")
-    @Operation(
-        summary = "Cancel all PartnerRequest of a Member",
-        description = "Cancel all open PartnerRequest of a Member as a result of a Member Lock event")
-    public String lockMemberHandler(@PathParam("memberId") String memberId){
-        return "This should be handled with asynchronous messaging. Therefore this endpoint will only return this string. USE REDIS STREAMS!\n\nWe recommend Kafka though";
-    }
-
-    @PUT
-    @Path("/cancel/club/{clubId}")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Tag(name="XForbidden")
-    @APIResponse(
-        responseCode = "200", description = "Bad Communication Decision")
-    @Operation(
-        summary = "Cancel all PartnerRequest at one Tennis Club",
-        description = "Cancel all open PartnerRequest at one Tennis Club as a result of a Tennis Club Lock event")
-    public String lockTennisClubHandler(@PathParam("clubId") String clubId){
-        return "This should be handled with asynchronous messaging. Therefore this endpoint will only return this string. USE REDIS STREAMS!\n\nWe recommend Kafka though";
     }
 }

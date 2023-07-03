@@ -24,7 +24,7 @@ import static io.restassured.RestAssured.given;
 public class PartnerRequestResourceTest {
 
     private static final String USER_NAME ="partnerService";
-    private static final String ROLE ="user";
+    private static final String ROLE ="User";
 
     @Inject
     PartnerRequestResource api;

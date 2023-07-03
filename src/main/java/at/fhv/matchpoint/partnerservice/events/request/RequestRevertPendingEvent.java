@@ -10,7 +10,6 @@ import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.UUID;
 
 @MongoEntity(collection = "Event")
 @BsonDiscriminator
@@ -40,6 +39,6 @@ public class RequestRevertPendingEvent extends PartnerRequestEvent {
             PartnerRequest partnerRequest) {
         return new RequestRevertPendingEvent(
                 AggregateType.PARTNERREQUEST,
-                UUID.randomUUID().toString());
+                partnerRequest.getPartnerRequestId());
     }
 }
