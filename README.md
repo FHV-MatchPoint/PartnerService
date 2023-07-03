@@ -36,10 +36,23 @@ are not created simply as a byproduct.
 Through the use of Transactional Log Tailing with Debezium, these events will then be published to Redis streams.
 
 ### CQRS
-at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository
-at.fhv.matchpoint.partnerservice.infrastructure.repository.PartnerRequestReadModel
-at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberRepository
-at.fhv.matchpoint.partnerservice.infrastructure.consumer.PartnerRequestReadModel
+CQRS is implemented in the following classes:
+_at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository_
+_at.fhv.matchpoint.partnerservice.infrastructure.repository.PartnerRequestReadModel_
+_at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberEventConsumer_
+_at.fhv.matchpoint.partnerservice.infrastructure.consumer.PartnerRequestEventConsumer_
+
+We have two Read models in our Microservice. One for the members created in the Memberservice, and one for the READ
+operations of our own PartnerService.
+Workflow:
+Both the MemberEventConsumer and PartnerRequestEventConsumer listen to their respective events.
+Depending on the event, they then look for existing entities in the ReadModel databases to apply the events to,
+and persist the new state. This is needed for the following operations:\
+For each CUD operation of this microservice, the memberId is used. To eliminate the need to make a synchronous call
+to the member service in order to verify the member itself, we create our own read models of the members,
+so we can verify them directly with our read model.
+For each READ operation, we use the read models of the PartnerRequests in order to avoid
+rebuilding the current state from all previous events each time a READ request gets made.
 ### Optimistic Locking
 The implementation of the Optimistic Locking approach can be found in the following class:\
 _at.fhv.matchpoint.partnerservice.application.impl.PartnerRequestServiceImpl_
@@ -55,35 +68,80 @@ in the database. Similarly to a reread, this makes sure that during the processi
 added for a specific aggregateId.
 
 ### Message Ordering
+The Message Ordering implementation can be found in the following classes:
+_at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestEventHandler_
+Lines:
+- 29
+- 51
+- 63
+- 70
+- 77
+- 84
+- 91
 
+_at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberEventConsumer_
+Lines:
+- 133
+- 157
+- 173
+
+In order to guarantee the Message Ordering, or the correct order in which the events get accepted and processed
+we used the properties of the event enrichment approach. This allowed us to ignore events that would be applied in the
+wrong order, because all events carry all necessary information, which in turn means that it doesn't matter if one event
+gets skipped.
 
 ### Message Tracking
+Message Tracking was implemented in the following classes:
+_at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberEventConsumer_
+Lines:
+- 136
+
+_at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestEventHandler_
+Lines:
+- 33
+
+This approach makes sure that events that have already been processed are not processed again.
+Since the messages get written into our Tracking-Database, when an Event gets persisted a second time
+with the same id the transaction will fail. When this happens we simply acknowledge the message again,
+so it doesn't get processed again.
 
 ## Interprocess Communication
-Asynchronous Message Consumers
-at.fhv.matchpoint.partnerservice.infrastructure.consumer.*
+Asynchronous Message Consumers are implemented in the following package:
+_at.fhv.matchpoint.partnerservice.infrastructure.consumer.*_
+
+All of these consumers subscribe to a Redis Stream to read events and process them accordingly.
 
 ## Sagas
+### Choreography-based
+![proPartnerServiceSagas](./images/proPartnerService_Sagas.png)
 ### Semantic Locking
-at.fhv.matchpoint.partnerservice.events.request.RequestInitiatedEvent
-at.fhv.matchpoint.partnerservice.events.request.AcceptPendingEvent
+Semantic Locking is implemented in the following classes:
+_at.fhv.matchpoint.partnerservice.events.request.RequestInitiatedEvent_
+_at.fhv.matchpoint.partnerservice.events.request.AcceptPendingEvent_
 
-at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest\
+_at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest_\
 Lines:
-- 120
-- 130
-- 140
+- 127
+- 137
+- 147
+
+Since we implemented our create and accept process with events as part of our SAGA, we created 2 "PENDING"
+states to signal that these entities are currently part of an ongoing SAGA.
+When a PartnerRequest is created, it is first set to an "INITIATED" state. Once the creation is confirmed or denied
+by the CourtService through a Succeeded or Failed event, we set the state to "OPEN" or "CANCELLED", effectively freeing
+the entities for further use (at least in the case of "OPEN").\
+Similarly when a PartnerRequest wants to be accepted, the state first gets set to "ACCEPT_PENDING". Again, once the
+operation is confirmed of denied by the CourtService the state then gets set to "ACCEPTED" or "CANCELLED".
 
 ## Role Based Authorization
-at.fhv.matchpoint.partnerservice.rest.PartnerRequestResource\
-@Authenticated Annotation in REST Controller Class
+Role Based Authorization through the annotation @RolesAllowed in the following class:
+_at.fhv.matchpoint.partnerservice.rest.PartnerRequestResource_\
 ## API Gateway
 
 ### Authentication
 ### Fault tolerance
 #### Circuit Breaker
 #### Fallback
-
 
 ## Running the application in dev mode
 
