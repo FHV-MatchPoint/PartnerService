@@ -1,12 +1,11 @@
 package at.fhv.matchpoint.partnerservice.rest;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.ResponseExceptionBuilder;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.ResponseException;
-import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.*;
@@ -28,11 +27,10 @@ import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.domain.model.Member;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository;
 
-//@Authenticated
+@RolesAllowed("User")
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "PartnerRequest-Endpoints")
@@ -52,11 +50,6 @@ public class PartnerRequestResource {
 
     @Inject
     EventRepository eventRepository;
-
-    @GET
-    public List<Member> test(){
-        return memberRepository.findAll().list();
-    }
 
     @POST
     @APIResponse(
