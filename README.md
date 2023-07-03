@@ -24,39 +24,40 @@ _at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest_
 ## Event Driven Architecture
 ### Event Sourcing
 The implementation of Event Sourcing can be found in the following packages and classes:\
-_at.fhv.matchpoint.partnerservice.events.*_
+_at.fhv.matchpoint.partnerservice.events.*_\
 _at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository_
 
 at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest\
-Apply and Process methods (67 - 172)
+- Apply and Process methods (67 - 172)
 
-All system and business relevant operations will create an event that gets persisted in our MongoDB.
+All system and business relevant operations will create an event that gets persisted in our MongoDB.\
 This means that state change and persistence of the domain model is driven by events themselves, and events
-are not created simply as a byproduct.
+are not created simply as a byproduct.\
 Through the use of Transactional Log Tailing with Debezium, these events will then be published to Redis streams.
 
 ### CQRS
 CQRS is implemented in the following classes:
-_at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository_
-_at.fhv.matchpoint.partnerservice.infrastructure.repository.PartnerRequestReadModel_
-_at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberEventConsumer_
+_at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository_\
+_at.fhv.matchpoint.partnerservice.infrastructure.repository.PartnerRequestReadModel_\
+_at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberEventConsumer_\
 _at.fhv.matchpoint.partnerservice.infrastructure.consumer.PartnerRequestEventConsumer_
 
 We have two Read models in our Microservice. One for the members created in the Memberservice, and one for the READ
 operations of our own PartnerService.
-Workflow:
-Both the MemberEventConsumer and PartnerRequestEventConsumer listen to their respective events.
+
+**Workflow**:\
+Both the MemberEventConsumer and PartnerRequestEventConsumer listen to their respective events.\
 Depending on the event, they then look for existing entities in the ReadModel databases to apply the events to,
 and persist the new state. This is needed for the following operations:\
 For each CUD operation of this microservice, the memberId is used. To eliminate the need to make a synchronous call
 to the member service in order to verify the member itself, we create our own read models of the members,
-so we can verify them directly with our read model.
+so we can verify them directly with our read model.\
 For each READ operation, we use the read models of the PartnerRequests in order to avoid
 rebuilding the current state from all previous events each time a READ request gets made.
 ### Optimistic Locking
 The implementation of the Optimistic Locking approach can be found in the following class:\
 _at.fhv.matchpoint.partnerservice.application.impl.PartnerRequestServiceImpl_
-Lines: 
+Lines:
 - 79
 - 105
 - 131
@@ -68,8 +69,8 @@ in the database. Similarly to a reread, this makes sure that during the processi
 added for a specific aggregateId.
 
 ### Message Ordering
-The Message Ordering implementation can be found in the following classes:
-_at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestEventHandler_
+The Message Ordering implementation can be found in the following classes:\
+_at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestEventHandler_\
 Lines:
 - 29
 - 51
@@ -79,7 +80,7 @@ Lines:
 - 84
 - 91
 
-_at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberEventConsumer_
+_at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberEventConsumer_\
 Lines:
 - 133
 - 157
@@ -91,12 +92,12 @@ wrong order, because all events carry all necessary information, which in turn m
 gets skipped.
 
 ### Message Tracking
-Message Tracking was implemented in the following classes:
-_at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberEventConsumer_
+Message Tracking was implemented in the following classes:\
+_at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberEventConsumer_\
 Lines:
 - 136
 
-_at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestEventHandler_
+_at.fhv.matchpoint.partnerservice.infrastructure.PartnerRequestEventHandler_\
 Lines:
 - 33
 
@@ -106,18 +107,33 @@ with the same id the transaction will fail. When this happens we simply acknowle
 so it doesn't get processed again.
 
 ## Interprocess Communication
-Asynchronous Message Consumers are implemented in the following package:
+Asynchronous Message Consumers are implemented in the following package:\
 _at.fhv.matchpoint.partnerservice.infrastructure.consumer.*_
 
 All of these consumers subscribe to a Redis Stream to read events and process them accordingly.
+
+## Caching
+Caching is implemented in the following class:\
+_at.fhv.matchpoint.partnerservice.application.impl.PartnerRequestServiceImpl_\
+Lines:
+- 45
+- 63
+- 89
+- 115
+- 154
+
+The @CacheResult annotation allows the return value of the method to be cached. When the same method now gets called again,
+the cached return value will be used.
+When one of the methods with the annotation @CacheInvalidate gets called, as the name suggests the cache gets invalidated,
+which means that the cached responses can no longer be used, and the method has to be executed normally first again.
 
 ## Sagas
 ### Choreography-based
 ![proPartnerServiceSagas](./images/proPartnerService_Sagas.png)
 ### Semantic Locking
-Semantic Locking is implemented in the following classes:
-_at.fhv.matchpoint.partnerservice.events.request.RequestInitiatedEvent_
-_at.fhv.matchpoint.partnerservice.events.request.AcceptPendingEvent_
+Semantic Locking is implemented in the following classes:\
+_at.fhv.matchpoint.partnerservice.events.request.RequestInitiatedEvent_\
+_at.fhv.matchpoint.partnerservice.events.request.AcceptPendingEvent_\
 
 _at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest_\
 Lines:
@@ -134,14 +150,39 @@ Similarly when a PartnerRequest wants to be accepted, the state first gets set t
 operation is confirmed of denied by the CourtService the state then gets set to "ACCEPTED" or "CANCELLED".
 
 ## Role Based Authorization
-Role Based Authorization through the annotation @RolesAllowed in the following class:
-_at.fhv.matchpoint.partnerservice.rest.PartnerRequestResource_\
-## API Gateway
+Role Based Authorization through the annotation @RolesAllowed in the following class:\
+_at.fhv.matchpoint.partnerservice.rest.PartnerRequestResource_
 
+## API Gateway
+The API Gateway makes sure that the end points of our PartnerService can not directly be accessed.
+They have to be accessed through the API Gateway, which also means they have to be authenticated and provide a JWT,
+which in turn will be used by the PartnerService to perform a role based authorization as described above. 
 ### Authentication
+Authentication is implemented in the following class in the API Gateway Project:\
+_at.fhv.matchpoint.apigateway.authentication.AuthResource_
+
+Here two endpoints are provided, one to register and one to login. The login endpoint will then create a token.
+Without this token it is not possible to make a request to the API Gateway. This is enforced through the @Authenticated
+in the controller of the PartnerService.\
+_at.fhv.matchpoint.apigateway.partnerServiceRouting.PartnerServiceController_
+
 ### Fault tolerance
-#### Circuit Breaker
-#### Fallback
+#### Circuit Breaker and Fallbacks
+Circuit Breaker and Fallbacks are implemented in the following classes in the API Gateway Project:\
+_at.fhv.matchpoint.apigateway.partnerServiceRouting.PartnerServiceController_
+
+The Circuit Breaker will switch to open when 50% or the last 10 requests fail.
+If the Circuit Breaker is currently open and the next consecutive two requests are successful, it will switch to
+closed, otherwise the state will stay open.
+Furthermore, when the Circuit Breaker is open and/or a request to the API Gateway which would be redirected to the
+PartnerService fails, there will be a fallback response. This will let the Requesting party know that the PartnerService
+is currently unavailable.
+
+## CI/CD Pipeline
+The CI/CD Pipelines are implemented in the .github/workflow folder.
+The gradle.yml will build and test the application.
+The main.yml will build the application, produce an artifact, builds the docker image and pushes the docker image to
+docker hub
 
 ## Running the application in dev mode
 
