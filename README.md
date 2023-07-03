@@ -18,34 +18,51 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 
 ## Domain Driven Design
 We created the PartnerRequest Entity according to the domain model that was defined during the modelling process.
+The model can be found in the following class:\
 _at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest_
-## Event Sourcing
-at.fhv.matchpoint.partnerservice.events.*
-at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository
+
+## Event Driven Architecture
+### Event Sourcing
+The implementation of Event Sourcing can be found in the following packages and classes:\
+_at.fhv.matchpoint.partnerservice.events.*_
+_at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository_
 
 at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest\
 Apply and Process methods (67 - 172)
+
+All system and business relevant operations will create an event that gets persisted in our MongoDB.
+This means that state change and persistence of the domain model is driven by events themselves, and events
+are not created simply as a byproduct.
+Through the use of Transactional Log Tailing with Debezium, these events will then be published to Redis streams.
+
+### CQRS
+at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository
+at.fhv.matchpoint.partnerservice.infrastructure.repository.PartnerRequestReadModel
+at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberRepository
+at.fhv.matchpoint.partnerservice.infrastructure.consumer.PartnerRequestReadModel
 ### Optimistic Locking
-at.fhv.matchpoint.partnerservice.application.impl.PartnerRequestServiceImpl
+The implementation of the Optimistic Locking approach can be found in the following class:\
+_at.fhv.matchpoint.partnerservice.application.impl.PartnerRequestServiceImpl_
 Lines: 
 - 79
 - 105
 - 131
 - 179 - 183
 
+For each CUD Operation, before the new events get persisted and applied, a version check if performed.
+This version check includes a comparison of the number of events previously selected, and current number of events
+in the database. Similarly to a reread, this makes sure that during the processing time there weren't any new events
+added for a specific aggregateId.
 
 ### Message Ordering
+
 
 ### Message Tracking
 
 ## Interprocess Communication
 Asynchronous Message Consumers
 at.fhv.matchpoint.partnerservice.infrastructure.consumer.*
-## CQRS
-at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository
-at.fhv.matchpoint.partnerservice.infrastructure.repository.PartnerRequestReadModel
-at.fhv.matchpoint.partnerservice.infrastructure.consumer.MemberRepository
-at.fhv.matchpoint.partnerservice.infrastructure.consumer.PartnerRequestReadModel
+
 ## Sagas
 ### Semantic Locking
 at.fhv.matchpoint.partnerservice.events.request.RequestInitiatedEvent
