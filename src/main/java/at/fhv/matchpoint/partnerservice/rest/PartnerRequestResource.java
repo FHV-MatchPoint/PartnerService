@@ -29,7 +29,7 @@ import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository;
 
-//@RolesAllowed("User")
+@RolesAllowed("User")
 @Path("partnerRequest")
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "PartnerRequest-Endpoints")
