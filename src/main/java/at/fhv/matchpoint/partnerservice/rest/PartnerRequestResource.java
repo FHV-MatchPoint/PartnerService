@@ -28,7 +28,6 @@ import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.infrastructure.repository.EventRepository;
-import at.fhv.matchpoint.partnerservice.infrastructure.repository.MemberRepository;
 
 @RolesAllowed("User")
 @Path("partnerRequest")
@@ -44,9 +43,6 @@ public class PartnerRequestResource {
 
     @Inject
     PartnerRequestServiceImpl partnerRequestService;
-
-    @Inject
-    MemberRepository memberRepository;
 
     @Inject
     EventRepository eventRepository;
