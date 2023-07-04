@@ -1,7 +1,6 @@
 package at.fhv.matchpoint.partnerservice.unit.domain;
 
 import at.fhv.matchpoint.partnerservice.commands.AcceptPartnerRequestCommand;
-import at.fhv.matchpoint.partnerservice.commands.CancelPartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.InitiatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.commands.UpdatePartnerRequestCommand;
 import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;

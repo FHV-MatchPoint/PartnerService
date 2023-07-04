@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import at.fhv.matchpoint.partnerservice.domain.readmodel.PartnerRequestReadModel;
-import at.fhv.matchpoint.partnerservice.events.request.PartnerRequestEvent;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -17,9 +16,6 @@ public class PartnerRequestReadModelRepository implements PanacheRepositoryBase<
 
     public List<PartnerRequestReadModel> getPartnerRequestsByMemberId(String memberId) {
         return find("SELECT p from PartnerRequestReadModel p where ownerId = ?", memberId).list();
-    }
-
-    public void handleEvent(PartnerRequestEvent event) {
     }
 
 }
