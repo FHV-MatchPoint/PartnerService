@@ -62,7 +62,6 @@ public class CourtEventConsumer {
                 // when already cancelled event can be ignored and acknowledged
                 redisDataSource.stream(TYPE).xack(STREAM_KEY, GROUP_NAME, message.id());
             } catch (Exception e) {
-                e.printStackTrace();
                 LOGGER.info(e.getMessage());
             }
         }

@@ -967,23 +967,6 @@ public class PartnerRequestResourceTest {
         assertEquals(2, eventRepository.listAll().size());
     }
 
-
-//    @Test
-//    public void testAcceptEndpoint() {
-//        AcceptPartnerRequestCommand acceptPartnerRequestCommand = new AcceptPartnerRequestCommand();
-//        given()
-//                .header("Content-Type", "application/json")
-//                .when().put("/partnerRequest/accept", acceptPartnerRequestCommand)
-//                .then()
-//                .statusCode(200);
-//    }
-//
-//    @Test
-//    public void TestUpdateEndpoint() {
-//        //TODO
-//    }
-//
-
     /***************************
      *                         *
      *  Cancel ENDPOINT TESTS  *
