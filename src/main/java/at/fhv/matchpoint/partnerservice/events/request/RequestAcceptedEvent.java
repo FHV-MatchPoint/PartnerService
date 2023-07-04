@@ -8,7 +8,6 @@ import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
 import at.fhv.matchpoint.partnerservice.events.AggregateType;
 import at.fhv.matchpoint.partnerservice.events.court.SessionCreateSucceededEvent;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
-import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 

@@ -4,7 +4,6 @@ import at.fhv.matchpoint.partnerservice.domain.model.PartnerRequest;
 import at.fhv.matchpoint.partnerservice.domain.model.RequestState;
 import at.fhv.matchpoint.partnerservice.events.AggregateType;
 import at.fhv.matchpoint.partnerservice.events.court.RequestInitiateSucceededEvent;
-import at.fhv.matchpoint.partnerservice.utils.CustomDateTimeFormatter;
 import at.fhv.matchpoint.partnerservice.utils.PartnerRequestVisitor;
 import at.fhv.matchpoint.partnerservice.utils.exceptions.DateTimeFormatException;
 import io.quarkus.mongodb.panache.common.MongoEntity;
